@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GtaConnect.Api/GtaConnect.Api.csproj" />
+    <Project Path="src/GtaConnect.Application/GtaConnect.Application.csproj" />
+    <Project Path="src/GtaConnect.Domain/GtaConnect.Domain.csproj" />
+    <Project Path="src/GtaConnect.Infrastructure/GtaConnect.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GtaConnect.Application.Tests/GtaConnect.Application.Tests.csproj" />
+    <Project Path="tests/GtaConnect.Domain.Tests/GtaConnect.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

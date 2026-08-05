@@ -1,0 +1,22 @@
+# ---- .NET ----
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+**/appsettings.Local.json
+
+# ---- Node / Angular ----
+node_modules/
+frontend/.angular/
+frontend/dist/
+npm-debug.log*
+
+# ---- Secrets / env ----
+.env
+*.pfx
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
