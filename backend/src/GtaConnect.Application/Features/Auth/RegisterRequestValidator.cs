@@ -1,10 +1,12 @@
 using FluentValidation;
+using GtaConnect.Application.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace GtaConnect.Application.Features.Auth;
 
 public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
 {
-    public RegisterRequestValidator()
+    public RegisterRequestValidator(IStringLocalizer<SharedResource> localizer)
     {
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -13,9 +15,9 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
         RuleFor(x => x.Password)
             .NotEmpty()
             .MinimumLength(8)
-            .Matches("[A-Z]").WithMessage("A senha deve conter ao menos uma letra maiúscula.")
-            .Matches("[a-z]").WithMessage("A senha deve conter ao menos uma letra minúscula.")
-            .Matches("[0-9]").WithMessage("A senha deve conter ao menos um número.");
+            .Matches("[A-Z]").WithMessage(localizer["Password_RequiresUppercase"])
+            .Matches("[a-z]").WithMessage(localizer["Password_RequiresLowercase"])
+            .Matches("[0-9]").WithMessage(localizer["Password_RequiresDigit"]);
 
         RuleFor(x => x.DisplayName)
             .NotEmpty()

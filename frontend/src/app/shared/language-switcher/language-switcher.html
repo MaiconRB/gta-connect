@@ -1,0 +1,14 @@
+<div class="inline-flex rounded-lg bg-neutral-900 border border-neutral-800 p-0.5 text-xs font-medium">
+  @for (lang of languages; track lang) {
+    <button
+      type="button"
+      (click)="select(lang)"
+      [class.bg-amber-500]="currentLang() === lang"
+      [class.text-neutral-950]="currentLang() === lang"
+      [class.text-neutral-400]="currentLang() !== lang"
+      class="px-2.5 py-1 rounded-md transition-colors"
+    >
+      {{ lang === 'pt-BR' ? 'PT' : 'EN' }}
+    </button>
+  }
+</div>

@@ -1,0 +1,41 @@
+{
+  "auth": {
+    "login": {
+      "subtitle": "Sign in to find players",
+      "emailLabel": "Email",
+      "emailInvalid": "Enter a valid email.",
+      "passwordLabel": "Password",
+      "passwordRequired": "Enter your password.",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account yet?",
+      "createAccount": "Create account"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Find GTA Online players",
+      "displayNameLabel": "Player name",
+      "displayNameInvalid": "Enter a name with up to 50 characters.",
+      "emailLabel": "Email",
+      "emailInvalid": "Enter a valid email.",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters, with uppercase, lowercase and a number.",
+      "platformLabel": "Platform",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  },
+  "profile": {
+    "welcome": "Welcome, {{name}}",
+    "authenticatedResponse": "Authenticated response from",
+    "logout": "Log out"
+  },
+  "common": {
+    "genericError": "Could not complete the operation. Please try again."
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  }
+}

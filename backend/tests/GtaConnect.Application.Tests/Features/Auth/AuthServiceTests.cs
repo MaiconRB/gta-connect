@@ -1,5 +1,6 @@
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Application.Features.Auth;
+using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
 using GtaConnect.Domain.Enums;
@@ -20,8 +21,9 @@ public class AuthServiceTests
             _identityServiceMock.Object,
             _playerProfileRepositoryMock.Object,
             _jwtTokenGeneratorMock.Object,
-            new RegisterRequestValidator(),
-            new LoginRequestValidator());
+            new RegisterRequestValidator(NoOpStringLocalizer.Create()),
+            new LoginRequestValidator(),
+            NoOpStringLocalizer.Create());
     }
 
     [Fact]

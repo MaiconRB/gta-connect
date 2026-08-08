@@ -1,8 +1,8 @@
 <div class="min-h-screen flex items-center justify-center bg-neutral-950 px-4 py-12">
   <div class="w-full max-w-sm">
     <div class="text-center mb-8">
-      <h1 class="text-2xl font-semibold text-white tracking-tight">Criar conta</h1>
-      <p class="mt-1 text-sm text-neutral-400">Encontre jogadores de GTA Online</p>
+      <h1 class="text-2xl font-semibold text-white tracking-tight">{{ 'auth.register.title' | translate }}</h1>
+      <p class="mt-1 text-sm text-neutral-400">{{ 'auth.register.subtitle' | translate }}</p>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4 bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
@@ -13,7 +13,7 @@
       }
 
       <div>
-        <label for="displayName" class="block text-sm font-medium text-neutral-300 mb-1">Nome de jogador</label>
+        <label for="displayName" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'auth.register.displayNameLabel' | translate }}</label>
         <input
           id="displayName"
           type="text"
@@ -22,12 +22,12 @@
           class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
         @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
-          <p class="mt-1 text-xs text-red-400">Informe um nome de até 50 caracteres.</p>
+          <p class="mt-1 text-xs text-red-400">{{ 'auth.register.displayNameInvalid' | translate }}</p>
         }
       </div>
 
       <div>
-        <label for="email" class="block text-sm font-medium text-neutral-300 mb-1">Email</label>
+        <label for="email" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'auth.register.emailLabel' | translate }}</label>
         <input
           id="email"
           type="email"
@@ -36,12 +36,12 @@
           class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
         @if (form.controls.email.invalid && form.controls.email.touched) {
-          <p class="mt-1 text-xs text-red-400">Informe um email válido.</p>
+          <p class="mt-1 text-xs text-red-400">{{ 'auth.register.emailInvalid' | translate }}</p>
         }
       </div>
 
       <div>
-        <label for="password" class="block text-sm font-medium text-neutral-300 mb-1">Senha</label>
+        <label for="password" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'auth.register.passwordLabel' | translate }}</label>
         <input
           id="password"
           type="password"
@@ -50,12 +50,12 @@
           class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
         @if (form.controls.password.invalid && form.controls.password.touched) {
-          <p class="mt-1 text-xs text-red-400">Mínimo 8 caracteres, com maiúscula, minúscula e número.</p>
+          <p class="mt-1 text-xs text-red-400">{{ 'auth.register.passwordHint' | translate }}</p>
         }
       </div>
 
       <div>
-        <label for="platform" class="block text-sm font-medium text-neutral-300 mb-1">Plataforma</label>
+        <label for="platform" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'auth.register.platformLabel' | translate }}</label>
         <select
           id="platform"
           formControlName="platform"
@@ -71,13 +71,13 @@
         [disabled]="isSubmitting()"
         class="w-full rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 font-medium text-sm py-2.5 transition-colors"
       >
-        {{ isSubmitting() ? 'Criando conta...' : 'Criar conta' }}
+        {{ (isSubmitting() ? 'auth.register.submitting' : 'auth.register.submit') | translate }}
       </button>
     </form>
 
     <p class="mt-6 text-center text-sm text-neutral-400">
-      Já tem conta?
-      <a routerLink="/login" class="text-amber-400 hover:text-amber-300 font-medium">Entrar</a>
+      {{ 'auth.register.hasAccount' | translate }}
+      <a routerLink="/login" class="text-amber-400 hover:text-amber-300 font-medium">{{ 'auth.register.login' | translate }}</a>
     </p>
   </div>
 </div>

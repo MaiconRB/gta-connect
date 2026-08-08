@@ -1,8 +1,10 @@
 using FluentValidation;
 using GtaConnect.Application.Common.Extensions;
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Resources;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
+using Microsoft.Extensions.Localization;
 
 namespace GtaConnect.Application.Features.Auth;
 
@@ -13,19 +15,22 @@ public class AuthService : IAuthService
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IValidator<RegisterRequestDto> _registerValidator;
     private readonly IValidator<LoginRequestDto> _loginValidator;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public AuthService(
         IIdentityService identityService,
         IPlayerProfileRepository playerProfileRepository,
         IJwtTokenGenerator jwtTokenGenerator,
         IValidator<RegisterRequestDto> registerValidator,
-        IValidator<LoginRequestDto> loginValidator)
+        IValidator<LoginRequestDto> loginValidator,
+        IStringLocalizer<SharedResource> localizer)
     {
         _identityService = identityService;
         _playerProfileRepository = playerProfileRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _registerValidator = registerValidator;
         _loginValidator = loginValidator;
+        _localizer = localizer;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
@@ -35,7 +40,7 @@ public class AuthService : IAuthService
         var createResult = await _identityService.CreateUserAsync(request.Email, request.Password);
         if (!createResult.Succeeded)
         {
-            throw new ValidationAppException("email", string.Join(" ", createResult.Errors));
+            throw new ValidationAppException("email", string.Join(" ", createResult.Errors.Distinct()));
         }
 
         var profile = PlayerProfile.Create(createResult.UserId!.Value, request.DisplayName, request.Platform, request.GameTitle);
@@ -52,7 +57,7 @@ public class AuthService : IAuthService
         var userId = await _identityService.ValidateCredentialsAsync(request.Email, request.Password);
         if (userId is null)
         {
-            throw new ValidationAppException("credentials", "Email ou senha inválidos.");
+            throw new ValidationAppException("credentials", _localizer["InvalidCredentials"]);
         }
 
         var profile = await _playerProfileRepository.GetByUserIdAsync(userId.Value, cancellationToken)

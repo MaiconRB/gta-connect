@@ -5,11 +5,13 @@ using GtaConnect.Infrastructure;
 using GtaConnect.Infrastructure.Auth;
 using GtaConnect.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
+var supportedCultures = new[] { "pt-BR", "en" };
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +61,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>();
 
+builder.Services.AddLocalization();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.SetDefaultCulture("pt-BR")
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -91,6 +101,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRequestLocalization();
 
 app.UseExceptionHandler();
 

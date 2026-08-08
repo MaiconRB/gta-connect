@@ -1,11 +1,12 @@
 using GtaConnect.Application.Features.Auth;
+using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Enums;
 
 namespace GtaConnect.Application.Tests.Features.Auth;
 
 public class RegisterRequestValidatorTests
 {
-    private readonly RegisterRequestValidator _validator = new();
+    private readonly RegisterRequestValidator _validator = new(NoOpStringLocalizer.Create());
 
     [Fact]
     public async Task Validate_ComDadosValidos_NaoRetornaErros()

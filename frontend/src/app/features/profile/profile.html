@@ -2,13 +2,13 @@
   <div class="w-full max-w-sm mx-auto">
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
       <h1 class="text-xl font-semibold text-white mb-1">
-        Bem-vindo, {{ currentUser()?.displayName }}
+        {{ 'profile.welcome' | translate:{ name: currentUser()?.displayName } }}
       </h1>
       <p class="text-sm text-neutral-400 mb-6">{{ currentUser()?.email }}</p>
 
       @if (me(); as meData) {
         <div class="rounded-lg bg-neutral-800 border border-neutral-700 px-3 py-2 text-xs text-neutral-300 mb-6">
-          <p>Resposta autenticada de <code class="text-amber-400">GET /api/auth/me</code>:</p>
+          <p>{{ 'profile.authenticatedResponse' | translate }} <code class="text-amber-400">GET /api/auth/me</code>:</p>
           <pre class="mt-1 whitespace-pre-wrap break-all">{{ meData | json }}</pre>
         </div>
       }
@@ -18,7 +18,7 @@
         (click)="logout()"
         class="w-full rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-medium text-sm py-2.5 transition-colors"
       >
-        Sair
+        {{ 'profile.logout' | translate }}
       </button>
     </div>
   </div>

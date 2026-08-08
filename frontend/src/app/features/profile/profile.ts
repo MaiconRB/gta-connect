@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
 
@@ -13,7 +14,7 @@ interface MeResponse {
 
 @Component({
   selector: 'app-profile',
-  imports: [JsonPipe],
+  imports: [JsonPipe, TranslatePipe],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
