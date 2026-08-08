@@ -28,8 +28,8 @@ docker compose up -d
 
 ```bash
 cd backend/src/GtaConnect.Api
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=GtaConnect;User Id=sa;Password=<mesma senha do .env>;TrustServerCertificate=True;"
-dotnet user-secrets set "Jwt:SecretKey" "<uma chave aleatória de 32+ caracteres>"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=GtaConnect;User Id=sa;Password=<definida-no-seu-env>;TrustServerCertificate=True;"
+dotnet user-secrets set "Jwt:SecretKey" "<gere-uma-chave-aleatoria-de-32-mais-caracteres>"
 ```
 
 Aplicar as migrations (primeira vez ou após novas migrations):
