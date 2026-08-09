@@ -1,22 +1,186 @@
 <div class="min-h-screen bg-neutral-950 px-4 py-12">
-  <div class="w-full max-w-sm mx-auto">
+  <div class="w-full max-w-lg mx-auto">
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
-      <h1 class="text-xl font-semibold text-white mb-1">
-        {{ 'profile.welcome' | translate:{ name: currentUser()?.displayName } }}
-      </h1>
-      <p class="text-sm text-neutral-400 mb-6">{{ currentUser()?.email }}</p>
 
-      @if (me(); as meData) {
-        <div class="rounded-lg bg-neutral-800 border border-neutral-700 px-3 py-2 text-xs text-neutral-300 mb-6">
-          <p>{{ 'profile.authenticatedResponse' | translate }} <code class="text-amber-400">GET /api/auth/me</code>:</p>
-          <pre class="mt-1 whitespace-pre-wrap break-all">{{ meData | json }}</pre>
+      @if (isLoading()) {
+        <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+      } @else if (loadError()) {
+        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
+          {{ loadError() }}
         </div>
+      } @else if (profile(); as p) {
+
+        <div class="flex items-center gap-4 mb-4">
+          @if (avatarPreviewUrl() || p.avatarPath) {
+            <img
+              [src]="avatarPreviewUrl() || p.avatarPath"
+              alt=""
+              class="w-16 h-16 rounded-full object-cover border border-neutral-700 shrink-0"
+            />
+          } @else {
+            <div class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 text-xl font-semibold shrink-0">
+              {{ p.displayName.charAt(0).toUpperCase() }}
+            </div>
+          }
+          <div>
+            <h1 class="text-xl font-semibold text-white">{{ p.displayName }}</h1>
+            <p class="text-sm text-neutral-400">
+              {{ p.platform === 2 ? 'PlayStation 5' : 'PlayStation 4' }} · GTA V
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="inline-flex items-center gap-2 text-xs text-neutral-400 cursor-pointer hover:text-neutral-300">
+            <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onAvatarFileSelected($event)" class="hidden" />
+            {{ 'profile.avatarChoose' | translate }}
+          </label>
+          @if (selectedAvatarFile()) {
+            <button
+              type="button"
+              (click)="uploadAvatar()"
+              [disabled]="isUploadingAvatar()"
+              class="ml-3 text-xs text-amber-400 hover:text-amber-300 disabled:opacity-50"
+            >
+              {{ (isUploadingAvatar() ? 'profile.avatarUploading' : 'profile.avatarUploadButton') | translate }}
+            </button>
+          }
+          @if (avatarError()) {
+            <p class="mt-1 text-xs text-red-400">{{ avatarError() }}</p>
+          }
+        </div>
+
+        @if (mode() === 'view') {
+          <div class="space-y-4 text-sm">
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.bioLabel' | translate }}</p>
+              <p class="text-neutral-200">{{ p.bio || ('profile.noBio' | translate) }}</p>
+            </div>
+
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
+              @if (activeTagLabels(p.playstyleTags).length > 0) {
+                <div class="flex flex-wrap gap-1.5">
+                  @for (labelKey of activeTagLabels(p.playstyleTags); track labelKey) {
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
+                      {{ labelKey | translate }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="text-neutral-200">{{ 'profile.noPlaystyle' | translate }}</p>
+              }
+            </div>
+
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.hoursPlayedLabel' | translate }}</p>
+              <p class="text-neutral-200">{{ p.hoursPlayed }}</p>
+            </div>
+
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.favoriteModesLabel' | translate }}</p>
+              <p class="text-neutral-200">{{ p.favoriteModes || ('profile.noFavoriteModes' | translate) }}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="startEdit()"
+            class="w-full mt-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-medium text-sm py-2.5 transition-colors"
+          >
+            {{ 'profile.editButton' | translate }}
+          </button>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+            @if (errorMessage()) {
+              <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
+                {{ errorMessage() }}
+              </div>
+            }
+
+            <div>
+              <label for="bio" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.bioLabel' | translate }}</label>
+              <textarea
+                id="bio"
+                formControlName="bio"
+                rows="3"
+                class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              ></textarea>
+              @if (form.controls.bio.invalid && form.controls.bio.touched) {
+                <p class="mt-1 text-xs text-red-400">{{ 'profile.bioTooLong' | translate }}</p>
+              }
+            </div>
+
+            <div>
+              <p class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
+              <div class="grid grid-cols-2 gap-2">
+                @for (option of playstyleTagOptions; track option.value) {
+                  <label class="flex items-center gap-2 text-sm text-neutral-300">
+                    <input
+                      type="checkbox"
+                      [checked]="isTagSelected(option.value)"
+                      (change)="toggleTag(option.value)"
+                      class="rounded border-neutral-700 bg-neutral-800 text-amber-500 focus:ring-amber-500"
+                    />
+                    {{ option.labelKey | translate }}
+                  </label>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label for="hoursPlayed" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.hoursPlayedLabel' | translate }}</label>
+              <input
+                id="hoursPlayed"
+                type="number"
+                min="0"
+                max="100000"
+                formControlName="hoursPlayed"
+                class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              @if (form.controls.hoursPlayed.invalid && form.controls.hoursPlayed.touched) {
+                <p class="mt-1 text-xs text-red-400">{{ 'profile.hoursPlayedInvalid' | translate }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="favoriteModes" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.favoriteModesLabel' | translate }}</label>
+              <input
+                id="favoriteModes"
+                type="text"
+                formControlName="favoriteModes"
+                class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              @if (form.controls.favoriteModes.invalid && form.controls.favoriteModes.touched) {
+                <p class="mt-1 text-xs text-red-400">{{ 'profile.favoriteModesTooLong' | translate }}</p>
+              }
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                type="submit"
+                [disabled]="isSubmitting()"
+                class="flex-1 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 font-medium text-sm py-2.5 transition-colors"
+              >
+                {{ (isSubmitting() ? 'profile.saving' : 'profile.saveButton') | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="cancelEdit()"
+                [disabled]="isSubmitting()"
+                class="flex-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-medium text-sm py-2.5 transition-colors"
+              >
+                {{ 'profile.cancelButton' | translate }}
+              </button>
+            </div>
+          </form>
+        }
       }
 
       <button
         type="button"
         (click)="logout()"
-        class="w-full rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-medium text-sm py-2.5 transition-colors"
+        class="w-full mt-6 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-medium text-sm py-2.5 transition-colors"
       >
         {{ 'profile.logout' | translate }}
       </button>

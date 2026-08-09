@@ -42,4 +42,22 @@
   <data name="Identity_PasswordTooShort" xml:space="preserve">
     <value>A senha deve ter no mínimo {0} caracteres.</value>
   </data>
+  <data name="Profile_BioTooLong" xml:space="preserve">
+    <value>A bio não pode ter mais de 500 caracteres.</value>
+  </data>
+  <data name="Profile_FavoriteModesTooLong" xml:space="preserve">
+    <value>Modos favoritos não pode ter mais de 200 caracteres.</value>
+  </data>
+  <data name="Profile_HoursPlayedOutOfRange" xml:space="preserve">
+    <value>Horas jogadas deve ser um número válido, entre 0 e 100000.</value>
+  </data>
+  <data name="Profile_PlaystyleTagsInvalid" xml:space="preserve">
+    <value>Uma ou mais tags de estilo de jogo são inválidas.</value>
+  </data>
+  <data name="Profile_AvatarInvalidType" xml:space="preserve">
+    <value>Formato de imagem inválido. Use JPG, PNG ou WEBP.</value>
+  </data>
+  <data name="Profile_AvatarTooLarge" xml:space="preserve">
+    <value>A imagem não pode ter mais de 2MB.</value>
+  </data>
 </root>

@@ -6,6 +6,8 @@ using GtaConnect.Infrastructure.Auth;
 using GtaConnect.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -107,6 +109,29 @@ app.UseRequestLocalization();
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
+
+// wwwroot/uploads pode não existir ainda (num clone limpo do repo, ou antes do primeiro
+// upload de avatar) — PhysicalFileProvider exige que a pasta já exista na hora de construir,
+// então garantimos isso aqui antes de configurar o middleware de arquivos estáticos.
+var webRootPath = app.Environment.WebRootPath is { Length: > 0 }
+    ? app.Environment.WebRootPath
+    : Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+var uploadsPath = Path.Combine(webRootPath, "uploads");
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    RequestPath = "/uploads",
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string>
+    {
+        [".jpg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".png"] = "image/png",
+        [".webp"] = "image/webp",
+    }),
+    ServeUnknownFileTypes = false,
+});
 
 app.UseCors(FrontendCorsPolicy);
 

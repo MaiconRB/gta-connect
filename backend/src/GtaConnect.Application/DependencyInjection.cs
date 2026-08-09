@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using GtaConnect.Application.Features.Auth;
+using GtaConnect.Application.Features.Profile;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GtaConnect.Application;
@@ -12,6 +13,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IProfileService, ProfileService>();
 
         return services;
     }

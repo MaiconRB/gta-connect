@@ -5,6 +5,7 @@
 *.suo
 .vs/
 **/appsettings.Local.json
+backend/src/GtaConnect.Api/wwwroot/uploads/
 
 # ---- Node / Angular ----
 node_modules/

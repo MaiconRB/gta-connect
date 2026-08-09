@@ -24,4 +24,10 @@ public class PlayerProfileRepository : IPlayerProfileRepository
         return _dbContext.PlayerProfiles
             .SingleOrDefaultAsync(p => p.ApplicationUserId == applicationUserId, cancellationToken);
     }
+
+    public async Task UpdateAsync(PlayerProfile profile, CancellationToken cancellationToken = default)
+    {
+        _dbContext.PlayerProfiles.Update(profile);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

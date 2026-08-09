@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GtaConnect.Api.Common;
 using GtaConnect.Application.Features.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public ActionResult<object> Me()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var userId = User.GetUserId();
         var email = User.FindFirstValue(ClaimTypes.Email);
         var displayName = User.FindFirstValue("display_name");
 

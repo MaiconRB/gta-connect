@@ -28,9 +28,35 @@
     }
   },
   "profile": {
-    "welcome": "Welcome, {{name}}",
-    "authenticatedResponse": "Authenticated response from",
-    "logout": "Log out"
+    "loading": "Loading profile...",
+    "bioLabel": "Bio",
+    "noBio": "No bio added yet.",
+    "playstyleLabel": "Playstyle",
+    "noPlaystyle": "No playstyle selected yet.",
+    "hoursPlayedLabel": "Hours played",
+    "favoriteModesLabel": "Favorite modes",
+    "noFavoriteModes": "No favorite modes added yet.",
+    "editButton": "Edit profile",
+    "saveButton": "Save",
+    "saving": "Saving...",
+    "cancelButton": "Cancel",
+    "bioTooLong": "Bio cannot be longer than 500 characters.",
+    "hoursPlayedInvalid": "Enter a number between 0 and 100000.",
+    "favoriteModesTooLong": "Favorite modes cannot be longer than 200 characters.",
+    "avatarChoose": "Choose photo",
+    "avatarUploadButton": "Upload photo",
+    "avatarUploading": "Uploading...",
+    "logout": "Log out",
+    "playstyleTags": {
+      "mundoAbertoCalmo": "Open world (chill)",
+      "grindDeHeist": "Heist grinding",
+      "corrida": "Races",
+      "rolePlay": "Roleplay",
+      "freemodeSocial": "Social freemode",
+      "campanhaHistoria": "Story campaign",
+      "pvpCompetitivo": "Competitive PvP",
+      "negociosEconomia": "Businesses/economy"
+    }
   },
   "common": {
     "genericError": "Could not complete the operation. Please try again."

@@ -3,6 +3,7 @@ using GtaConnect.Infrastructure.Auth;
 using GtaConnect.Infrastructure.Identity;
 using GtaConnect.Infrastructure.Persistence;
 using GtaConnect.Infrastructure.Persistence.Repositories;
+using GtaConnect.Infrastructure.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IPlayerProfileRepository, PlayerProfileRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
 
         return services;
     }

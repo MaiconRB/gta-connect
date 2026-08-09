@@ -12,4 +12,6 @@ public interface IPlayerProfileRepository
     Task AddAsync(PlayerProfile profile, CancellationToken cancellationToken = default);
 
     Task<PlayerProfile?> GetByUserIdAsync(Guid applicationUserId, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(PlayerProfile profile, CancellationToken cancellationToken = default);
 }

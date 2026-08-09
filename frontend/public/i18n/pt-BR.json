@@ -28,9 +28,35 @@
     }
   },
   "profile": {
-    "welcome": "Bem-vindo, {{name}}",
-    "authenticatedResponse": "Resposta autenticada de",
-    "logout": "Sair"
+    "loading": "Carregando perfil...",
+    "bioLabel": "Bio",
+    "noBio": "Nenhuma bio adicionada ainda.",
+    "playstyleLabel": "Estilo de jogo",
+    "noPlaystyle": "Nenhum estilo de jogo selecionado ainda.",
+    "hoursPlayedLabel": "Horas jogadas",
+    "favoriteModesLabel": "Modos favoritos",
+    "noFavoriteModes": "Nenhum modo favorito adicionado ainda.",
+    "editButton": "Editar perfil",
+    "saveButton": "Salvar",
+    "saving": "Salvando...",
+    "cancelButton": "Cancelar",
+    "bioTooLong": "A bio não pode ter mais de 500 caracteres.",
+    "hoursPlayedInvalid": "Informe um número entre 0 e 100000.",
+    "favoriteModesTooLong": "Modos favoritos não pode ter mais de 200 caracteres.",
+    "avatarChoose": "Escolher foto",
+    "avatarUploadButton": "Enviar foto",
+    "avatarUploading": "Enviando...",
+    "logout": "Sair",
+    "playstyleTags": {
+      "mundoAbertoCalmo": "Mundo aberto (calmo)",
+      "grindDeHeist": "Grind de heist",
+      "corrida": "Corridas",
+      "rolePlay": "Roleplay",
+      "freemodeSocial": "Freemode social",
+      "campanhaHistoria": "Campanha/história",
+      "pvpCompetitivo": "PVP competitivo",
+      "negociosEconomia": "Negócios/economia"
+    }
   },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."

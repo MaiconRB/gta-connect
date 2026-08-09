@@ -42,4 +42,22 @@
   <data name="Identity_PasswordTooShort" xml:space="preserve">
     <value>Password must be at least {0} characters.</value>
   </data>
+  <data name="Profile_BioTooLong" xml:space="preserve">
+    <value>Bio cannot be longer than 500 characters.</value>
+  </data>
+  <data name="Profile_FavoriteModesTooLong" xml:space="preserve">
+    <value>Favorite modes cannot be longer than 200 characters.</value>
+  </data>
+  <data name="Profile_HoursPlayedOutOfRange" xml:space="preserve">
+    <value>Hours played must be a valid number between 0 and 100000.</value>
+  </data>
+  <data name="Profile_PlaystyleTagsInvalid" xml:space="preserve">
+    <value>One or more playstyle tags are invalid.</value>
+  </data>
+  <data name="Profile_AvatarInvalidType" xml:space="preserve">
+    <value>Invalid image format. Use JPG, PNG or WEBP.</value>
+  </data>
+  <data name="Profile_AvatarTooLarge" xml:space="preserve">
+    <value>The image cannot be larger than 2MB.</value>
+  </data>
 </root>
