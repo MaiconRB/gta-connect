@@ -1,16 +1,18 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
 import { ChatHubService } from './core/chat/chat-hub.service';
 import { ChatService } from './core/chat/chat.service';
 import { LanguageService } from './core/i18n/language.service';
+import { ConnectionStatus } from './core/social/social.models';
+import { SocialService } from './core/social/social.service';
 import { LanguageSwitcher } from './shared/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, LanguageSwitcher, TranslatePipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LanguageSwitcher, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -22,8 +24,10 @@ export class App {
   protected readonly authService = inject(AuthService);
   private readonly chatHubService = inject(ChatHubService);
   private readonly chatService = inject(ChatService);
+  private readonly socialService = inject(SocialService);
 
   protected readonly unreadMessageCount = signal(0);
+  protected readonly pendingConnectionCount = signal(0);
 
   constructor() {
     // Mantém <html lang="..."> em sincronia com o idioma ativo — importante pra
@@ -41,9 +45,20 @@ export class App {
       if (this.authService.isAuthenticated()) {
         this.chatHubService.connect();
         this.refreshUnreadCount();
+        this.refreshPendingConnectionCount();
       } else {
         this.chatHubService.disconnect();
         this.unreadMessageCount.set(0);
+        this.pendingConnectionCount.set(0);
+      }
+    });
+
+    // Sem SignalR pra conexões — connections-page/player-detail chamam
+    // socialService.notifyChanged() após aceitar/recusar/pedir, o que aqui dispara
+    // um recálculo da contagem de pedidos recebidos pendentes.
+    effect(() => {
+      if (this.socialService.connectionsChanged() > 0) {
+        this.refreshPendingConnectionCount();
       }
     });
 
@@ -67,6 +82,15 @@ export class App {
   private refreshUnreadCount(): void {
     this.chatService.getConversations().subscribe({
       next: (conversations) => this.unreadMessageCount.set(conversations.reduce((sum, c) => sum + c.unreadCount, 0)),
+    });
+  }
+
+  private refreshPendingConnectionCount(): void {
+    this.socialService.getConnections().subscribe({
+      next: (connections) =>
+        this.pendingConnectionCount.set(
+          connections.filter((c) => c.status === ConnectionStatus.Pending && !c.isRequester).length,
+        ),
     });
   }
 }

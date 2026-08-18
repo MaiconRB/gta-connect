@@ -18,6 +18,12 @@ import { PlayerSummary } from '../../../core/players/players.models';
 import { PlayersService } from '../../../core/players/players.service';
 
 const PAGE_SIZE = 20;
+const MAX_VISIBLE_BADGES = 3;
+
+interface DisplayBadge {
+  labelKey: string;
+  variant: 'playstyle' | 'availability';
+}
 
 @Component({
   selector: 'app-player-search',
@@ -56,6 +62,23 @@ export class PlayerSearch {
 
   protected activeAvailabilityLabels(availabilityTags: number): string[] {
     return activeOptionLabels(availabilityTags, this.availabilityTagOptions);
+  }
+
+  // Card de busca é compacto — mostra no máximo 3 badges (misturando estilo de jogo
+  // e disponibilidade) e resume o resto em "+N". Lista completa continua só no detalhe.
+  protected visibleBadges(player: PlayerSummary): DisplayBadge[] {
+    return this.combinedBadges(player).slice(0, MAX_VISIBLE_BADGES);
+  }
+
+  protected hiddenBadgeCount(player: PlayerSummary): number {
+    return Math.max(0, this.combinedBadges(player).length - MAX_VISIBLE_BADGES);
+  }
+
+  private combinedBadges(player: PlayerSummary): DisplayBadge[] {
+    return [
+      ...this.activeTagLabels(player.playstyleTags).map((labelKey) => ({ labelKey, variant: 'playstyle' as const })),
+      ...this.activeAvailabilityLabels(player.availabilityTags).map((labelKey) => ({ labelKey, variant: 'availability' as const })),
+    ];
   }
 
   protected regionLabel(region: Region | null): string | null {

@@ -1,19 +1,68 @@
-<header class="fixed top-3 left-3 right-3 z-10 flex items-center justify-between">
+<header class="fixed top-3 left-3 right-3 z-10 flex items-center justify-end md:justify-between">
   @if (authService.isAuthenticated()) {
-    <nav class="flex items-center gap-4 text-sm">
-      <a routerLink="/perfil" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+    <nav class="hidden md:flex items-center gap-1 text-sm bg-neutral-900/70 border border-neutral-800 rounded-xl p-1">
+      <a
+        routerLink="/perfil"
+        routerLinkActive="text-amber-400 bg-neutral-800"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+          <circle cx="12" cy="8" r="3.5" />
+          <path d="M4.5 20c1.5-4 4.5-6 7.5-6s6 2 7.5 6" stroke-linecap="round" />
+        </svg>
         {{ 'nav.profile' | translate }}
       </a>
-      <a routerLink="/jogadores" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+      <a
+        routerLink="/jogadores"
+        routerLinkActive="text-amber-400 bg-neutral-800"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="M20 20l-4.8-4.8" stroke-linecap="round" />
+        </svg>
         {{ 'nav.search' | translate }}
       </a>
-      <a routerLink="/feed" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+      <a
+        routerLink="/feed"
+        routerLinkActive="text-amber-400 bg-neutral-800"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.2" />
+          <rect x="13.5" y="3.5" width="7" height="7" rx="1.2" />
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.2" />
+          <rect x="13.5" y="13.5" width="7" height="7" rx="1.2" />
+        </svg>
         {{ 'nav.feed' | translate }}
       </a>
-      <a routerLink="/mensagens" routerLinkActive="text-amber-400" class="relative text-neutral-300 hover:text-white transition-colors">
+      <a
+        routerLink="/conexoes"
+        routerLinkActive="text-amber-400 bg-neutral-800"
+        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+          <circle cx="8.5" cy="12" r="4.5" />
+          <circle cx="15.5" cy="12" r="4.5" />
+        </svg>
+        {{ 'nav.connections' | translate }}
+        @if (pendingConnectionCount() > 0) {
+          <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
+            {{ pendingConnectionCount() }}
+          </span>
+        }
+      </a>
+      <a
+        routerLink="/mensagens"
+        routerLinkActive="text-amber-400 bg-neutral-800"
+        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+          <path d="M4 5.5h16v10H9l-4 3.5v-3.5H4v-10z" stroke-linejoin="round" />
+        </svg>
         {{ 'nav.messages' | translate }}
         @if (unreadMessageCount() > 0) {
-          <span class="absolute -top-2 -right-3 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
+          <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
             {{ unreadMessageCount() }}
           </span>
         }
@@ -24,4 +73,79 @@
   }
   <app-language-switcher />
 </header>
+
+@if (authService.isAuthenticated()) {
+  <nav
+    class="md:hidden fixed bottom-0 inset-x-0 z-10 flex items-stretch justify-around bg-neutral-900 border-t border-neutral-800 px-1 pt-1.5"
+    style="padding-bottom: calc(0.375rem + env(safe-area-inset-bottom))"
+  >
+    <a
+      routerLink="/perfil"
+      routerLinkActive="text-amber-400"
+      class="flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M4.5 20c1.5-4 4.5-6 7.5-6s6 2 7.5 6" stroke-linecap="round" />
+      </svg>
+      {{ 'nav.profile' | translate }}
+    </a>
+    <a
+      routerLink="/jogadores"
+      routerLinkActive="text-amber-400"
+      class="flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+        <circle cx="10.5" cy="10.5" r="6.5" />
+        <path d="M20 20l-4.8-4.8" stroke-linecap="round" />
+      </svg>
+      {{ 'nav.search' | translate }}
+    </a>
+    <a
+      routerLink="/feed"
+      routerLinkActive="text-amber-400"
+      class="flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+        <rect x="3.5" y="3.5" width="7" height="7" rx="1.2" />
+        <rect x="13.5" y="3.5" width="7" height="7" rx="1.2" />
+        <rect x="3.5" y="13.5" width="7" height="7" rx="1.2" />
+        <rect x="13.5" y="13.5" width="7" height="7" rx="1.2" />
+      </svg>
+      {{ 'nav.feed' | translate }}
+    </a>
+    <a
+      routerLink="/conexoes"
+      routerLinkActive="text-amber-400"
+      class="relative flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+        <circle cx="8.5" cy="12" r="4.5" />
+        <circle cx="15.5" cy="12" r="4.5" />
+      </svg>
+      {{ 'nav.connections' | translate }}
+      @if (pendingConnectionCount() > 0) {
+        <span class="absolute top-0 right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[9px] font-semibold flex items-center justify-center">
+          {{ pendingConnectionCount() }}
+        </span>
+      }
+    </a>
+    <a
+      routerLink="/mensagens"
+      routerLinkActive="text-amber-400"
+      class="relative flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+        <path d="M4 5.5h16v10H9l-4 3.5v-3.5H4v-10z" stroke-linejoin="round" />
+      </svg>
+      {{ 'nav.messages' | translate }}
+      @if (unreadMessageCount() > 0) {
+        <span class="absolute top-0 right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[9px] font-semibold flex items-center justify-center">
+          {{ unreadMessageCount() }}
+        </span>
+      }
+    </a>
+  </nav>
+}
+
 <router-outlet />

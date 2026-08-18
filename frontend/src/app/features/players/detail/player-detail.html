@@ -25,6 +25,11 @@
             <p class="text-sm text-neutral-400">
               {{ p.platform === 2 ? 'PlayStation 5' : 'PlayStation 4' }} · GTA V
             </p>
+            @if (p.ratingCount > 0) {
+              <p class="text-sm text-amber-400 mt-0.5">★ {{ p.averageRating?.toFixed(1) }} ({{ p.ratingCount }})</p>
+            } @else {
+              <p class="text-xs text-neutral-500 mt-0.5">{{ 'social.noRatingsYet' | translate }}</p>
+            }
           </div>
           <a
             [routerLink]="['/mensagens/with', p.id]"
@@ -87,6 +92,98 @@
         </div>
 
         <div class="mt-6 pt-4 border-t border-neutral-800">
+          @if (connectionError()) {
+            <p class="mb-2 text-xs text-red-400">{{ connectionError() }}</p>
+          }
+
+          @switch (connectionStatus()?.status) {
+            @case (ConnectionStatus.Accepted) {
+              <div class="space-y-3">
+                <p class="text-sm text-neutral-300">{{ 'social.rateTitle' | translate }}</p>
+                <div class="flex gap-1">
+                  @for (star of ratingStars; track star) {
+                    <button
+                      type="button"
+                      (click)="setRatingScore(star)"
+                      class="text-2xl leading-none transition-colors"
+                      [class.text-amber-400]="star <= ratingScore()"
+                      [class.text-neutral-700]="star > ratingScore()"
+                    >
+                      ★
+                    </button>
+                  }
+                </div>
+                <textarea
+                  [ngModel]="ratingComment()"
+                  (ngModelChange)="ratingComment.set($event)"
+                  rows="2"
+                  [placeholder]="'social.commentPlaceholder' | translate"
+                  class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                ></textarea>
+                @if (ratingError()) {
+                  <p class="text-xs text-red-400">{{ ratingError() }}</p>
+                }
+                @if (ratingSent()) {
+                  <p class="text-xs text-neutral-400">{{ 'social.rateSuccess' | translate }}</p>
+                }
+                <button
+                  type="button"
+                  (click)="submitRating()"
+                  [disabled]="isRating() || ratingScore() < 1"
+                  class="rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm px-4 py-2 transition-colors"
+                >
+                  {{ (isRating() ? 'social.rating' : 'social.rateSubmit') | translate }}
+                </button>
+              </div>
+            }
+            @case (ConnectionStatus.Pending) {
+              @if (connectionStatus()?.isRequester) {
+                <div class="flex items-center gap-3 text-sm">
+                  <span class="text-neutral-400">{{ 'social.requestSentLabel' | translate }}</span>
+                  <button
+                    type="button"
+                    (click)="declineConnection()"
+                    [disabled]="isConnectionActionPending()"
+                    class="text-neutral-400 hover:text-red-400 disabled:opacity-50 transition-colors text-xs"
+                  >
+                    {{ 'social.cancelRequestButton' | translate }}
+                  </button>
+                </div>
+              } @else {
+                <div class="flex items-center gap-2 text-sm">
+                  <button
+                    type="button"
+                    (click)="acceptConnection()"
+                    [disabled]="isConnectionActionPending()"
+                    class="rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm px-4 py-2 transition-colors"
+                  >
+                    {{ 'social.acceptButton' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="declineConnection()"
+                    [disabled]="isConnectionActionPending()"
+                    class="rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
+                  >
+                    {{ 'social.declineButton' | translate }}
+                  </button>
+                </div>
+              }
+            }
+            @default {
+              <button
+                type="button"
+                (click)="connect()"
+                [disabled]="isConnectionActionPending()"
+                class="rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
+              >
+                {{ (isConnectionActionPending() ? 'social.connecting' : 'social.connectButton') | translate }}
+              </button>
+            }
+          }
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-neutral-800">
           @if (justBlocked()) {
             <p class="text-sm text-neutral-400">{{ 'moderation.justBlocked' | translate }}</p>
           } @else {

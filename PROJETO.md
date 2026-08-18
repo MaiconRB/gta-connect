@@ -52,7 +52,7 @@ O fundador é um jogador de PS5 que valoriza **campanha, mundo aberto e ótima j
 Importante desde o início, já que o app conecta estranhos.
 
 - **Verificação de conta** (email, telefone, ou outro método a definir). **Status: não implementado.**
-- **Sistema de avaliação/reputação** — jogadores avaliam uns aos outros depois de jogar junto. **Status: não implementado.**
+- **Sistema de avaliação/reputação** — jogadores avaliam uns aos outros depois de jogar junto. **Status: concluído** (ver seção 13). Avaliar exige uma **conexão aceita** (pedido + aceite mútuo, tipo pedido de amizade) entre os dois perfis — forma de validar que realmente jogaram juntos, já que o app não tem como confirmar isso sozinho.
 - **Denúncia e bloqueio** — usuários podem reportar comportamento tóxico e bloquear outros perfis. **Status: concluído** (ver seção 13). Bloqueio esconde os dois lados da busca e da lista de conversas, e impede mensagem nova; denúncia é registrada com motivo — **sem painel de revisão/moderador ainda**, os dados ficam gravados mas só são consultáveis direto no banco. Próximo ponto em aberto dentro desta seção.
 
 ## 9. Modelo de sustentação
@@ -76,6 +76,7 @@ O app deve ser **construído com arquitetura pronta para multi-jogo** desde o in
 - **Nome do app**: ainda não definido.
 - **Infraestrutura de produção**: onde/como hospedar quando sair do ambiente de desenvolvimento local (hoje tudo roda em `localhost` + Docker). Inclui decisão futura de trocar o armazenamento de fotos (hoje disco local da API) por blob storage em nuvem.
 - **Verificação de conta / moderação**: método ainda não escolhido (ver seção 8).
+- **Indicador de presença ("online agora")**: ideia levantada a partir de uma imagem-conceito de referência visual (anel neon de destaque no avatar) — hoje não existe conceito de presença/online no modelo. Se for implementado, dá pra reaproveitar a conexão SignalR que já existe pro chat (`ChatHub`) em vez de criar infraestrutura nova. Só uma anotação por ora, sem compromisso de prioridade.
 
 > Resolvido e removido desta lista: método de login (decidido como conta própria com email/senha — ver seção 13), idioma (decidido pt-BR + en — ver seção 5).
 
@@ -94,11 +95,12 @@ Esta seção existe para preservar contexto entre sessões de trabalho — o que
 - **Chat / mensagens diretas**: 1:1 em tempo real via SignalR (`ChatHub` em `/hubs/chat`, autenticado por JWT via query string — WebSocket não permite header `Authorization`). Conversa nasce como efeito colateral do primeiro envio (find-or-create pelo par de participantes, sem endpoint de "criar conversa"); envio só pelo Hub, leitura (histórico + lista) por REST (`/api/conversations`). Status de leitura por conversa (não por mensagem), badge de não-lidas na navegação.
 - **Bloqueio e denúncia**: `Block` (direcional no registro, bidirecional no efeito — checagem sempre nos dois sentidos) esconde o outro perfil da busca e da lista de conversas para os dois lados, e impede mensagem nova (`ChatService.SendMessageAsync` valida antes de criar/reaproveitar a conversa); bloquear/desbloquear são idempotentes. `Report` grava motivo (`ReportReason`) + detalhes opcionais, **sem tela de revisão/moderador** — só consultável direto no banco por ora. Tela `/bloqueados` pra gerenciar (desbloquear), botões "Bloquear"/"Denunciar" no perfil de outros jogadores.
 - **Feed / posts**: mural público global (`/feed`) — texto opcional + foto opcional (nunca os dois vazios), curtida simples sem comentários, só o autor apaga o próprio post, posts de quem está bloqueado somem do feed dos dois lados (mesma consistência de busca/chat). Upload de foto reaproveita `IPhotoStorageService` (novo método `SavePostPhotoAsync`, salva em `uploads/posts/`). **Fecha os 4 itens do MVP original** (seção 6).
-- **Testes automatizados**: 126 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks.
+- **Conexões + avaliação/reputação**: `Connection` (pedido + aceite mútuo, máquina de estados `Pending → Accepted/Declined`; só o endereçado aceita, qualquer um dos dois recusa; recusado não trava um novo pedido entre o mesmo par) é pré-requisito pra `Rating` (estrelas de 1 a 5 + comentário opcional, upsert — reavaliar atualiza, não duplica). Tela `/conexoes` (pedidos recebidos/enviados/conexões aceitas) com badge de pendentes na navegação; perfil de outro jogador (`/jogadores/:id`) ganha botão contextual (Conectar/Pedido enviado/Aceitar+Recusar) e, com conexão aceita, formulário de avaliação; média (`★ X.X (N)`) aparece nos cards de busca e no detalhe, calculada em lote (`GetAggregatesAsync`, uma query `GROUP BY`/`WHERE IN` por página, sem N+1).
+- **Testes automatizados**: 158 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks; feature de conexões/avaliação também verificada ponta a ponta (curl contra o banco real + Playwright com dois usuários no navegador).
 
 ### Em andamento / próximo (nesta ordem, combinada com o usuário)
 
-1. A definir — candidatos: verificação de conta, sistema de avaliação/reputação, painel de revisão de denúncias, "seguir" jogadores (feed hoje é só público/global), nome definitivo do app.
+1. A definir — candidatos: verificação de conta, painel de revisão de denúncias, "seguir" jogadores (feed hoje é só público/global — a entidade `Connection` já existe e poderia alimentar isso), nome definitivo do app.
 
 ### Decisões técnicas já fechadas (não reabrir sem motivo novo)
 

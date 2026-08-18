@@ -12,11 +12,13 @@ public class PlayerSearchService : IPlayerSearchService
 
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
+    private readonly IRatingRepository _ratingRepository;
 
-    public PlayerSearchService(IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository)
+    public PlayerSearchService(IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository, IRatingRepository ratingRepository)
     {
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
+        _ratingRepository = ratingRepository;
     }
 
     public async Task<PagedResultDto<PlayerSummaryDto>> SearchAsync(Guid currentUserId, PlayerSearchFilterDto filter, CancellationToken cancellationToken = default)
@@ -38,8 +40,11 @@ public class PlayerSearchService : IPlayerSearchService
 
         var (items, totalCount) = await _playerProfileRepository.SearchAsync(clampedFilter, excludedProfileIds, cancellationToken);
 
+        // Uma query só pros agregados de avaliação de todo mundo da página atual — evita N+1.
+        var aggregates = await _ratingRepository.GetAggregatesAsync(items.Select(p => p.Id).ToList(), cancellationToken);
+
         return new PagedResultDto<PlayerSummaryDto>(
-            items.Select(ToSummaryDto).ToList(),
+            items.Select(p => ToSummaryDto(p, aggregates)).ToList(),
             totalCount,
             clampedFilter.Page,
             clampedFilter.PageSize);
@@ -50,20 +55,29 @@ public class PlayerSearchService : IPlayerSearchService
         var profile = await _playerProfileRepository.GetByIdAsync(profileId, cancellationToken)
             ?? throw new NotFoundException(nameof(PlayerProfile), profileId);
 
-        return ToSummaryDto(profile);
+        var aggregates = await _ratingRepository.GetAggregatesAsync([profile.Id], cancellationToken);
+
+        return ToSummaryDto(profile, aggregates);
     }
 
-    private static PlayerSummaryDto ToSummaryDto(PlayerProfile profile) => new(
-        profile.Id,
-        profile.DisplayName,
-        profile.Platform,
-        profile.GameTitle,
-        profile.Bio,
-        profile.PlaystyleTags,
-        profile.AvailabilityTags,
-        profile.Region,
-        profile.HoursPlayed,
-        profile.FavoriteModes,
-        profile.AvatarPath,
-        profile.CreatedAtUtc);
+    private static PlayerSummaryDto ToSummaryDto(PlayerProfile profile, IReadOnlyDictionary<Guid, (double Average, int Count)> aggregates)
+    {
+        var hasAggregate = aggregates.TryGetValue(profile.Id, out var aggregate);
+
+        return new PlayerSummaryDto(
+            profile.Id,
+            profile.DisplayName,
+            profile.Platform,
+            profile.GameTitle,
+            profile.Bio,
+            profile.PlaystyleTags,
+            profile.AvailabilityTags,
+            profile.Region,
+            profile.HoursPlayed,
+            profile.FavoriteModes,
+            profile.AvatarPath,
+            profile.CreatedAtUtc,
+            hasAggregate ? aggregate.Average : null,
+            hasAggregate ? aggregate.Count : 0);
+    }
 }

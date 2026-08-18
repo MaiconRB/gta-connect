@@ -11,6 +11,7 @@ public class PlayerSearchServiceTests
 {
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<IRatingRepository> _ratingRepositoryMock = new();
     private readonly PlayerSearchService _sut;
 
     public PlayerSearchServiceTests()
@@ -18,8 +19,11 @@ public class PlayerSearchServiceTests
         _blockRepositoryMock
             .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Guid>());
+        _ratingRepositoryMock
+            .Setup(r => r.GetAggregatesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, (double Average, int Count)>());
 
-        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object);
+        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object, _ratingRepositoryMock.Object);
     }
 
     private static PlayerProfile CreateValidProfile(Guid userId) =>
@@ -151,6 +155,26 @@ public class PlayerSearchServiceTests
 
         Assert.Equal(profile.Id, result.Id);
         Assert.Equal(profile.DisplayName, result.DisplayName);
+        Assert.Null(result.AverageRating);
+        Assert.Equal(0, result.RatingCount);
+    }
+
+    [Fact]
+    public async Task GetPlayerProfileAsync_ComAvaliacoesExistentes_PreencheAverageRatingERatingCount()
+    {
+        var profile = CreateValidProfile(Guid.NewGuid());
+
+        _playerProfileRepositoryMock
+            .Setup(r => r.GetByIdAsync(profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _ratingRepositoryMock
+            .Setup(r => r.GetAggregatesAsync(It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(profile.Id)), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, (double Average, int Count)> { [profile.Id] = (4.5, 2) });
+
+        var result = await _sut.GetPlayerProfileAsync(profile.Id);
+
+        Assert.Equal(4.5, result.AverageRating);
+        Assert.Equal(2, result.RatingCount);
     }
 
     [Fact]

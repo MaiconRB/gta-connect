@@ -101,16 +101,23 @@
               <div class="min-w-0">
                 <p class="text-white font-medium">{{ player.displayName }}</p>
                 <p class="text-xs text-neutral-500">{{ (regionLabel(player.region) || 'profile.noRegion') | translate }}</p>
+                @if (player.ratingCount > 0) {
+                  <p class="text-xs text-amber-400">★ {{ player.averageRating?.toFixed(1) }} ({{ player.ratingCount }})</p>
+                }
                 <div class="flex flex-wrap gap-1 mt-1">
-                  @for (labelKey of activeTagLabels(player.playstyleTags); track labelKey) {
-                    <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
-                      {{ labelKey | translate }}
+                  @for (badge of visibleBadges(player); track badge.labelKey) {
+                    <span
+                      [class]="
+                        badge.variant === 'playstyle'
+                          ? 'px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs'
+                          : 'px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs'
+                      "
+                    >
+                      {{ badge.labelKey | translate }}
                     </span>
                   }
-                  @for (labelKey of activeAvailabilityLabels(player.availabilityTags); track labelKey) {
-                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs">
-                      {{ labelKey | translate }}
-                    </span>
+                  @if (hiddenBadgeCount(player) > 0) {
+                    <span class="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-500 text-xs">+{{ hiddenBadgeCount(player) }}</span>
                   }
                 </div>
               </div>

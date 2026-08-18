@@ -15,6 +15,8 @@ import {
 } from '../../../core/profile/profile.models';
 import { PlayerSummary } from '../../../core/players/players.models';
 import { PlayersService } from '../../../core/players/players.service';
+import { ConnectionStatus, ConnectionStatusInfo } from '../../../core/social/social.models';
+import { SocialService } from '../../../core/social/social.service';
 
 @Component({
   selector: 'app-player-detail',
@@ -26,6 +28,10 @@ export class PlayerDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly playersService = inject(PlayersService);
   private readonly moderationService = inject(ModerationService);
+  private readonly socialService = inject(SocialService);
+
+  protected readonly ConnectionStatus = ConnectionStatus;
+  protected readonly ratingStars = [1, 2, 3, 4, 5];
 
   protected readonly playstyleTagOptions = PLAYSTYLE_TAG_OPTIONS;
   protected readonly availabilityTagOptions = AVAILABILITY_TAG_OPTIONS;
@@ -47,10 +53,23 @@ export class PlayerDetail {
   protected readonly reportError = signal<string | null>(null);
   protected readonly reportSent = signal(false);
 
+  protected readonly connectionStatus = signal<ConnectionStatusInfo | null>(null);
+  protected readonly isConnectionActionPending = signal(false);
+  protected readonly connectionError = signal<string | null>(null);
+
+  protected readonly ratingScore = signal(0);
+  protected readonly ratingComment = signal('');
+  protected readonly isRating = signal(false);
+  protected readonly ratingError = signal<string | null>(null);
+  protected readonly ratingSent = signal(false);
+
+  private playerId = '';
+
   constructor() {
     // Sempre presente — a rota /jogadores/:id exige o param (ver app.routes.ts).
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.loadPlayer(id);
+    this.playerId = this.route.snapshot.paramMap.get('id')!;
+    this.loadPlayer(this.playerId);
+    this.loadConnectionStatus();
   }
 
   protected activeTagLabels(playstyleTags: number): string[] {
@@ -113,6 +132,107 @@ export class PlayerDetail {
       error: (error: HttpErrorResponse) => {
         this.reportError.set(extractErrorMessage(error));
         this.isReporting.set(false);
+      },
+    });
+  }
+
+  protected connect(): void {
+    this.isConnectionActionPending.set(true);
+    this.connectionError.set(null);
+
+    this.socialService.sendRequest(this.playerId).subscribe({
+      next: () => {
+        this.isConnectionActionPending.set(false);
+        this.socialService.notifyChanged();
+        this.loadConnectionStatus();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.connectionError.set(extractErrorMessage(error));
+        this.isConnectionActionPending.set(false);
+      },
+    });
+  }
+
+  protected acceptConnection(): void {
+    const connectionId = this.connectionStatus()?.connectionId;
+    if (!connectionId) {
+      return;
+    }
+
+    this.isConnectionActionPending.set(true);
+    this.connectionError.set(null);
+
+    this.socialService.accept(connectionId).subscribe({
+      next: () => {
+        this.isConnectionActionPending.set(false);
+        this.socialService.notifyChanged();
+        this.loadConnectionStatus();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.connectionError.set(extractErrorMessage(error));
+        this.isConnectionActionPending.set(false);
+      },
+    });
+  }
+
+  protected declineConnection(): void {
+    const connectionId = this.connectionStatus()?.connectionId;
+    if (!connectionId) {
+      return;
+    }
+
+    this.isConnectionActionPending.set(true);
+    this.connectionError.set(null);
+
+    this.socialService.decline(connectionId).subscribe({
+      next: () => {
+        this.isConnectionActionPending.set(false);
+        this.socialService.notifyChanged();
+        this.loadConnectionStatus();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.connectionError.set(extractErrorMessage(error));
+        this.isConnectionActionPending.set(false);
+      },
+    });
+  }
+
+  protected setRatingScore(score: number): void {
+    this.ratingScore.set(score);
+  }
+
+  protected submitRating(): void {
+    if (this.ratingScore() < 1) {
+      return;
+    }
+
+    this.isRating.set(true);
+    this.ratingError.set(null);
+    this.ratingSent.set(false);
+
+    const comment = this.ratingComment().trim();
+
+    this.socialService.rate(this.playerId, this.ratingScore(), comment === '' ? null : comment).subscribe({
+      next: () => {
+        this.isRating.set(false);
+        this.ratingSent.set(true);
+        this.loadConnectionStatus();
+        this.loadPlayer(this.playerId);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.ratingError.set(extractErrorMessage(error));
+        this.isRating.set(false);
+      },
+    });
+  }
+
+  private loadConnectionStatus(): void {
+    this.socialService.getConnectionStatus(this.playerId).subscribe({
+      next: (status) => {
+        this.connectionStatus.set(status);
+        if (status.myRatingScore) {
+          this.ratingScore.set(status.myRatingScore);
+        }
       },
     });
   }

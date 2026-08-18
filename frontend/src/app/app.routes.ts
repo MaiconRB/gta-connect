@@ -47,6 +47,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'conexoes',
+    loadComponent: () => import('./features/social/connections-page/connections-page').then((m) => m.ConnectionsPage),
+    canActivate: [authGuard],
+  },
+  {
     path: 'feed',
     loadComponent: () => import('./features/feed/feed-page/feed-page').then((m) => m.FeedPage),
     canActivate: [authGuard],

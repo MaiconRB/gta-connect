@@ -17,4 +17,6 @@ public record PlayerSummaryDto(
     int HoursPlayed,
     string? FavoriteModes,
     string? AvatarPath,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    double? AverageRating,
+    int RatingCount);

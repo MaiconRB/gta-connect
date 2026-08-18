@@ -6,6 +6,7 @@ using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Moderation;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Application.Features.Profile;
+using GtaConnect.Application.Features.Reputation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GtaConnect.Application;
@@ -22,6 +23,8 @@ public static class DependencyInjection
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IModerationService, ModerationService>();
         services.AddScoped<IFeedService, FeedService>();
+        services.AddScoped<IConnectionService, ConnectionService>();
+        services.AddScoped<IRatingService, RatingService>();
 
         return services;
     }

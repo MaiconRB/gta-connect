@@ -14,6 +14,8 @@ export interface PlayerSummary {
   favoriteModes: string | null;
   avatarPath: string | null;
   createdAtUtc: string;
+  averageRating: number | null;
+  ratingCount: number;
 }
 
 // undefined em qualquer campo = filtro não aplicado (query param omitido pelo service).

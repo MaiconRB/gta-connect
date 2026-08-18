@@ -26,6 +26,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
     public DbSet<PostLike> PostLikes => Set<PostLike>();
 
+    public DbSet<Connection> Connections => Set<Connection>();
+
+    public DbSet<Rating> Ratings => Set<Rating>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

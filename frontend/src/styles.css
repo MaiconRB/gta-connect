@@ -25,6 +25,16 @@ body {
   background-color: var(--color-neutral-950);
 }
 
+/* Reserva espaço pro bottom nav fixo (só existe abaixo de md) não cobrir o fim do
+   conteúdo ao rolar até o final da página — aumenta a altura do documento em vez de
+   mexer no padding de cada tela individualmente. Aplicado global (inofensivo em
+   login/registrar, onde a nav nem aparece). */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 4.5rem;
+  }
+}
+
 /* Glow "pôr do sol" sutil atrás do conteúdo — aplicar junto de bg-neutral-950
    nos wrappers de tela (login, registro, perfil, busca, detalhe). */
 .app-shell-bg {

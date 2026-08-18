@@ -136,7 +136,30 @@
     "profile": "Perfil",
     "search": "Buscar",
     "feed": "Feed",
+    "connections": "Conexões",
     "messages": "Mensagens"
+  },
+  "social": {
+    "title": "Conexões",
+    "backToProfile": "Voltar para o perfil",
+    "receivedTitle": "Pedidos recebidos",
+    "sentTitle": "Pedidos enviados",
+    "acceptedTitle": "Suas conexões",
+    "noReceived": "Nenhum pedido recebido.",
+    "noSent": "Nenhum pedido enviado.",
+    "noAccepted": "Você ainda não tem conexões.",
+    "acceptButton": "Aceitar",
+    "declineButton": "Recusar",
+    "cancelRequestButton": "Cancelar pedido",
+    "requestSentLabel": "Pedido de conexão enviado",
+    "connectButton": "Conectar",
+    "connecting": "Conectando...",
+    "rateTitle": "Já jogaram juntos? Avalie este jogador",
+    "rateSubmit": "Enviar avaliação",
+    "rating": "Enviando...",
+    "rateSuccess": "Avaliação enviada!",
+    "commentPlaceholder": "Comentário (opcional)",
+    "noRatingsYet": "Ainda sem avaliações"
   },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."

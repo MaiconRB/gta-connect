@@ -50,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IFeedRepository, FeedRepository>();
+        services.AddScoped<IConnectionRepository, ConnectionRepository>();
+        services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
 

@@ -75,4 +75,13 @@
   <data name="Feed_PostEmpty" xml:space="preserve">
     <value>O post precisa ter texto ou foto.</value>
   </data>
+  <data name="Connection_Blocked" xml:space="preserve">
+    <value>Não é possível se conectar com este jogador.</value>
+  </data>
+  <data name="Rating_ConnectionRequired" xml:space="preserve">
+    <value>Vocês precisam estar conectados pra se avaliarem.</value>
+  </data>
+  <data name="Rating_ScoreOutOfRange" xml:space="preserve">
+    <value>A nota deve estar entre 1 e 5.</value>
+  </data>
 </root>

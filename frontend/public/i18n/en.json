@@ -136,7 +136,30 @@
     "profile": "Profile",
     "search": "Search",
     "feed": "Feed",
+    "connections": "Connections",
     "messages": "Messages"
+  },
+  "social": {
+    "title": "Connections",
+    "backToProfile": "Back to profile",
+    "receivedTitle": "Received requests",
+    "sentTitle": "Sent requests",
+    "acceptedTitle": "Your connections",
+    "noReceived": "No requests received.",
+    "noSent": "No requests sent.",
+    "noAccepted": "You don't have any connections yet.",
+    "acceptButton": "Accept",
+    "declineButton": "Decline",
+    "cancelRequestButton": "Cancel request",
+    "requestSentLabel": "Connection request sent",
+    "connectButton": "Connect",
+    "connecting": "Connecting...",
+    "rateTitle": "Played together? Rate this player",
+    "rateSubmit": "Submit rating",
+    "rating": "Submitting...",
+    "rateSuccess": "Rating submitted!",
+    "commentPlaceholder": "Comment (optional)",
+    "noRatingsYet": "No ratings yet"
   },
   "common": {
     "genericError": "Could not complete the operation. Please try again."
