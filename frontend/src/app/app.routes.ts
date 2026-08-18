@@ -41,5 +41,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/chat/thread/conversation-thread').then((m) => m.ConversationThread),
     canActivate: [authGuard],
   },
+  {
+    path: 'bloqueados',
+    loadComponent: () => import('./features/moderation/blocked-list/blocked-list').then((m) => m.BlockedList),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'login' },
 ];

@@ -10,11 +10,16 @@ namespace GtaConnect.Application.Tests.Features.PlayerSearch;
 public class PlayerSearchServiceTests
 {
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
+    private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
     private readonly PlayerSearchService _sut;
 
     public PlayerSearchServiceTests()
     {
-        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object);
+        _blockRepositoryMock
+            .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid>());
+
+        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object);
     }
 
     private static PlayerProfile CreateValidProfile(Guid userId) =>
@@ -35,14 +40,45 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), myProfile.Id, It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile> { otherProfile }, 1));
 
         var result = await _sut.SearchAsync(userId, CreateFilter());
 
         Assert.Single(result.Items);
         Assert.Equal(otherProfile.Id, result.Items[0].Id);
-        _playerProfileRepositoryMock.Verify(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), myProfile.Id, It.IsAny<CancellationToken>()), Times.Once);
+        _playerProfileRepositoryMock.Verify(
+            r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAsync_ComPerfisBloqueados_ExcluiTambemOsBloqueados()
+    {
+        var userId = Guid.NewGuid();
+        var myProfile = CreateValidProfile(userId);
+        var blockedProfileId = Guid.NewGuid();
+
+        _playerProfileRepositoryMock
+            .Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(myProfile);
+
+        _blockRepositoryMock
+            .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(myProfile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid> { blockedProfileId });
+
+        _playerProfileRepositoryMock
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<PlayerProfile>(), 0));
+
+        await _sut.SearchAsync(userId, CreateFilter());
+
+        _playerProfileRepositoryMock.Verify(
+            r => r.SearchAsync(
+                It.IsAny<PlayerSearchFilterDto>(),
+                It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id) && ids.Contains(blockedProfileId)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -71,7 +107,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), myProfile.Id, It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile>(), 0));
 
         var result = await _sut.SearchAsync(userId, CreateFilter(page: inputPage));
@@ -94,7 +130,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), myProfile.Id, It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile>(), 0));
 
         var result = await _sut.SearchAsync(userId, CreateFilter(pageSize: inputPageSize));

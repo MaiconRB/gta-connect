@@ -100,6 +100,27 @@
     "send": "Enviar",
     "loadError": "Não foi possível carregar a conversa."
   },
+  "moderation": {
+    "blockButton": "Bloquear",
+    "blocking": "Bloqueando...",
+    "justBlocked": "Você bloqueou este jogador.",
+    "reportButton": "Denunciar",
+    "reportSent": "Denúncia enviada. Obrigado por ajudar a manter a comunidade segura.",
+    "detailsPlaceholder": "Detalhes (opcional)",
+    "submitReport": "Enviar denúncia",
+    "reporting": "Enviando...",
+    "viewBlockedProfiles": "Ver jogadores bloqueados",
+    "backToProfile": "Voltar para o perfil",
+    "blockedListTitle": "Jogadores bloqueados",
+    "noBlockedProfiles": "Você não bloqueou nenhum jogador ainda.",
+    "unblockButton": "Desbloquear",
+    "reportReasons": {
+      "toxicidade": "Toxicidade",
+      "spam": "Spam",
+      "assedio": "Assédio",
+      "outro": "Outro"
+    }
+  },
   "nav": {
     "profile": "Perfil",
     "search": "Buscar",

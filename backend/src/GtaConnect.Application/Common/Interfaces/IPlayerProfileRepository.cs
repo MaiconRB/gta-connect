@@ -19,6 +19,6 @@ public interface IPlayerProfileRepository
 
     Task UpdateAsync(PlayerProfile profile, CancellationToken cancellationToken = default);
 
-    /// <summary>Busca paginada com filtros opcionais. excludeProfileId nunca aparece nos resultados (é sempre o perfil do usuário logado).</summary>
-    Task<(IReadOnlyList<PlayerProfile> Items, int TotalCount)> SearchAsync(PlayerSearchFilterDto filter, Guid excludeProfileId, CancellationToken cancellationToken = default);
+    /// <summary>Busca paginada com filtros opcionais. Nenhum perfil em excludedProfileIds aparece nos resultados (sempre inclui o próprio usuário logado, mais quem estiver bloqueado nos dois sentidos).</summary>
+    Task<(IReadOnlyList<PlayerProfile> Items, int TotalCount)> SearchAsync(PlayerSearchFilterDto filter, IReadOnlyCollection<Guid> excludedProfileIds, CancellationToken cancellationToken = default);
 }

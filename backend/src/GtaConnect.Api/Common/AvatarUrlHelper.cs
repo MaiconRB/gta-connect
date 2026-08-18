@@ -1,4 +1,5 @@
 using GtaConnect.Application.Features.Chat;
+using GtaConnect.Application.Features.Moderation;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Application.Features.Profile;
 using Microsoft.AspNetCore.Mvc;
@@ -21,4 +22,7 @@ public static class AvatarUrlHelper
 
     public static ConversationSummaryDto WithAbsoluteAvatarUrl(this ControllerBase controller, ConversationSummaryDto conversation) =>
         conversation.OtherAvatarPath is null ? conversation : conversation with { OtherAvatarPath = controller.Request.ToAbsoluteUrl(conversation.OtherAvatarPath) };
+
+    public static BlockedProfileSummaryDto WithAbsoluteAvatarUrl(this ControllerBase controller, BlockedProfileSummaryDto blockedProfile) =>
+        blockedProfile.AvatarPath is null ? blockedProfile : blockedProfile with { AvatarPath = controller.Request.ToAbsoluteUrl(blockedProfile.AvatarPath) };
 }

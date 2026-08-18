@@ -39,13 +39,13 @@ public class PlayerProfileRepository : IPlayerProfileRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<(IReadOnlyList<PlayerProfile> Items, int TotalCount)> SearchAsync(PlayerSearchFilterDto filter, Guid excludeProfileId, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<PlayerProfile> Items, int TotalCount)> SearchAsync(PlayerSearchFilterDto filter, IReadOnlyCollection<Guid> excludedProfileIds, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.PlayerProfiles.AsQueryable();
 
-        // Exclusão do próprio usuário logado acontece aqui, ANTES de Count/Skip/Take —
-        // filtrar isso depois em memória quebraria a contagem total e a paginação.
-        query = query.Where(p => p.Id != excludeProfileId);
+        // Exclusão do próprio usuário logado + bloqueados acontece aqui, ANTES de
+        // Count/Skip/Take — filtrar isso depois em memória quebraria a contagem total e a paginação.
+        query = query.Where(p => !excludedProfileIds.Contains(p.Id));
 
         if (filter.Platform is not null)
         {

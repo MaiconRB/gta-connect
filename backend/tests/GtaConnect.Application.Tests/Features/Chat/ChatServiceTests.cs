@@ -11,11 +11,19 @@ public class ChatServiceTests
 {
     private readonly Mock<IChatRepository> _chatRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
+    private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
     private readonly ChatService _sut;
 
     public ChatServiceTests()
     {
-        _sut = new ChatService(_chatRepositoryMock.Object, _playerProfileRepositoryMock.Object);
+        _blockRepositoryMock
+            .Setup(r => r.ExistsEitherDirectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        _blockRepositoryMock
+            .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid>());
+
+        _sut = new ChatService(_chatRepositoryMock.Object, _playerProfileRepositoryMock.Object, _blockRepositoryMock.Object);
     }
 
     private static PlayerProfile CreateValidProfile(Guid userId, string displayName = "Jogador") =>
@@ -62,6 +70,23 @@ public class ChatServiceTests
                 false,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task SendMessageAsync_ComBloqueioEntreOsDois_LancaArgumentException()
+    {
+        var senderUserId = Guid.NewGuid();
+        var senderProfile = CreateValidProfile(senderUserId, "Remetente");
+        var recipientProfile = CreateValidProfile(Guid.NewGuid(), "Destinatario");
+
+        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(senderUserId, It.IsAny<CancellationToken>())).ReturnsAsync(senderProfile);
+        _playerProfileRepositoryMock.Setup(r => r.GetByIdAsync(recipientProfile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(recipientProfile);
+        _blockRepositoryMock
+            .Setup(r => r.ExistsEitherDirectionAsync(senderProfile.Id, recipientProfile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.SendMessageAsync(senderUserId, recipientProfile.Id, "Oi"));
+        _chatRepositoryMock.Verify(r => r.SaveNewMessageAsync(It.IsAny<Conversation>(), It.IsAny<Message>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -148,5 +173,31 @@ public class ChatServiceTests
         var result = await _sut.GetConversationWithAsync(userId, Guid.NewGuid());
 
         Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetConversationsAsync_ComParticipanteBloqueado_ExcluiAConversaDaLista()
+    {
+        var userId = Guid.NewGuid();
+        var profile = CreateValidProfile(userId);
+        var blockedOtherProfileId = Guid.NewGuid();
+        var normalOtherProfileId = Guid.NewGuid();
+
+        var conversations = new List<ConversationSummaryDto>
+        {
+            new(Guid.NewGuid(), blockedOtherProfileId, "Bloqueado", null, "oi", DateTime.UtcNow, 0),
+            new(Guid.NewGuid(), normalOtherProfileId, "Normal", null, "oi", DateTime.UtcNow, 0),
+        };
+
+        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(profile);
+        _chatRepositoryMock.Setup(r => r.GetConversationsForProfileAsync(profile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(conversations);
+        _blockRepositoryMock
+            .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid> { blockedOtherProfileId });
+
+        var result = await _sut.GetConversationsAsync(userId);
+
+        Assert.Single(result);
+        Assert.Equal(normalOtherProfileId, result[0].OtherProfileId);
     }
 }

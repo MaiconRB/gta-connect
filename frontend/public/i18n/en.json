@@ -100,6 +100,27 @@
     "send": "Send",
     "loadError": "Could not load the conversation."
   },
+  "moderation": {
+    "blockButton": "Block",
+    "blocking": "Blocking...",
+    "justBlocked": "You blocked this player.",
+    "reportButton": "Report",
+    "reportSent": "Report sent. Thanks for helping keep the community safe.",
+    "detailsPlaceholder": "Details (optional)",
+    "submitReport": "Send report",
+    "reporting": "Sending...",
+    "viewBlockedProfiles": "View blocked players",
+    "backToProfile": "Back to profile",
+    "blockedListTitle": "Blocked players",
+    "noBlockedProfiles": "You haven't blocked any players yet.",
+    "unblockButton": "Unblock",
+    "reportReasons": {
+      "toxicidade": "Toxic behavior",
+      "spam": "Spam",
+      "assedio": "Harassment",
+      "outro": "Other"
+    }
+  },
   "nav": {
     "profile": "Profile",
     "search": "Search",

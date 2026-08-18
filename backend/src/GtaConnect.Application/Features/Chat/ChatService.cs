@@ -12,11 +12,13 @@ public class ChatService : IChatService
 
     private readonly IChatRepository _chatRepository;
     private readonly IPlayerProfileRepository _playerProfileRepository;
+    private readonly IBlockRepository _blockRepository;
 
-    public ChatService(IChatRepository chatRepository, IPlayerProfileRepository playerProfileRepository)
+    public ChatService(IChatRepository chatRepository, IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository)
     {
         _chatRepository = chatRepository;
         _playerProfileRepository = playerProfileRepository;
+        _blockRepository = blockRepository;
     }
 
     public async Task<SendMessageResultDto> SendMessageAsync(Guid senderUserId, Guid recipientProfileId, string content, CancellationToken cancellationToken = default)
@@ -26,6 +28,11 @@ public class ChatService : IChatService
 
         var recipientProfile = await _playerProfileRepository.GetByIdAsync(recipientProfileId, cancellationToken)
             ?? throw new NotFoundException(nameof(PlayerProfile), recipientProfileId);
+
+        if (await _blockRepository.ExistsEitherDirectionAsync(senderProfile.Id, recipientProfile.Id, cancellationToken))
+        {
+            throw new ArgumentException("Você não pode enviar mensagem para este jogador.", nameof(recipientProfileId));
+        }
 
         var (participantAId, participantBId) = Conversation.NormalizeParticipantOrder(senderProfile.Id, recipientProfile.Id);
         var existingConversation = await _chatRepository.FindConversationAsync(participantAId, participantBId, cancellationToken);
@@ -43,7 +50,7 @@ public class ChatService : IChatService
     public async Task<IReadOnlyList<ConversationSummaryDto>> GetConversationsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var profile = await GetProfileOrThrowAsync(userId, cancellationToken);
-        return await _chatRepository.GetConversationsForProfileAsync(profile.Id, cancellationToken);
+        return await GetConversationsExcludingBlockedAsync(profile.Id, cancellationToken);
     }
 
     public async Task<PagedResultDto<MessageDto>> GetMessagesAsync(Guid userId, Guid conversationId, int page, int pageSize, CancellationToken cancellationToken = default)
@@ -65,7 +72,7 @@ public class ChatService : IChatService
 
         // Lista pequena por usuário no volume do MVP — reaproveitar a mesma projeção da
         // listagem evita duplicar a query de "resolver conversa + dados do outro participante".
-        var conversations = await _chatRepository.GetConversationsForProfileAsync(profile.Id, cancellationToken);
+        var conversations = await GetConversationsExcludingBlockedAsync(profile.Id, cancellationToken);
         return conversations.FirstOrDefault(c => c.OtherProfileId == otherProfileId);
     }
 
@@ -76,6 +83,16 @@ public class ChatService : IChatService
 
         conversation.MarkReadBy(profile.Id, DateTime.UtcNow);
         await _chatRepository.SaveReadStatusAsync(conversation, cancellationToken);
+    }
+
+    // Conversas com quem eu bloqueei (ou que me bloqueou) somem da lista — o histórico
+    // continua acessível por link direto (GetMessagesAsync/GetConversationByIdAsync não mudam).
+    private async Task<IReadOnlyList<ConversationSummaryDto>> GetConversationsExcludingBlockedAsync(Guid profileId, CancellationToken cancellationToken)
+    {
+        var conversations = await _chatRepository.GetConversationsForProfileAsync(profileId, cancellationToken);
+        var blockedOrBlockingIds = await _blockRepository.GetBlockedOrBlockingProfileIdsAsync(profileId, cancellationToken);
+
+        return conversations.Where(c => !blockedOrBlockingIds.Contains(c.OtherProfileId)).ToList();
     }
 
     private async Task<PlayerProfile> GetProfileOrThrowAsync(Guid userId, CancellationToken cancellationToken)

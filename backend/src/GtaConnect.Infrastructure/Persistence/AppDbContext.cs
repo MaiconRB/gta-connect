@@ -18,6 +18,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
     public DbSet<Message> Messages => Set<Message>();
 
+    public DbSet<Block> Blocks => Set<Block>();
+
+    public DbSet<Report> Reports => Set<Report>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

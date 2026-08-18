@@ -11,10 +11,12 @@ public class PlayerSearchService : IPlayerSearchService
     private const int MaxPageSize = 50;
 
     private readonly IPlayerProfileRepository _playerProfileRepository;
+    private readonly IBlockRepository _blockRepository;
 
-    public PlayerSearchService(IPlayerProfileRepository playerProfileRepository)
+    public PlayerSearchService(IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository)
     {
         _playerProfileRepository = playerProfileRepository;
+        _blockRepository = blockRepository;
     }
 
     public async Task<PagedResultDto<PlayerSummaryDto>> SearchAsync(Guid currentUserId, PlayerSearchFilterDto filter, CancellationToken cancellationToken = default)
@@ -30,7 +32,11 @@ public class PlayerSearchService : IPlayerSearchService
         var myProfile = await _playerProfileRepository.GetByUserIdAsync(currentUserId, cancellationToken)
             ?? throw new NotFoundException(nameof(PlayerProfile), currentUserId);
 
-        var (items, totalCount) = await _playerProfileRepository.SearchAsync(clampedFilter, myProfile.Id, cancellationToken);
+        // Nunca aparece o próprio usuário nem quem estiver bloqueado (nos dois sentidos) na busca.
+        var blockedOrBlockingIds = await _blockRepository.GetBlockedOrBlockingProfileIdsAsync(myProfile.Id, cancellationToken);
+        var excludedProfileIds = new HashSet<Guid>(blockedOrBlockingIds) { myProfile.Id };
+
+        var (items, totalCount) = await _playerProfileRepository.SearchAsync(clampedFilter, excludedProfileIds, cancellationToken);
 
         return new PagedResultDto<PlayerSummaryDto>(
             items.Select(ToSummaryDto).ToList(),

@@ -85,6 +85,78 @@
             }
           </div>
         </div>
+
+        <div class="mt-6 pt-4 border-t border-neutral-800">
+          @if (justBlocked()) {
+            <p class="text-sm text-neutral-400">{{ 'moderation.justBlocked' | translate }}</p>
+          } @else {
+            <div class="flex items-center gap-4 text-xs">
+              <button
+                type="button"
+                (click)="block()"
+                [disabled]="isBlocking()"
+                class="text-neutral-400 hover:text-red-400 disabled:opacity-50 transition-colors"
+              >
+                {{ (isBlocking() ? 'moderation.blocking' : 'moderation.blockButton') | translate }}
+              </button>
+              <button type="button" (click)="toggleReportForm()" class="text-neutral-400 hover:text-amber-400 transition-colors">
+                {{ 'moderation.reportButton' | translate }}
+              </button>
+            </div>
+
+            @if (blockError()) {
+              <p class="mt-2 text-xs text-red-400">{{ blockError() }}</p>
+            }
+
+            @if (reportSent()) {
+              <p class="mt-2 text-xs text-neutral-400">{{ 'moderation.reportSent' | translate }}</p>
+            }
+
+            @if (showReportForm()) {
+              <div class="mt-3 space-y-2">
+                @if (reportError()) {
+                  <p class="text-xs text-red-400">{{ reportError() }}</p>
+                }
+
+                <select
+                  [ngModel]="reportReason()"
+                  (ngModelChange)="reportReason.set($event)"
+                  class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  @for (option of reportReasonOptions; track option.value) {
+                    <option [ngValue]="option.value">{{ option.labelKey | translate }}</option>
+                  }
+                </select>
+
+                <textarea
+                  [ngModel]="reportDetails()"
+                  (ngModelChange)="reportDetails.set($event)"
+                  rows="2"
+                  [placeholder]="'moderation.detailsPlaceholder' | translate"
+                  class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                ></textarea>
+
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    (click)="submitReport()"
+                    [disabled]="isReporting()"
+                    class="flex-1 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm py-2 transition-colors"
+                  >
+                    {{ (isReporting() ? 'moderation.reporting' : 'moderation.submitReport') | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="toggleReportForm()"
+                    class="flex-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-medium text-sm py-2 transition-colors"
+                  >
+                    {{ 'profile.cancelButton' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
       }
     </div>
   </div>

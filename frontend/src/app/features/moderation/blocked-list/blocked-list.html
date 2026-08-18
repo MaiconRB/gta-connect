@@ -1,0 +1,42 @@
+<div class="min-h-screen app-shell-bg px-4 py-12">
+  <div class="w-full max-w-lg mx-auto">
+    <a routerLink="/perfil" class="inline-block text-sm text-neutral-400 hover:text-neutral-300 mb-4">
+      {{ 'moderation.backToProfile' | translate }}
+    </a>
+
+    <h1 class="font-display text-2xl font-bold text-white mb-6">{{ 'moderation.blockedListTitle' | translate }}</h1>
+
+    @if (isLoading()) {
+      <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+    } @else if (errorMessage()) {
+      <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
+        {{ errorMessage() }}
+      </div>
+    } @else if (blockedProfiles().length === 0) {
+      <p class="text-sm text-neutral-400">{{ 'moderation.noBlockedProfiles' | translate }}</p>
+    } @else {
+      <div class="space-y-3">
+        @for (profile of blockedProfiles(); track profile.blockedProfileId) {
+          <div class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+            @if (profile.avatarPath) {
+              <img [src]="profile.avatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
+            } @else {
+              <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
+                {{ profile.displayName.charAt(0).toUpperCase() }}
+              </div>
+            }
+            <p class="flex-1 text-white font-medium">{{ profile.displayName }}</p>
+            <button
+              type="button"
+              (click)="unblock(profile.blockedProfileId)"
+              [disabled]="unblockingId() === profile.blockedProfileId"
+              class="shrink-0 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
+            >
+              {{ 'moderation.unblockButton' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
