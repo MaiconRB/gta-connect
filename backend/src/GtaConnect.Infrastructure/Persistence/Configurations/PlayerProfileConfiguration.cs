@@ -32,6 +32,12 @@ public class PlayerProfileConfiguration : IEntityTypeConfiguration<PlayerProfile
         builder.Property(p => p.FavoriteModes)
             .HasMaxLength(200);
 
+        // Sem .IsRequired() de propósito — região é opcional, nem todo perfil vai ter.
+        builder.Property(p => p.Region);
+
+        builder.Property(p => p.AvailabilityTags)
+            .IsRequired();
+
         builder.Property(p => p.AvatarPath)
             .HasMaxLength(300);
 

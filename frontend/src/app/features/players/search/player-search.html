@@ -1,0 +1,143 @@
+<div class="min-h-screen app-shell-bg px-4 py-12">
+  <div class="w-full max-w-3xl mx-auto">
+    <h1 class="font-display text-2xl font-bold text-white mb-6">{{ 'players.title' | translate }}</h1>
+
+    <form [formGroup]="form" (ngSubmit)="search()" class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl mb-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="platform" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'players.platformLabel' | translate }}</label>
+          <select
+            id="platform"
+            formControlName="platform"
+            class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option value="">{{ 'players.anyPlatform' | translate }}</option>
+            <option value="1">PlayStation 4</option>
+            <option value="2">PlayStation 5</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="region" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.regionLabel' | translate }}</label>
+          <select
+            id="region"
+            formControlName="region"
+            class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option value="">{{ 'players.anyRegion' | translate }}</option>
+            @for (option of regionOptions; track option.value) {
+              <option [value]="option.value">{{ option.labelKey | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <p class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
+        <div class="grid grid-cols-2 gap-2">
+          @for (option of playstyleTagOptions; track option.value) {
+            <label class="flex items-center gap-2 text-sm text-neutral-300">
+              <input
+                type="checkbox"
+                [checked]="isTagSelected(option.value)"
+                (change)="toggleTag(option.value)"
+                class="rounded border-neutral-700 bg-neutral-800 text-amber-500 focus:ring-amber-500"
+              />
+              {{ option.labelKey | translate }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <div>
+        <p class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.availabilityLabel' | translate }}</p>
+        <div class="grid grid-cols-2 gap-2">
+          @for (option of availabilityTagOptions; track option.value) {
+            <label class="flex items-center gap-2 text-sm text-neutral-300">
+              <input
+                type="checkbox"
+                [checked]="isAvailabilityTagSelected(option.value)"
+                (change)="toggleAvailabilityTag(option.value)"
+                class="rounded border-neutral-700 bg-neutral-800 text-cyan-500 focus:ring-cyan-500"
+              />
+              {{ option.labelKey | translate }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="isLoading()"
+        class="w-full rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm py-2.5 transition-colors"
+      >
+        {{ (isLoading() ? 'players.searching' : 'players.searchButton') | translate }}
+      </button>
+    </form>
+
+    @if (errorMessage()) {
+      <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2 mb-6">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (hasSearched() && !isLoading()) {
+      @if (results().length === 0) {
+        <p class="text-sm text-neutral-400">{{ 'players.noResults' | translate }}</p>
+      } @else {
+        <div class="space-y-3">
+          @for (player of results(); track player.id) {
+            <a
+              [routerLink]="['/jogadores', player.id]"
+              class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-amber-500/50 transition-colors"
+            >
+              @if (player.avatarPath) {
+                <img [src]="player.avatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
+              } @else {
+                <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
+                  {{ player.displayName.charAt(0).toUpperCase() }}
+                </div>
+              }
+              <div class="min-w-0">
+                <p class="text-white font-medium">{{ player.displayName }}</p>
+                <p class="text-xs text-neutral-500">{{ (regionLabel(player.region) || 'profile.noRegion') | translate }}</p>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  @for (labelKey of activeTagLabels(player.playstyleTags); track labelKey) {
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
+                      {{ labelKey | translate }}
+                    </span>
+                  }
+                  @for (labelKey of activeAvailabilityLabels(player.availabilityTags); track labelKey) {
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs">
+                      {{ labelKey | translate }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+          <button
+            type="button"
+            (click)="goToPage(page() - 1)"
+            [disabled]="!hasPreviousPage"
+            class="rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
+          >
+            {{ 'players.previousPage' | translate }}
+          </button>
+          <span class="text-sm text-neutral-500">{{ 'players.pageIndicator' | translate: { page: page() } }}</span>
+          <button
+            type="button"
+            (click)="goToPage(page() + 1)"
+            [disabled]="!hasNextPage"
+            class="rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
+          >
+            {{ 'players.nextPage' | translate }}
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

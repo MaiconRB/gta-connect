@@ -47,6 +47,10 @@
     "avatarUploadButton": "Upload photo",
     "avatarUploading": "Uploading...",
     "logout": "Log out",
+    "regionLabel": "Region",
+    "noRegion": "Not specified",
+    "availabilityLabel": "Availability",
+    "noAvailability": "No time window selected yet.",
     "playstyleTags": {
       "mundoAbertoCalmo": "Open world (chill)",
       "grindDeHeist": "Heist grinding",
@@ -56,7 +60,38 @@
       "campanhaHistoria": "Story campaign",
       "pvpCompetitivo": "Competitive PvP",
       "negociosEconomia": "Businesses/economy"
+    },
+    "region": {
+      "norte": "North",
+      "nordeste": "Northeast",
+      "centroOeste": "Midwest",
+      "sudeste": "Southeast",
+      "sul": "South"
+    },
+    "availabilityTags": {
+      "manha": "Morning",
+      "tarde": "Afternoon",
+      "noite": "Evening",
+      "madrugada": "Late night",
+      "fimDeSemana": "Weekends"
     }
+  },
+  "players": {
+    "title": "Search players",
+    "platformLabel": "Platform",
+    "anyPlatform": "Any platform",
+    "anyRegion": "Any region",
+    "searchButton": "Search",
+    "searching": "Searching...",
+    "noResults": "No players found with these filters.",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "pageIndicator": "Page {{page}}",
+    "backToSearch": "Back to search"
+  },
+  "nav": {
+    "profile": "Profile",
+    "search": "Search"
   },
   "common": {
     "genericError": "Could not complete the operation. Please try again."

@@ -59,7 +59,7 @@ public class ProfileServiceTests
     {
         var userId = Guid.NewGuid();
         var profile = CreateValidProfile(userId);
-        var request = new UpdateProfileRequestDto("Nova bio", PlaystyleTag.Corrida, 50, "Corridas oficiais");
+        var request = new UpdateProfileRequestDto("Nova bio", PlaystyleTag.Corrida, 50, "Corridas oficiais", Region.Sul, AvailabilityTag.Madrugada);
 
         _playerProfileRepositoryMock
             .Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
@@ -71,6 +71,8 @@ public class ProfileServiceTests
         Assert.Equal(PlaystyleTag.Corrida, result.PlaystyleTags);
         Assert.Equal(50, result.HoursPlayed);
         Assert.Equal("Corridas oficiais", result.FavoriteModes);
+        Assert.Equal(Region.Sul, result.Region);
+        Assert.Equal(AvailabilityTag.Madrugada, result.AvailabilityTags);
         _playerProfileRepositoryMock.Verify(r => r.UpdateAsync(profile, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -78,7 +80,7 @@ public class ProfileServiceTests
     public async Task UpdateMyProfileAsync_ComDadosInvalidos_LancaValidationAppExceptionSemBuscarPerfil()
     {
         var userId = Guid.NewGuid();
-        var request = new UpdateProfileRequestDto(new string('a', 501), PlaystyleTag.None, 0, null);
+        var request = new UpdateProfileRequestDto(new string('a', 501), PlaystyleTag.None, 0, null, null, AvailabilityTag.None);
 
         await Assert.ThrowsAsync<ValidationAppException>(() => _sut.UpdateMyProfileAsync(userId, request));
 
@@ -89,7 +91,7 @@ public class ProfileServiceTests
     public async Task UpdateMyProfileAsync_ComPerfilInexistente_LancaNotFoundException()
     {
         var userId = Guid.NewGuid();
-        var request = new UpdateProfileRequestDto(null, PlaystyleTag.None, 0, null);
+        var request = new UpdateProfileRequestDto(null, PlaystyleTag.None, 0, null, null, AvailabilityTag.None);
 
         _playerProfileRepositoryMock
             .Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))

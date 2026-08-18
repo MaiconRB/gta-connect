@@ -1,0 +1,85 @@
+<div class="min-h-screen app-shell-bg px-4 py-12">
+  <div class="w-full max-w-lg mx-auto">
+    <a routerLink="/jogadores" class="inline-block text-sm text-neutral-400 hover:text-neutral-300 mb-4">
+      {{ 'players.backToSearch' | translate }}
+    </a>
+
+    <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
+      @if (isLoading()) {
+        <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+      } @else if (loadError()) {
+        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
+          {{ loadError() }}
+        </div>
+      } @else if (player(); as p) {
+        <div class="flex items-center gap-4 mb-6">
+          @if (p.avatarPath) {
+            <img [src]="p.avatarPath" alt="" class="w-16 h-16 rounded-full object-cover border border-neutral-700 shrink-0" />
+          } @else {
+            <div class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 text-xl font-semibold shrink-0">
+              {{ p.displayName.charAt(0).toUpperCase() }}
+            </div>
+          }
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">{{ p.displayName }}</h1>
+            <p class="text-sm text-neutral-400">
+              {{ p.platform === 2 ? 'PlayStation 5' : 'PlayStation 4' }} · GTA V
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-sm">
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.bioLabel' | translate }}</p>
+            <p class="text-neutral-200">{{ p.bio || ('profile.noBio' | translate) }}</p>
+          </div>
+
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
+            @if (activeTagLabels(p.playstyleTags).length > 0) {
+              <div class="flex flex-wrap gap-1.5">
+                @for (labelKey of activeTagLabels(p.playstyleTags); track labelKey) {
+                  <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
+                    {{ labelKey | translate }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-neutral-200">{{ 'profile.noPlaystyle' | translate }}</p>
+            }
+          </div>
+
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.hoursPlayedLabel' | translate }}</p>
+            <p class="text-neutral-200">{{ p.hoursPlayed }}</p>
+          </div>
+
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.favoriteModesLabel' | translate }}</p>
+            <p class="text-neutral-200">{{ p.favoriteModes || ('profile.noFavoriteModes' | translate) }}</p>
+          </div>
+
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.regionLabel' | translate }}</p>
+            <p class="text-neutral-200">{{ (regionLabel(p.region) || 'profile.noRegion') | translate }}</p>
+          </div>
+
+          <div>
+            <p class="text-neutral-500 mb-1">{{ 'profile.availabilityLabel' | translate }}</p>
+            @if (activeAvailabilityLabels(p.availabilityTags).length > 0) {
+              <div class="flex flex-wrap gap-1.5">
+                @for (labelKey of activeAvailabilityLabels(p.availabilityTags); track labelKey) {
+                  <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs">
+                    {{ labelKey | translate }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-neutral-200">{{ 'profile.noAvailability' | translate }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

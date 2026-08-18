@@ -47,6 +47,10 @@
     "avatarUploadButton": "Enviar foto",
     "avatarUploading": "Enviando...",
     "logout": "Sair",
+    "regionLabel": "Região",
+    "noRegion": "Não informado",
+    "availabilityLabel": "Disponibilidade",
+    "noAvailability": "Nenhum horário selecionado ainda.",
     "playstyleTags": {
       "mundoAbertoCalmo": "Mundo aberto (calmo)",
       "grindDeHeist": "Grind de heist",
@@ -56,7 +60,38 @@
       "campanhaHistoria": "Campanha/história",
       "pvpCompetitivo": "PVP competitivo",
       "negociosEconomia": "Negócios/economia"
+    },
+    "region": {
+      "norte": "Norte",
+      "nordeste": "Nordeste",
+      "centroOeste": "Centro-Oeste",
+      "sudeste": "Sudeste",
+      "sul": "Sul"
+    },
+    "availabilityTags": {
+      "manha": "Manhã",
+      "tarde": "Tarde",
+      "noite": "Noite",
+      "madrugada": "Madrugada",
+      "fimDeSemana": "Fim de semana"
     }
+  },
+  "players": {
+    "title": "Buscar jogadores",
+    "platformLabel": "Plataforma",
+    "anyPlatform": "Qualquer plataforma",
+    "anyRegion": "Qualquer região",
+    "searchButton": "Buscar",
+    "searching": "Buscando...",
+    "noResults": "Nenhum jogador encontrado com esses filtros.",
+    "previousPage": "Anterior",
+    "nextPage": "Próxima",
+    "pageIndicator": "Página {{page}}",
+    "backToSearch": "Voltar para a busca"
+  },
+  "nav": {
+    "profile": "Perfil",
+    "search": "Buscar"
   },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."

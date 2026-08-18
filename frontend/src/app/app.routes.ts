@@ -16,5 +16,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
     canActivate: [authGuard],
   },
+  {
+    path: 'jogadores',
+    loadComponent: () => import('./features/players/search/player-search').then((m) => m.PlayerSearch),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'jogadores/:id',
+    loadComponent: () => import('./features/players/detail/player-detail').then((m) => m.PlayerDetail),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'login' },
 ];

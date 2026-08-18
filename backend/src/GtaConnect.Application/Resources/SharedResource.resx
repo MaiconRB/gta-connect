@@ -60,4 +60,10 @@
   <data name="Profile_AvatarTooLarge" xml:space="preserve">
     <value>A imagem não pode ter mais de 2MB.</value>
   </data>
+  <data name="Profile_AvailabilityTagsInvalid" xml:space="preserve">
+    <value>Uma ou mais tags de disponibilidade são inválidas.</value>
+  </data>
+  <data name="Profile_RegionInvalid" xml:space="preserve">
+    <value>Região informada é inválida.</value>
+  </data>
 </root>

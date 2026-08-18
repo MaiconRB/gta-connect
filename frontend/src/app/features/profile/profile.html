@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-neutral-950 px-4 py-12">
+<div class="min-h-screen app-shell-bg px-4 py-12">
   <div class="w-full max-w-lg mx-auto">
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
 
@@ -23,7 +23,7 @@
             </div>
           }
           <div>
-            <h1 class="text-xl font-semibold text-white">{{ p.displayName }}</h1>
+            <h1 class="font-display text-xl font-bold text-white">{{ p.displayName }}</h1>
             <p class="text-sm text-neutral-400">
               {{ p.platform === 2 ? 'PlayStation 5' : 'PlayStation 4' }} · GTA V
             </p>
@@ -80,6 +80,26 @@
             <div>
               <p class="text-neutral-500 mb-1">{{ 'profile.favoriteModesLabel' | translate }}</p>
               <p class="text-neutral-200">{{ p.favoriteModes || ('profile.noFavoriteModes' | translate) }}</p>
+            </div>
+
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.regionLabel' | translate }}</p>
+              <p class="text-neutral-200">{{ (regionLabel(p.region) || 'profile.noRegion') | translate }}</p>
+            </div>
+
+            <div>
+              <p class="text-neutral-500 mb-1">{{ 'profile.availabilityLabel' | translate }}</p>
+              @if (activeAvailabilityLabels(p.availabilityTags).length > 0) {
+                <div class="flex flex-wrap gap-1.5">
+                  @for (labelKey of activeAvailabilityLabels(p.availabilityTags); track labelKey) {
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs">
+                      {{ labelKey | translate }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="text-neutral-200">{{ 'profile.noAvailability' | translate }}</p>
+              }
             </div>
           </div>
 
@@ -154,6 +174,37 @@
               @if (form.controls.favoriteModes.invalid && form.controls.favoriteModes.touched) {
                 <p class="mt-1 text-xs text-red-400">{{ 'profile.favoriteModesTooLong' | translate }}</p>
               }
+            </div>
+
+            <div>
+              <label for="region" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.regionLabel' | translate }}</label>
+              <select
+                id="region"
+                formControlName="region"
+                class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="">{{ 'profile.noRegion' | translate }}</option>
+                @for (option of regionOptions; track option.value) {
+                  <option [value]="option.value">{{ option.labelKey | translate }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <p class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.availabilityLabel' | translate }}</p>
+              <div class="grid grid-cols-2 gap-2">
+                @for (option of availabilityTagOptions; track option.value) {
+                  <label class="flex items-center gap-2 text-sm text-neutral-300">
+                    <input
+                      type="checkbox"
+                      [checked]="isAvailabilityTagSelected(option.value)"
+                      (change)="toggleAvailabilityTag(option.value)"
+                      class="rounded border-neutral-700 bg-neutral-800 text-cyan-500 focus:ring-cyan-500"
+                    />
+                    {{ option.labelKey | translate }}
+                  </label>
+                }
+              </div>
             </div>
 
             <div class="flex gap-3">

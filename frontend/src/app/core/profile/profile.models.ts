@@ -24,6 +24,40 @@ export const PLAYSTYLE_TAG_OPTIONS: { value: PlaystyleTag; labelKey: string }[] 
   { value: PlaystyleTag.NegociosEconomia, labelKey: 'profile.playstyleTags.negociosEconomia' },
 ];
 
+// Espelha GtaConnect.Domain.Enums.Region (seleção única, não [Flags]).
+export enum Region {
+  Norte = 1,
+  Nordeste = 2,
+  CentroOeste = 3,
+  Sudeste = 4,
+  Sul = 5,
+}
+
+export const REGION_OPTIONS: { value: Region; labelKey: string }[] = [
+  { value: Region.Norte, labelKey: 'profile.region.norte' },
+  { value: Region.Nordeste, labelKey: 'profile.region.nordeste' },
+  { value: Region.CentroOeste, labelKey: 'profile.region.centroOeste' },
+  { value: Region.Sudeste, labelKey: 'profile.region.sudeste' },
+  { value: Region.Sul, labelKey: 'profile.region.sul' },
+];
+
+// Espelha GtaConnect.Domain.Enums.AvailabilityTag ([Flags], bitmask).
+export enum AvailabilityTag {
+  Manha = 1 << 0,
+  Tarde = 1 << 1,
+  Noite = 1 << 2,
+  Madrugada = 1 << 3,
+  FimDeSemana = 1 << 4,
+}
+
+export const AVAILABILITY_TAG_OPTIONS: { value: AvailabilityTag; labelKey: string }[] = [
+  { value: AvailabilityTag.Manha, labelKey: 'profile.availabilityTags.manha' },
+  { value: AvailabilityTag.Tarde, labelKey: 'profile.availabilityTags.tarde' },
+  { value: AvailabilityTag.Noite, labelKey: 'profile.availabilityTags.noite' },
+  { value: AvailabilityTag.Madrugada, labelKey: 'profile.availabilityTags.madrugada' },
+  { value: AvailabilityTag.FimDeSemana, labelKey: 'profile.availabilityTags.fimDeSemana' },
+];
+
 export interface ProfileResponse {
   id: string;
   displayName: string;
@@ -33,6 +67,8 @@ export interface ProfileResponse {
   playstyleTags: number;
   hoursPlayed: number;
   favoriteModes: string | null;
+  region: Region | null;
+  availabilityTags: number;
   avatarPath: string | null;
   createdAtUtc: string;
 }
@@ -42,4 +78,13 @@ export interface UpdateProfileRequest {
   playstyleTags: number;
   hoursPlayed: number;
   favoriteModes: string | null;
+  region: Region | null;
+  availabilityTags: number;
 }
+
+// Pura e reutilizável — usada tanto no perfil (estilo de jogo, disponibilidade) quanto
+// na busca de jogadores (mesmos grupos de tags em cards de resultado).
+export function activeOptionLabels<T extends number>(bitmask: number, options: { value: T; labelKey: string }[]): string[] {
+  return options.filter((option) => (bitmask & option.value) !== 0).map((option) => option.labelKey);
+}
+

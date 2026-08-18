@@ -1,3 +1,35 @@
 @import "tailwindcss";
 
-/* You can add global styles to this file, and also import other style files */
+/* Identidade visual inspirada em GTA 6 ("Vice City Sunset"): neon magenta/roxo/ciano
+   sobre fundo quase-preto com tom violeta. Sobrescreve os tons de neutral/amber usados
+   em todo o app — não copia fontes/cores/logo oficiais da Rockstar (decisão de IP,
+   ver PROJETO.md seção 7). */
+@theme {
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --color-neutral-950: #0a0612;
+  --color-neutral-900: #150e22;
+  --color-neutral-800: #241a38;
+  --color-neutral-700: #3a2b54;
+  --color-neutral-500: #8f7fae;
+  --color-neutral-400: #b3a6cc;
+  --color-neutral-300: #d3c9e3;
+  --color-neutral-200: #ede7f5;
+
+  --color-amber-300: #ff9fe8;
+  --color-amber-400: #ff6edb;
+  --color-amber-500: #ff3ec9;
+}
+
+body {
+  background-color: var(--color-neutral-950);
+}
+
+/* Glow "pôr do sol" sutil atrás do conteúdo — aplicar junto de bg-neutral-950
+   nos wrappers de tela (login, registro, perfil, busca, detalhe). */
+.app-shell-bg {
+  background-color: var(--color-neutral-950);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -10%, rgb(255 62 201 / 14%), transparent),
+    radial-gradient(ellipse 55% 40% at 100% 100%, rgb(34 211 238 / 10%), transparent);
+}

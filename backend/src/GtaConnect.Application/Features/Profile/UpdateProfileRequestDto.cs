@@ -6,4 +6,6 @@ public record UpdateProfileRequestDto(
     string? Bio,
     PlaystyleTag PlaystyleTags,
     int HoursPlayed,
-    string? FavoriteModes);
+    string? FavoriteModes,
+    Region? Region,
+    AvailabilityTag AvailabilityTags);

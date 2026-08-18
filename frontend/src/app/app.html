@@ -1,4 +1,16 @@
-<header class="fixed top-3 right-3 z-10">
+<header class="fixed top-3 left-3 right-3 z-10 flex items-center justify-between">
+  @if (authService.isAuthenticated()) {
+    <nav class="flex items-center gap-4 text-sm">
+      <a routerLink="/perfil" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+        {{ 'nav.profile' | translate }}
+      </a>
+      <a routerLink="/jogadores" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+        {{ 'nav.search' | translate }}
+      </a>
+    </nav>
+  } @else {
+    <span></span>
+  }
   <app-language-switcher />
 </header>
 <router-outlet />

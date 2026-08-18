@@ -41,13 +41,16 @@ public class PlayerProfileTests
     {
         var profile = CreateValidProfile();
         var tags = PlaystyleTag.Corrida | PlaystyleTag.RolePlay;
+        var availability = AvailabilityTag.Noite | AvailabilityTag.FimDeSemana;
 
-        profile.UpdateProfile("  Gosto de correr e fazer RP.  ", tags, 120, "  Cayo Perico, corridas oficiais  ");
+        profile.UpdateProfile("  Gosto de correr e fazer RP.  ", tags, 120, "  Cayo Perico, corridas oficiais  ", Region.Sudeste, availability);
 
         Assert.Equal("Gosto de correr e fazer RP.", profile.Bio);
         Assert.Equal(tags, profile.PlaystyleTags);
         Assert.Equal(120, profile.HoursPlayed);
         Assert.Equal("Cayo Perico, corridas oficiais", profile.FavoriteModes);
+        Assert.Equal(Region.Sudeste, profile.Region);
+        Assert.Equal(availability, profile.AvailabilityTags);
     }
 
     [Fact]
@@ -55,10 +58,29 @@ public class PlayerProfileTests
     {
         var profile = CreateValidProfile();
 
-        profile.UpdateProfile("   ", PlaystyleTag.None, 0, "   ");
+        profile.UpdateProfile("   ", PlaystyleTag.None, 0, "   ", null, AvailabilityTag.None);
 
         Assert.Null(profile.Bio);
         Assert.Null(profile.FavoriteModes);
+    }
+
+    [Fact]
+    public void UpdateProfile_ComRegiaoNull_MantemRegiaoNull()
+    {
+        var profile = CreateValidProfile();
+
+        profile.UpdateProfile(null, PlaystyleTag.None, 0, null, null, AvailabilityTag.None);
+
+        Assert.Null(profile.Region);
+    }
+
+    [Fact]
+    public void UpdateProfile_ComRegiaoInvalida_LancaArgumentException()
+    {
+        var profile = CreateValidProfile();
+        var regiaoInvalida = (Region)999;
+
+        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, PlaystyleTag.None, 0, null, regiaoInvalida, AvailabilityTag.None));
     }
 
     [Fact]
@@ -67,7 +89,7 @@ public class PlayerProfileTests
         var profile = CreateValidProfile();
         var bioMuitoLonga = new string('a', 501);
 
-        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(bioMuitoLonga, PlaystyleTag.None, 0, null));
+        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(bioMuitoLonga, PlaystyleTag.None, 0, null, null, AvailabilityTag.None));
     }
 
     [Fact]
@@ -76,7 +98,7 @@ public class PlayerProfileTests
         var profile = CreateValidProfile();
         var favoriteModesMuitoLongo = new string('a', 201);
 
-        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, PlaystyleTag.None, 0, favoriteModesMuitoLongo));
+        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, PlaystyleTag.None, 0, favoriteModesMuitoLongo, null, AvailabilityTag.None));
     }
 
     [Theory]
@@ -86,7 +108,7 @@ public class PlayerProfileTests
     {
         var profile = CreateValidProfile();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => profile.UpdateProfile(null, PlaystyleTag.None, hoursPlayed, null));
+        Assert.Throws<ArgumentOutOfRangeException>(() => profile.UpdateProfile(null, PlaystyleTag.None, hoursPlayed, null, null, AvailabilityTag.None));
     }
 
     [Fact]
@@ -95,7 +117,16 @@ public class PlayerProfileTests
         var profile = CreateValidProfile();
         var tagInvalida = (PlaystyleTag)(1 << 20);
 
-        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, tagInvalida, 0, null));
+        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, tagInvalida, 0, null, null, AvailabilityTag.None));
+    }
+
+    [Fact]
+    public void UpdateProfile_ComTagDeDisponibilidadeInvalida_LancaArgumentException()
+    {
+        var profile = CreateValidProfile();
+        var tagInvalida = (AvailabilityTag)(1 << 20);
+
+        Assert.Throws<ArgumentException>(() => profile.UpdateProfile(null, PlaystyleTag.None, 0, null, null, tagInvalida));
     }
 
     [Fact]

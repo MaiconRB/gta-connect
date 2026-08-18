@@ -41,7 +41,7 @@ public class ProfileService : IProfileService
         await _updateProfileValidator.ValidateAndThrowAppExceptionAsync(request, cancellationToken);
 
         var profile = await GetProfileOrThrowAsync(userId, cancellationToken);
-        profile.UpdateProfile(request.Bio, request.PlaystyleTags, request.HoursPlayed, request.FavoriteModes);
+        profile.UpdateProfile(request.Bio, request.PlaystyleTags, request.HoursPlayed, request.FavoriteModes, request.Region, request.AvailabilityTags);
         await _playerProfileRepository.UpdateAsync(profile, cancellationToken);
 
         return ToDto(profile);
@@ -84,6 +84,8 @@ public class ProfileService : IProfileService
         profile.PlaystyleTags,
         profile.HoursPlayed,
         profile.FavoriteModes,
+        profile.Region,
+        profile.AvailabilityTags,
         profile.AvatarPath,
         profile.CreatedAtUtc);
 }

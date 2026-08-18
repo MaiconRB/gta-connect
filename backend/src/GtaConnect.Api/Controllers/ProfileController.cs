@@ -21,14 +21,14 @@ public class ProfileController : ControllerBase
     public async Task<ActionResult<ProfileResponseDto>> GetMe(CancellationToken cancellationToken)
     {
         var profile = await _profileService.GetMyProfileAsync(User.GetUserId(), cancellationToken);
-        return Ok(WithAbsoluteAvatarUrl(profile));
+        return Ok(this.WithAbsoluteAvatarUrl(profile));
     }
 
     [HttpPut("me")]
     public async Task<ActionResult<ProfileResponseDto>> UpdateMe(UpdateProfileRequestDto request, CancellationToken cancellationToken)
     {
         var profile = await _profileService.UpdateMyProfileAsync(User.GetUserId(), request, cancellationToken);
-        return Ok(WithAbsoluteAvatarUrl(profile));
+        return Ok(this.WithAbsoluteAvatarUrl(profile));
     }
 
     // Guarda-corpo real de tamanho — sem isso, o Kestrel/FormOptions aceitariam um upload
@@ -44,20 +44,6 @@ public class ProfileController : ControllerBase
 
         await using var stream = file.OpenReadStream();
         var profile = await _profileService.UploadAvatarAsync(User.GetUserId(), stream, file.FileName, file.Length, cancellationToken);
-        return Ok(WithAbsoluteAvatarUrl(profile));
-    }
-
-    // AvatarPath vem da Application como caminho relativo ("/uploads/avatars/xxx.jpg").
-    // A Api é a única camada que conhece Request.Scheme/Host, então é aqui — e só aqui —
-    // que o caminho relativo vira URL absoluta pronta pro frontend usar num <img src>.
-    private ProfileResponseDto WithAbsoluteAvatarUrl(ProfileResponseDto profile)
-    {
-        if (profile.AvatarPath is null)
-        {
-            return profile;
-        }
-
-        var absoluteUrl = $"{Request.Scheme}://{Request.Host}{profile.AvatarPath}";
-        return profile with { AvatarPath = absoluteUrl };
+        return Ok(this.WithAbsoluteAvatarUrl(profile));
     }
 }

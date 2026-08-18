@@ -14,5 +14,7 @@ public record ProfileResponseDto(
     PlaystyleTag PlaystyleTags,
     int HoursPlayed,
     string? FavoriteModes,
+    Region? Region,
+    AvailabilityTag AvailabilityTags,
     string? AvatarPath,
     DateTime CreatedAtUtc);

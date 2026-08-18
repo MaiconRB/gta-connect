@@ -30,6 +30,10 @@ public class PlayerProfile
 
     public string? FavoriteModes { get; private set; }
 
+    public Region? Region { get; private set; }
+
+    public AvailabilityTag AvailabilityTags { get; private set; } = AvailabilityTag.None;
+
     public string? AvatarPath { get; private set; }
 
     public DateTime CreatedAtUtc { get; private set; }
@@ -66,10 +70,10 @@ public class PlayerProfile
 
     /// <summary>
     /// Atualiza os campos editáveis do perfil (bio, estilo de jogo, horas jogadas, modos
-    /// favoritos). Não mexe em DisplayName/Platform/GameTitle/AvatarPath — cada um tem seu
-    /// próprio motivo pra ficar fora daqui (ver PROJETO.md e o método SetAvatar).
+    /// favoritos, região, disponibilidade). Não mexe em DisplayName/Platform/GameTitle/AvatarPath
+    /// — cada um tem seu próprio motivo pra ficar fora daqui (ver PROJETO.md e o método SetAvatar).
     /// </summary>
-    public void UpdateProfile(string? bio, PlaystyleTag playstyleTags, int hoursPlayed, string? favoriteModes)
+    public void UpdateProfile(string? bio, PlaystyleTag playstyleTags, int hoursPlayed, string? favoriteModes, Region? region, AvailabilityTag availabilityTags)
     {
         var trimmedBio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim();
         if (trimmedBio is { Length: > MaxBioLength })
@@ -95,10 +99,24 @@ public class PlayerProfile
             throw new ArgumentException($"Modos favoritos não pode ter mais de {MaxFavoriteModesLength} caracteres.", nameof(favoriteModes));
         }
 
+        // Region não é [Flags] — seleção única, então Enum.IsDefined funciona normalmente
+        // (diferente da checagem bitwise usada acima pra PlaystyleTags).
+        if (region is not null && !Enum.IsDefined(region.Value))
+        {
+            throw new ArgumentException("Região informada é inválida.", nameof(region));
+        }
+
+        if ((availabilityTags & ~AvailabilityTag.All) != 0)
+        {
+            throw new ArgumentException("Uma ou mais tags de disponibilidade são inválidas.", nameof(availabilityTags));
+        }
+
         Bio = trimmedBio;
         PlaystyleTags = playstyleTags;
         HoursPlayed = hoursPlayed;
         FavoriteModes = trimmedFavoriteModes;
+        Region = region;
+        AvailabilityTags = availabilityTags;
     }
 
     /// <summary>

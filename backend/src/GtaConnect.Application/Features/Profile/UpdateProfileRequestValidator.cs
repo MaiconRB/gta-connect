@@ -21,5 +21,13 @@ public class UpdateProfileRequestValidator : AbstractValidator<UpdateProfileRequ
         RuleFor(x => x.PlaystyleTags)
             .Must(tags => (tags & ~PlaystyleTag.All) == 0)
             .WithMessage(localizer["Profile_PlaystyleTagsInvalid"]);
+
+        RuleFor(x => x.AvailabilityTags)
+            .Must(tags => (tags & ~AvailabilityTag.All) == 0)
+            .WithMessage(localizer["Profile_AvailabilityTagsInvalid"]);
+
+        RuleFor(x => x.Region)
+            .Must(region => region is null || Enum.IsDefined(region.Value))
+            .WithMessage(localizer["Profile_RegionInvalid"]);
     }
 }
