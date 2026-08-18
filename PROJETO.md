@@ -37,7 +37,7 @@ Hoje, jogadores usam Discord, Reddit e grupos de WhatsApp para achar parceiros d
 1. **Perfil de jogador** — bio, plataforma, estilo de jogo, horas jogadas, jogos/modos favoritos dentro do GTA, fotos. **Status: concluído** (ver seção 13) — falta só a visualização do perfil de *outros* jogadores, que vem natural junto com a busca (item 2).
 2. **Busca/filtro de jogadores** — encontrar gente por região, horário, tipo de atividade preferida (heist, RP, corrida, freemode, campanha/mundo aberto, etc). **Status: concluído** (ver seção 13).
 3. **Chat / mensagens diretas** — conversar dentro do app antes de se conectar no jogo. **Status: concluído** (ver seção 13) — 1:1 em tempo real, sem chat em grupo.
-4. **Feed / posts** — mural social com fotos, clipes e conquistas do jogo. **Status: não iniciado.**
+4. **Feed / posts** — mural social com fotos, clipes e conquistas do jogo. **Status: concluído** (ver seção 13) — só fotos (sem vídeo/clipe, decisão consciente), feed público global (sem conceito de "seguir" ainda). **Fecha o conjunto original de funcionalidades do MVP** — os quatro itens desta lista estão prontos.
 
 ## 7. Identidade e tom do produto
 
@@ -93,11 +93,12 @@ Esta seção existe para preservar contexto entre sessões de trabalho — o que
 - **Identidade visual "Vice City Sunset"**: paleta magenta/roxo/ciano sobre fundo quase-preto violeta (glow radial sutil), tipografia de destaque `Space Grotesk` nos títulos — aplicada via `@theme` do Tailwind v4 (sobrescreve os tons `neutral`/`amber` usados em todo o app, sem tocar em cada componente individualmente).
 - **Chat / mensagens diretas**: 1:1 em tempo real via SignalR (`ChatHub` em `/hubs/chat`, autenticado por JWT via query string — WebSocket não permite header `Authorization`). Conversa nasce como efeito colateral do primeiro envio (find-or-create pelo par de participantes, sem endpoint de "criar conversa"); envio só pelo Hub, leitura (histórico + lista) por REST (`/api/conversations`). Status de leitura por conversa (não por mensagem), badge de não-lidas na navegação.
 - **Bloqueio e denúncia**: `Block` (direcional no registro, bidirecional no efeito — checagem sempre nos dois sentidos) esconde o outro perfil da busca e da lista de conversas para os dois lados, e impede mensagem nova (`ChatService.SendMessageAsync` valida antes de criar/reaproveitar a conversa); bloquear/desbloquear são idempotentes. `Report` grava motivo (`ReportReason`) + detalhes opcionais, **sem tela de revisão/moderador** — só consultável direto no banco por ora. Tela `/bloqueados` pra gerenciar (desbloquear), botões "Bloquear"/"Denunciar" no perfil de outros jogadores.
-- **Testes automatizados**: 105 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks.
+- **Feed / posts**: mural público global (`/feed`) — texto opcional + foto opcional (nunca os dois vazios), curtida simples sem comentários, só o autor apaga o próprio post, posts de quem está bloqueado somem do feed dos dois lados (mesma consistência de busca/chat). Upload de foto reaproveita `IPhotoStorageService` (novo método `SavePostPhotoAsync`, salva em `uploads/posts/`). **Fecha os 4 itens do MVP original** (seção 6).
+- **Testes automatizados**: 126 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks.
 
 ### Em andamento / próximo (nesta ordem, combinada com o usuário)
 
-1. A definir — candidatos: feed/posts, verificação de conta, sistema de avaliação/reputação, nome definitivo do app.
+1. A definir — candidatos: verificação de conta, sistema de avaliação/reputação, painel de revisão de denúncias, "seguir" jogadores (feed hoje é só público/global), nome definitivo do app.
 
 ### Decisões técnicas já fechadas (não reabrir sem motivo novo)
 

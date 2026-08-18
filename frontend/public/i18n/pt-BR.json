@@ -121,9 +121,21 @@
       "outro": "Outro"
     }
   },
+  "feed": {
+    "title": "Feed",
+    "composerPlaceholder": "Compartilhe algo com a comunidade...",
+    "addPhoto": "Adicionar foto",
+    "postButton": "Postar",
+    "posting": "Postando...",
+    "noPosts": "Nenhum post ainda. Seja o primeiro a compartilhar algo!",
+    "deleteButton": "Apagar",
+    "loadMore": "Carregar mais",
+    "loadingMore": "Carregando..."
+  },
   "nav": {
     "profile": "Perfil",
     "search": "Buscar",
+    "feed": "Feed",
     "messages": "Mensagens"
   },
   "common": {

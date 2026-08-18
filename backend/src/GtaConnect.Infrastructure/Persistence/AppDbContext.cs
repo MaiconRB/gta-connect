@@ -22,6 +22,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
     public DbSet<Report> Reports => Set<Report>();
 
+    public DbSet<Post> Posts => Set<Post>();
+
+    public DbSet<PostLike> PostLikes => Set<PostLike>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

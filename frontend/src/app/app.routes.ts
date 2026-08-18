@@ -46,5 +46,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/moderation/blocked-list/blocked-list').then((m) => m.BlockedList),
     canActivate: [authGuard],
   },
+  {
+    path: 'feed',
+    loadComponent: () => import('./features/feed/feed-page/feed-page').then((m) => m.FeedPage),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'login' },
 ];

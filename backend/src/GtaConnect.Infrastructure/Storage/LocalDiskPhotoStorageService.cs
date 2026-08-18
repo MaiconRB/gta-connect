@@ -17,25 +17,31 @@ public class LocalDiskPhotoStorageService : IPhotoStorageService
         _environment = environment;
     }
 
-    public async Task<string> SaveAvatarAsync(Stream content, string fileName, CancellationToken cancellationToken = default)
+    public Task<string> SaveAvatarAsync(Stream content, string fileName, CancellationToken cancellationToken = default) =>
+        SavePhotoAsync(content, fileName, "avatars", cancellationToken);
+
+    public Task<string> SavePostPhotoAsync(Stream content, string fileName, CancellationToken cancellationToken = default) =>
+        SavePhotoAsync(content, fileName, "posts", cancellationToken);
+
+    private async Task<string> SavePhotoAsync(Stream content, string fileName, string subfolder, CancellationToken cancellationToken)
     {
         var webRootPath = _environment.WebRootPath
             ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
 
-        var avatarsDirectory = Path.Combine(webRootPath, "uploads", "avatars");
-        Directory.CreateDirectory(avatarsDirectory);
+        var directory = Path.Combine(webRootPath, "uploads", subfolder);
+        Directory.CreateDirectory(directory);
 
         // Nunca reaproveita o nome vindo do cliente além da extensão — evita colisão,
         // overwrite acidental e path traversal.
         var extension = Path.GetExtension(fileName);
         var generatedFileName = $"{Guid.NewGuid()}{extension}";
-        var fullPath = Path.Combine(avatarsDirectory, generatedFileName);
+        var fullPath = Path.Combine(directory, generatedFileName);
 
         await using (var fileStream = File.Create(fullPath))
         {
             await content.CopyToAsync(fileStream, cancellationToken);
         }
 
-        return $"/uploads/avatars/{generatedFileName}";
+        return $"/uploads/{subfolder}/{generatedFileName}";
     }
 }

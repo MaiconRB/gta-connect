@@ -7,6 +7,9 @@
       <a routerLink="/jogadores" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
         {{ 'nav.search' | translate }}
       </a>
+      <a routerLink="/feed" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
+        {{ 'nav.feed' | translate }}
+      </a>
       <a routerLink="/mensagens" routerLinkActive="text-amber-400" class="relative text-neutral-300 hover:text-white transition-colors">
         {{ 'nav.messages' | translate }}
         @if (unreadMessageCount() > 0) {

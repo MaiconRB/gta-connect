@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using GtaConnect.Application.Features.Auth;
 using GtaConnect.Application.Features.Chat;
+using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Moderation;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Application.Features.Profile;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IPlayerSearchService, PlayerSearchService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IModerationService, ModerationService>();
+        services.AddScoped<IFeedService, FeedService>();
 
         return services;
     }

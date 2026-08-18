@@ -66,4 +66,13 @@
   <data name="Profile_RegionInvalid" xml:space="preserve">
     <value>Região informada é inválida.</value>
   </data>
+  <data name="Feed_PhotoInvalidType" xml:space="preserve">
+    <value>Formato de imagem inválido. Use JPG, PNG ou WEBP.</value>
+  </data>
+  <data name="Feed_PhotoTooLarge" xml:space="preserve">
+    <value>A imagem não pode ter mais de 2MB.</value>
+  </data>
+  <data name="Feed_PostEmpty" xml:space="preserve">
+    <value>O post precisa ter texto ou foto.</value>
+  </data>
 </root>

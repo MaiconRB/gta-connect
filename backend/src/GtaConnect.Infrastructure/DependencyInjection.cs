@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IFeedRepository, FeedRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
 

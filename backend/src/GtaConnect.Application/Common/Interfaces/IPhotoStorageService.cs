@@ -12,4 +12,7 @@ public interface IPhotoStorageService
     /// </summary>
     /// <param name="fileName">Nome original do arquivo — usado só para extrair a extensão, nunca reaproveitado como nome final.</param>
     Task<string> SaveAvatarAsync(Stream content, string fileName, CancellationToken cancellationToken = default);
+
+    /// <summary>Mesma ideia de SaveAvatarAsync, mas salva em uploads/posts (ex: "/uploads/posts/{guid}.jpg").</summary>
+    Task<string> SavePostPhotoAsync(Stream content, string fileName, CancellationToken cancellationToken = default);
 }
