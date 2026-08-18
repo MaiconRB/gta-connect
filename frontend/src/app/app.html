@@ -7,6 +7,14 @@
       <a routerLink="/jogadores" routerLinkActive="text-amber-400" class="text-neutral-300 hover:text-white transition-colors">
         {{ 'nav.search' | translate }}
       </a>
+      <a routerLink="/mensagens" routerLinkActive="text-amber-400" class="relative text-neutral-300 hover:text-white transition-colors">
+        {{ 'nav.messages' | translate }}
+        @if (unreadMessageCount() > 0) {
+          <span class="absolute -top-2 -right-3 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
+            {{ unreadMessageCount() }}
+          </span>
+        }
+      </a>
     </nav>
   } @else {
     <span></span>

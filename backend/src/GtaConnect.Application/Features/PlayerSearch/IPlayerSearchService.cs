@@ -1,3 +1,5 @@
+using GtaConnect.Application.Common;
+
 namespace GtaConnect.Application.Features.PlayerSearch;
 
 public interface IPlayerSearchService

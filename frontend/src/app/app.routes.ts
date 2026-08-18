@@ -26,5 +26,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/players/detail/player-detail').then((m) => m.PlayerDetail),
     canActivate: [authGuard],
   },
+  {
+    path: 'mensagens',
+    loadComponent: () => import('./features/chat/list/conversation-list').then((m) => m.ConversationList),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mensagens/with/:profileId',
+    loadComponent: () => import('./features/chat/thread/conversation-thread').then((m) => m.ConversationThread),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mensagens/:conversationId',
+    loadComponent: () => import('./features/chat/thread/conversation-thread').then((m) => m.ConversationThread),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: 'login' },
 ];

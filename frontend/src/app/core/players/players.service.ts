@@ -2,7 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResult, PlayerSummary, SearchFilters } from './players.models';
+import { PagedResult } from '../common/paged-result.model';
+import { PlayerSummary, SearchFilters } from './players.models';
 
 @Injectable({ providedIn: 'root' })
 export class PlayersService {

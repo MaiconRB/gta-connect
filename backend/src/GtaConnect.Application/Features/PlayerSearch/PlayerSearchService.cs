@@ -1,3 +1,4 @@
+using GtaConnect.Application.Common;
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;

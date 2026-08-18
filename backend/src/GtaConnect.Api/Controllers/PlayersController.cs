@@ -1,4 +1,5 @@
 using GtaConnect.Api.Common;
+using GtaConnect.Application.Common;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;

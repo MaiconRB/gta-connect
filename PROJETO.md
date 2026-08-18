@@ -36,7 +36,7 @@ Hoje, jogadores usam Discord, Reddit e grupos de WhatsApp para achar parceiros d
 
 1. **Perfil de jogador** — bio, plataforma, estilo de jogo, horas jogadas, jogos/modos favoritos dentro do GTA, fotos. **Status: concluído** (ver seção 13) — falta só a visualização do perfil de *outros* jogadores, que vem natural junto com a busca (item 2).
 2. **Busca/filtro de jogadores** — encontrar gente por região, horário, tipo de atividade preferida (heist, RP, corrida, freemode, campanha/mundo aberto, etc). **Status: concluído** (ver seção 13).
-3. **Chat / mensagens diretas** — conversar dentro do app antes de se conectar no jogo. **Status: não iniciado.**
+3. **Chat / mensagens diretas** — conversar dentro do app antes de se conectar no jogo. **Status: concluído** (ver seção 13) — 1:1 em tempo real, sem chat em grupo.
 4. **Feed / posts** — mural social com fotos, clipes e conquistas do jogo. **Status: não iniciado.**
 
 ## 7. Identidade e tom do produto
@@ -49,7 +49,7 @@ O fundador é um jogador de PS5 que valoriza **campanha, mundo aberto e ótima j
 
 ## 8. Segurança e moderação
 
-Importante desde o início, já que o app conecta estranhos. **Status: nada disso foi implementado ainda.**
+Importante desde o início, já que o app conecta estranhos. **Status: nada disso foi implementado ainda** — e ficou mais urgente agora que o chat (item 3 do MVP) já está no ar: hoje qualquer jogador encontrado na busca pode mandar mensagem pra qualquer outro, sem nenhuma checagem de bloqueio. Trade-off consciente (foi a opção que não foi priorizada quando o chat foi escolhido), não esquecimento — mas é a lacuna mais concreta em aberto agora.
 
 - **Verificação de conta** (email, telefone, ou outro método a definir).
 - **Sistema de avaliação/reputação** — jogadores avaliam uns aos outros depois de jogar junto.
@@ -91,11 +91,12 @@ Esta seção existe para preservar contexto entre sessões de trabalho — o que
 - **Perfil de jogador completo**: visualizar/editar bio, estilo de jogo (`PlaystyleTag`, tags estruturadas multi-seleção), horas jogadas, modos favoritos, região (`Region`), disponibilidade (`AvailabilityTag`), upload de foto de avatar (armazenamento em disco local na API, servido via arquivos estáticos).
 - **Busca/filtro de jogadores**: tela `/jogadores` com filtro por plataforma, região, estilo de jogo e disponibilidade (bitmask, tradução nativa pra SQL `&` verificada), paginação, exclusão do próprio usuário nos resultados; detalhe somente-leitura de outro jogador em `/jogadores/:id`; barra de navegação (Perfil/Buscar) visível quando autenticado.
 - **Identidade visual "Vice City Sunset"**: paleta magenta/roxo/ciano sobre fundo quase-preto violeta (glow radial sutil), tipografia de destaque `Space Grotesk` nos títulos — aplicada via `@theme` do Tailwind v4 (sobrescreve os tons `neutral`/`amber` usados em todo o app, sem tocar em cada componente individualmente).
-- **Testes automatizados**: 61 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks.
+- **Chat / mensagens diretas**: 1:1 em tempo real via SignalR (`ChatHub` em `/hubs/chat`, autenticado por JWT via query string — WebSocket não permite header `Authorization`). Conversa nasce como efeito colateral do primeiro envio (find-or-create pelo par de participantes, sem endpoint de "criar conversa"); envio só pelo Hub, leitura (histórico + lista) por REST (`/api/conversations`). Status de leitura por conversa (não por mensagem), badge de não-lidas na navegação. **Sem checagem de bloqueio** — qualquer jogador encontrado na busca pode mandar mensagem pra qualquer outro (ver seção 8).
+- **Testes automatizados**: 87 testes no backend (xUnit, Domain + Application), 1 no frontend — cobrindo entidades de domínio, validators, services com mocks.
 
 ### Em andamento / próximo (nesta ordem, combinada com o usuário)
 
-1. A definir — candidatos: chat/mensagens diretas, feed/posts, segurança/moderação (denúncia/bloqueio/reputação), nome definitivo do app.
+1. A definir — candidatos: feed/posts, segurança/moderação (denúncia/bloqueio/reputação — ganhou urgência com o chat no ar), nome definitivo do app.
 
 ### Decisões técnicas já fechadas (não reabrir sem motivo novo)
 

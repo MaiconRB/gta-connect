@@ -87,11 +87,23 @@
     "previousPage": "Previous",
     "nextPage": "Next",
     "pageIndicator": "Page {{page}}",
-    "backToSearch": "Back to search"
+    "backToSearch": "Back to search",
+    "sendMessage": "Send message"
+  },
+  "chat": {
+    "title": "Messages",
+    "noConversations": "No conversations yet. Search for players and send the first message.",
+    "backToList": "Back to messages",
+    "noMessagesYet": "No messages yet. Say hi!",
+    "loadOlder": "Load earlier messages",
+    "placeholder": "Write a message...",
+    "send": "Send",
+    "loadError": "Could not load the conversation."
   },
   "nav": {
     "profile": "Profile",
-    "search": "Search"
+    "search": "Search",
+    "messages": "Messages"
   },
   "common": {
     "genericError": "Could not complete the operation. Please try again."

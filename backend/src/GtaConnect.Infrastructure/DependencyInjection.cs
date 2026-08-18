@@ -46,6 +46,7 @@ public static class DependencyInjection
 
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IPlayerProfileRepository, PlayerProfileRepository>();
+        services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
 

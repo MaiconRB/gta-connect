@@ -1,4 +1,5 @@
 using System.Text;
+using GtaConnect.Api.Hubs;
 using GtaConnect.Api.Middleware;
 using GtaConnect.Application;
 using GtaConnect.Infrastructure;
@@ -6,6 +7,7 @@ using GtaConnect.Infrastructure.Auth;
 using GtaConnect.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -13,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
+const string ChatHubPath = "/hubs/chat";
 var supportedCultures = new[] { "pt-BR", "en" };
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,9 +49,28 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
         };
+
+        // WebSocket do navegador não permite header Authorization customizado — o cliente
+        // SignalR manda o token via query string (?access_token=...) só pro path do hub.
+        bearerOptions.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments(ChatHubPath))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
+        };
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, ChatHubUserIdProvider>();
 
 builder.Services.AddCors(options =>
 {
@@ -139,6 +161,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>(ChatHubPath);
 app.MapHealthChecks("/health");
 
 app.Run();

@@ -87,11 +87,23 @@
     "previousPage": "Anterior",
     "nextPage": "Próxima",
     "pageIndicator": "Página {{page}}",
-    "backToSearch": "Voltar para a busca"
+    "backToSearch": "Voltar para a busca",
+    "sendMessage": "Mandar mensagem"
+  },
+  "chat": {
+    "title": "Mensagens",
+    "noConversations": "Nenhuma conversa ainda. Busque jogadores e mande a primeira mensagem.",
+    "backToList": "Voltar para as mensagens",
+    "noMessagesYet": "Nenhuma mensagem ainda. Diga oi!",
+    "loadOlder": "Carregar mensagens anteriores",
+    "placeholder": "Escreva uma mensagem...",
+    "send": "Enviar",
+    "loadError": "Não foi possível carregar a conversa."
   },
   "nav": {
     "profile": "Perfil",
-    "search": "Buscar"
+    "search": "Buscar",
+    "messages": "Mensagens"
   },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."
