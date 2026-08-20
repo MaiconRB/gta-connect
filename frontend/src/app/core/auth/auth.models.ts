@@ -28,4 +28,5 @@ export interface AuthResponse {
   expiresAtUtc: string;
   email: string;
   displayName: string;
+  emailConfirmed: boolean;
 }

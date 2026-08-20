@@ -84,4 +84,7 @@
   <data name="Rating_ScoreOutOfRange" xml:space="preserve">
     <value>The score must be between 1 and 5.</value>
   </data>
+  <data name="Email_InvalidConfirmationToken" xml:space="preserve">
+    <value>Invalid or expired confirmation link. Please request a new confirmation email.</value>
+  </data>
 </root>

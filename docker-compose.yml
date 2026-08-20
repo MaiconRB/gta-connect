@@ -17,5 +17,12 @@ services:
       retries: 10
       start_period: 20s
 
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: gtaconnect-mailpit
+    ports:
+      - "1025:1025"  # SMTP — a API manda e-mails aqui
+      - "8025:8025"  # Web UI — abrir no browser para ver os e-mails
+
 volumes:
   sqlserver-data:

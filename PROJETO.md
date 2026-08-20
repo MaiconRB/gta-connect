@@ -3,7 +3,7 @@
 > Documento de premissas iniciais. Base para todas as decisões futuras de produto, design e arquitetura. Atualizar conforme o projeto evoluir.
 
 **Data de criação:** 2026-08-05
-**Última atualização:** 2026-08-18
+**Última atualização:** 2026-08-20
 **Nome do app:** ainda não definido (placeholder: usar "GTA Connect" enquanto não houver nome oficial)
 
 ---
@@ -51,7 +51,7 @@ O fundador é um jogador de PS5 que valoriza **campanha, mundo aberto e ótima j
 
 Importante desde o início, já que o app conecta estranhos.
 
-- **Verificação de conta** (email, telefone, ou outro método a definir). **Status: não implementado.**
+- **Verificação de conta (e-mail)**: implementada com MailKit + Mailpit (dev local). Ao se cadastrar, o usuário recebe um link de confirmação; um banner persistente aparece enquanto o e-mail não for confirmado (acesso não bloqueado — UX deliberada). **Status: concluído** (ver seção 13).
 - **Sistema de avaliação/reputação** — jogadores avaliam uns aos outros depois de jogar junto. **Status: concluído** (ver seção 13). Avaliar exige uma **conexão aceita** (pedido + aceite mútuo, tipo pedido de amizade) entre os dois perfis — forma de validar que realmente jogaram juntos, já que o app não tem como confirmar isso sozinho.
 - **Denúncia e bloqueio** — usuários podem reportar comportamento tóxico e bloquear outros perfis. **Status: concluído** (ver seção 13). Bloqueio esconde os dois lados da busca e da lista de conversas, e impede mensagem nova; denúncia é registrada com motivo — **sem painel de revisão/moderador ainda**, os dados ficam gravados mas só são consultáveis direto no banco. Próximo ponto em aberto dentro desta seção.
 
@@ -75,10 +75,11 @@ O app deve ser **construído com arquitetura pronta para multi-jogo** desde o in
 - **Diferencial competitivo claro**: ainda não está definido exatamente o que torna esse app melhor do que Discord/Reddit/WhatsApp para esse público. Hipóteses levantadas: foco 100% em GTA (sem ruído de servidores genéricos) e/ou matching mais inteligente por compatibilidade real (horário, estilo, região). Vale validar com usuários reais antes de travar a proposta de valor.
 - **Nome do app**: ainda não definido.
 - **Infraestrutura de produção**: onde/como hospedar quando sair do ambiente de desenvolvimento local (hoje tudo roda em `localhost` + Docker). Inclui decisão futura de trocar o armazenamento de fotos (hoje disco local da API) por blob storage em nuvem.
-- **Verificação de conta / moderação**: método ainda não escolhido (ver seção 8).
+- **Painel de moderação**: denúncias já são gravadas no banco; falta a interface de revisão para o moderador.
 - **Indicador de presença ("online agora")**: ideia levantada a partir de uma imagem-conceito de referência visual (anel neon de destaque no avatar) — hoje não existe conceito de presença/online no modelo. Se for implementado, dá pra reaproveitar a conexão SignalR que já existe pro chat (`ChatHub`) em vez de criar infraestrutura nova. Só uma anotação por ora, sem compromisso de prioridade.
+- **E-mail em produção**: hoje o envio usa Mailpit (SMTP falso local). Para produção, a decisão é usar **Resend** (3.000 e-mails/mês grátis) — basta criar nova implementação de `IEmailService` sem tocar no restante da camada Application.
 
-> Resolvido e removido desta lista: método de login (decidido como conta própria com email/senha — ver seção 13), idioma (decidido pt-BR + en — ver seção 5).
+> Resolvido e removido desta lista: método de login (decidido como conta própria com email/senha — ver seção 13), idioma (decidido pt-BR + en — ver seção 5), verificação de conta (implementada — ver seção 8 e 13).
 
 ## 13. Status de implementação (atualizado a cada mudança relevante)
 
@@ -100,7 +101,7 @@ Esta seção existe para preservar contexto entre sessões de trabalho — o que
 
 ### Em andamento / próximo (nesta ordem, combinada com o usuário)
 
-1. A definir — candidatos: verificação de conta, painel de revisão de denúncias, "seguir" jogadores (feed hoje é só público/global — a entidade `Connection` já existe e poderia alimentar isso), nome definitivo do app.
+1. A definir — candidatos: painel de revisão de denúncias, "seguir" jogadores (feed hoje é só público/global — a entidade `Connection` já existe e poderia alimentar isso), notificações in-app, "online agora", nome definitivo do app.
 
 ### Decisões técnicas já fechadas (não reabrir sem motivo novo)
 
@@ -111,6 +112,9 @@ Esta seção existe para preservar contexto entre sessões de trabalho — o que
 - Estilo de jogo: tags fixas estruturadas (`[Flags] enum`), não texto livre — pensado para alimentar a busca.
 - Foto de perfil: disco local por enquanto, abstração (`IPhotoStorageService`) já isolada para trocar por blob storage depois sem refatorar Application/Domain.
 - Paleta visual: "Vice City Sunset" (magenta `#FF3EC9` / roxo / ciano sobre fundo violeta quase-preto `#0A0612`) — escolhida entre 3 opções apresentadas ao usuário; tipografia de destaque `Space Grotesk`.
+- E-mail em dev: **Mailpit** (container Docker, SMTP falso local em `localhost:1025`, UI web em `localhost:8025`) — zero configuração externa, nenhum e-mail real enviado, servidor sobe junto com o SQL Server via `docker compose up`.
+- Biblioteca de envio de e-mail: **MailKit 4.17.0** (Infrastructure). Interface `IEmailService` na Application — permite trocar a implementação em produção (Resend, SendGrid) sem tocar em nada além do arquivo de implementação.
+- Verificação de e-mail: acesso **não bloqueado** antes da confirmação — banner persistente no topo da tela até o e-mail ser confirmado, com botão de reenvio embutido. Token gerado pelo ASP.NET Identity com encoding Base64Url para URL-safety. `emailConfirmed` retornado em toda resposta de auth e persistido no `localStorage`; confirmação atualiza o sinal sem logout.
 
 ---
 

@@ -27,6 +27,13 @@ builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Registra AuthOptions com o valor de FrontendUrl do appsettings.
+// Feito aqui (API/Program.cs) para manter Application sem dependencia de IConfiguration.
+builder.Services.Configure<GtaConnect.Application.Common.AuthOptions>(options =>
+{
+    options.FrontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:4200";
+});
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();

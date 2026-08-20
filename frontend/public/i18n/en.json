@@ -25,6 +25,19 @@
       "submitting": "Creating account...",
       "hasAccount": "Already have an account?",
       "login": "Sign in"
+    },
+    "emailVerification": {
+      "bannerText": "Please confirm your email to ensure full access.",
+      "resendButton": "Resend email",
+      "resending": "Sending...",
+      "resendSuccess": "Confirmation email sent! Check your inbox.",
+      "confirming": "Confirming your email...",
+      "successTitle": "Email confirmed!",
+      "successMessage": "Your account is active. Redirecting to your profile...",
+      "goToProfile": "Go to profile",
+      "errorTitle": "Invalid or expired link",
+      "errorMessage": "This confirmation link is not valid or has expired. Please request a new email.",
+      "backToLogin": "Back to login"
     }
   },
   "profile": {

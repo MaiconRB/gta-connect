@@ -43,4 +43,32 @@ public class AuthController : ControllerBase
 
         return Ok(new { Id = userId, Email = email, DisplayName = displayName });
     }
+
+    /// <summary>
+    /// Confirma o e-mail do usuario a partir do link enviado por e-mail.
+    /// Rota anonima: o usuario pode nao estar logado ao clicar no link.
+    /// </summary>
+    [HttpGet("confirm-email")]
+    [AllowAnonymous]
+    public async Task<ActionResult> ConfirmEmail(
+        [FromQuery] Guid userId,
+        [FromQuery] string token,
+        CancellationToken cancellationToken)
+    {
+        await _authService.ConfirmEmailAsync(userId, token, cancellationToken);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Reenvia o e-mail de confirmacao para o usuario autenticado.
+    /// Idempotente: se o e-mail ja foi confirmado, retorna 200 silenciosamente.
+    /// </summary>
+    [HttpPost("resend-confirmation")]
+    [Authorize]
+    public async Task<ActionResult> ResendConfirmation(CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        await _authService.ResendConfirmationEmailAsync(userId, cancellationToken);
+        return Ok();
+    }
 }

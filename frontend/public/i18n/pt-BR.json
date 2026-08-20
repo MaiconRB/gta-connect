@@ -25,6 +25,19 @@
       "submitting": "Criando conta...",
       "hasAccount": "Já tem conta?",
       "login": "Entrar"
+    },
+    "emailVerification": {
+      "bannerText": "Confirme seu e-mail para garantir acesso completo.",
+      "resendButton": "Reenviar e-mail",
+      "resending": "Enviando...",
+      "resendSuccess": "E-mail de confirmação reenviado! Verifique sua caixa de entrada.",
+      "confirming": "Confirmando seu e-mail...",
+      "successTitle": "E-mail confirmado!",
+      "successMessage": "Sua conta está ativa. Redirecionando para o seu perfil...",
+      "goToProfile": "Ir para o perfil",
+      "errorTitle": "Link inválido ou expirado",
+      "errorMessage": "Este link de confirmação não é válido ou já expirou. Solicite um novo e-mail.",
+      "backToLogin": "Voltar para o login"
     }
   },
   "profile": {

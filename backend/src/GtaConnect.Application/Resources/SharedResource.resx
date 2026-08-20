@@ -84,4 +84,7 @@
   <data name="Rating_ScoreOutOfRange" xml:space="preserve">
     <value>A nota deve estar entre 1 e 5.</value>
   </data>
+  <data name="Email_InvalidConfirmationToken" xml:space="preserve">
+    <value>Link de confirmação inválido ou expirado. Solicite um novo e-mail de confirmação.</value>
+  </data>
 </root>

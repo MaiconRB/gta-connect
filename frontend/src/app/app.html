@@ -75,6 +75,30 @@
 </header>
 
 @if (authService.isAuthenticated()) {
+  @if (!isEmailConfirmed()) {
+    <div class="fixed top-16 inset-x-0 z-10 flex items-center justify-center gap-3 px-4 py-2.5 bg-neutral-900/95 border-b border-amber-500/40 text-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4 text-amber-400 shrink-0">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      @if (resendSuccess()) {
+        <span class="text-green-400">{{ 'auth.emailVerification.resendSuccess' | translate }}</span>
+      } @else {
+        <span class="text-neutral-300">{{ 'auth.emailVerification.bannerText' | translate }}</span>
+        <button
+          (click)="resendConfirmationEmail()"
+          [disabled]="resendingConfirmation()"
+          class="text-amber-400 hover:text-amber-300 font-medium underline underline-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ resendingConfirmation() ? ('auth.emailVerification.resending' | translate) : ('auth.emailVerification.resendButton' | translate) }}
+        </button>
+      }
+    </div>
+    <!-- Banner é fixed, então não empurra o conteúdo da página — este espaçador reserva
+         a altura dele no fluxo normal, evitando que o topo dos cards fique escondido atrás.
+         Maior no mobile porque o texto do banner quebra em duas linhas em telas estreitas. -->
+    <div class="h-16 md:h-11"></div>
+  }
+
   <nav
     class="md:hidden fixed bottom-0 inset-x-0 z-10 flex items-stretch justify-around bg-neutral-900 border-t border-neutral-800 px-1 pt-1.5"
     style="padding-bottom: calc(0.375rem + env(safe-area-inset-bottom))"

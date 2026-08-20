@@ -17,6 +17,7 @@ export class AuthService {
 
   readonly currentUser = this.authState.asReadonly();
   readonly isAuthenticated = computed(() => this.authState() !== null);
+  readonly isEmailConfirmed = computed(() => this.authState()?.emailConfirmed ?? true);
 
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http
@@ -37,6 +38,28 @@ export class AuthService {
 
   getToken(): string | null {
     return this.authState()?.token ?? null;
+  }
+
+  /** Confirma o e-mail com userId + token vindos da query string do link no e-mail. */
+  confirmEmail(userId: string, token: string): Observable<void> {
+    return this.http
+      .get<void>(`${environment.apiUrl}/auth/confirm-email`, {
+        params: { userId, token },
+      })
+      .pipe(tap(() => this.markEmailAsConfirmed()));
+  }
+
+  /** Reenvia o e-mail de confirmação para o usuário autenticado. */
+  resendConfirmation(): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/resend-confirmation`, {});
+  }
+
+  private markEmailAsConfirmed(): void {
+    const current = this.authState();
+    if (!current) return;
+    const updated = { ...current, emailConfirmed: true };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    this.authState.set(updated);
   }
 
   private setSession(response: AuthResponse): void {

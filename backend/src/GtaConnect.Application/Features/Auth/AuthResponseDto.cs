@@ -4,4 +4,5 @@ public record AuthResponseDto(
     string Token,
     DateTime ExpiresAtUtc,
     string Email,
-    string DisplayName);
+    string DisplayName,
+    bool EmailConfirmed);

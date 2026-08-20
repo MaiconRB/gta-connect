@@ -1,5 +1,6 @@
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Infrastructure.Auth;
+using GtaConnect.Infrastructure.Email;
 using GtaConnect.Infrastructure.Identity;
 using GtaConnect.Infrastructure.Persistence;
 using GtaConnect.Infrastructure.Persistence.Repositories;
@@ -54,6 +55,12 @@ public static class DependencyInjection
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
+
+        services.AddOptions<EmailSettings>()
+            .Bind(configuration.GetSection(EmailSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }

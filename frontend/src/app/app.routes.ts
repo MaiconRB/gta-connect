@@ -56,5 +56,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/feed/feed-page/feed-page').then((m) => m.FeedPage),
     canActivate: [authGuard],
   },
+  {
+    // Rota publica — o usuario pode nao estar logado ao clicar no link de confirmacao.
+    path: 'confirmar-email',
+    loadComponent: () => import('./features/auth/confirm-email/confirm-email').then((m) => m.ConfirmEmail),
+  },
   { path: '**', redirectTo: 'login' },
 ];

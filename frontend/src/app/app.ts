@@ -28,6 +28,9 @@ export class App {
 
   protected readonly unreadMessageCount = signal(0);
   protected readonly pendingConnectionCount = signal(0);
+  protected readonly isEmailConfirmed = this.authService.isEmailConfirmed;
+  protected readonly resendingConfirmation = signal(false);
+  protected readonly resendSuccess = signal(false);
 
   constructor() {
     // Mantém <html lang="..."> em sincronia com o idioma ativo — importante pra
@@ -91,6 +94,20 @@ export class App {
         this.pendingConnectionCount.set(
           connections.filter((c) => c.status === ConnectionStatus.Pending && !c.isRequester).length,
         ),
+    });
+  }
+
+  protected resendConfirmationEmail(): void {
+    if (this.resendingConfirmation()) return;
+    this.resendingConfirmation.set(true);
+    this.authService.resendConfirmation().subscribe({
+      next: () => {
+        this.resendSuccess.set(true);
+        this.resendingConfirmation.set(false);
+      },
+      error: () => {
+        this.resendingConfirmation.set(false);
+      },
     });
   }
 }
