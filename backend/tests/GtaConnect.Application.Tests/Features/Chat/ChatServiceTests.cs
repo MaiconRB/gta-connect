@@ -1,5 +1,6 @@
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Application.Features.Chat;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
 using GtaConnect.Domain.Enums;
@@ -12,6 +13,7 @@ public class ChatServiceTests
     private readonly Mock<IChatRepository> _chatRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
     private readonly ChatService _sut;
 
     public ChatServiceTests()
@@ -23,7 +25,7 @@ public class ChatServiceTests
             .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Guid>());
 
-        _sut = new ChatService(_chatRepositoryMock.Object, _playerProfileRepositoryMock.Object, _blockRepositoryMock.Object);
+        _sut = new ChatService(_chatRepositoryMock.Object, _playerProfileRepositoryMock.Object, _blockRepositoryMock.Object, _notificationServiceMock.Object);
     }
 
     private static PlayerProfile CreateValidProfile(Guid userId, string displayName = "Jogador") =>
@@ -47,6 +49,9 @@ public class ChatServiceTests
         Assert.Equal(senderProfile.ApplicationUserId, result.SenderUserId);
         Assert.Equal(recipientProfile.ApplicationUserId, result.RecipientUserId);
         _chatRepositoryMock.Verify(r => r.SaveNewMessageAsync(It.IsAny<Conversation>(), It.IsAny<Message>(), true, It.IsAny<CancellationToken>()), Times.Once);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(recipientProfile.Id, senderProfile.Id, NotificationType.MessageReceived, It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

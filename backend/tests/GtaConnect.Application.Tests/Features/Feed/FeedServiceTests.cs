@@ -2,6 +2,7 @@ using System.Text;
 using GtaConnect.Application.Common;
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Application.Features.Feed;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
@@ -16,6 +17,7 @@ public class FeedServiceTests
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IPhotoStorageService> _photoStorageServiceMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
     private readonly FeedService _sut;
 
     public FeedServiceTests()
@@ -29,6 +31,7 @@ public class FeedServiceTests
             _playerProfileRepositoryMock.Object,
             _photoStorageServiceMock.Object,
             _blockRepositoryMock.Object,
+            _notificationServiceMock.Object,
             NoOpStringLocalizer.Create());
     }
 
@@ -159,7 +162,8 @@ public class FeedServiceTests
     {
         var userId = Guid.NewGuid();
         var profile = CreateValidProfile(userId);
-        var post = Post.Create(Guid.NewGuid(), "post pra curtir", null);
+        var authorProfileId = Guid.NewGuid();
+        var post = Post.Create(authorProfileId, "post pra curtir", null);
 
         _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(profile);
         _feedRepositoryMock.Setup(r => r.GetPostByIdAsync(post.Id, It.IsAny<CancellationToken>())).ReturnsAsync(post);
@@ -171,6 +175,9 @@ public class FeedServiceTests
         Assert.True(result.Liked);
         Assert.Equal(1, result.LikeCount);
         _feedRepositoryMock.Verify(r => r.AddLikeAsync(It.IsAny<PostLike>(), It.IsAny<CancellationToken>()), Times.Once);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(authorProfileId, profile.Id, NotificationType.PostLiked, post.Id, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -191,6 +198,9 @@ public class FeedServiceTests
         Assert.False(result.Liked);
         Assert.Equal(0, result.LikeCount);
         _feedRepositoryMock.Verify(r => r.RemoveLikeAsync(existingLike, It.IsAny<CancellationToken>()), Times.Once);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<NotificationType>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

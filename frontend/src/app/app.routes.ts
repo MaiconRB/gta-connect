@@ -57,6 +57,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'notificacoes',
+    loadComponent: () => import('./features/notifications/notifications-page/notifications-page').then((m) => m.NotificationsPage),
+    canActivate: [authGuard],
+  },
+  {
     // Rota publica — o usuario pode nao estar logado ao clicar no link de confirmacao.
     path: 'confirmar-email',
     loadComponent: () => import('./features/auth/confirm-email/confirm-email').then((m) => m.ConfirmEmail),

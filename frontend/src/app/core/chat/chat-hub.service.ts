@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
+import { AppNotification } from '../notifications/notifications.models';
 import { ChatMessage } from './chat.models';
 
 // Conexão única do Hub pro app inteiro (providedIn: 'root') — iniciada/parada a partir de
@@ -24,6 +25,10 @@ export class ChatHubService {
   // no Angular por igualdade de valor; um objeto literal sempre conta como mudança.
   readonly conversationMarkedAsRead = signal<{ conversationId: string } | null>(null);
 
+  // Notificações in-app reaproveitam esta mesma conexão (já fica aberta o tempo todo
+  // enquanto o usuário está logado) — sem hub/WebSocket segundo só pra isso.
+  readonly receivedNotification = signal<AppNotification | null>(null);
+
   connect(): void {
     if (this.connection) {
       return;
@@ -35,6 +40,7 @@ export class ChatHubService {
       .build();
 
     this.connection.on('ReceiveMessage', (message: ChatMessage) => this.receivedMessage.set(message));
+    this.connection.on('ReceiveNotification', (notification: AppNotification) => this.receivedNotification.set(notification));
 
     this.connection.start().catch((error) => console.error('Falha ao conectar no chat:', error));
   }

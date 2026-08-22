@@ -1,7 +1,9 @@
 using GtaConnect.Application.Common;
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
+using GtaConnect.Domain.Enums;
 
 namespace GtaConnect.Application.Features.Chat;
 
@@ -13,12 +15,18 @@ public class ChatService : IChatService
     private readonly IChatRepository _chatRepository;
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
+    private readonly INotificationService _notificationService;
 
-    public ChatService(IChatRepository chatRepository, IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository)
+    public ChatService(
+        IChatRepository chatRepository,
+        IPlayerProfileRepository playerProfileRepository,
+        IBlockRepository blockRepository,
+        INotificationService notificationService)
     {
         _chatRepository = chatRepository;
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<SendMessageResultDto> SendMessageAsync(Guid senderUserId, Guid recipientProfileId, string content, CancellationToken cancellationToken = default)
@@ -43,6 +51,8 @@ public class ChatService : IChatService
         var message = conversation.PostMessage(senderProfile.Id, content);
 
         await _chatRepository.SaveNewMessageAsync(conversation, message, isNewConversation, cancellationToken);
+
+        await _notificationService.NotifyAsync(recipientProfile.Id, senderProfile.Id, NotificationType.MessageReceived, conversation.Id, cancellationToken);
 
         return new SendMessageResultDto(ToMessageDto(message), senderProfile.ApplicationUserId, recipientProfile.ApplicationUserId);
     }

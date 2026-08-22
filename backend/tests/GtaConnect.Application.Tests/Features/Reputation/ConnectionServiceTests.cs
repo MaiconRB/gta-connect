@@ -1,4 +1,5 @@
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Features.Reputation;
 using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Common.Exceptions;
@@ -14,6 +15,7 @@ public class ConnectionServiceTests
     private readonly Mock<IRatingRepository> _ratingRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
     private readonly ConnectionService _sut;
 
     public ConnectionServiceTests()
@@ -30,6 +32,7 @@ public class ConnectionServiceTests
             _ratingRepositoryMock.Object,
             _playerProfileRepositoryMock.Object,
             _blockRepositoryMock.Object,
+            _notificationServiceMock.Object,
             NoOpStringLocalizer.Create());
     }
 
@@ -54,6 +57,9 @@ public class ConnectionServiceTests
         Assert.Equal(ConnectionStatus.Pending, result.Status);
         Assert.True(result.IsRequester);
         _connectionRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Connection>(), It.IsAny<CancellationToken>()), Times.Once);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(targetProfile.Id, myProfile.Id, NotificationType.ConnectionRequestReceived, It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -74,6 +80,9 @@ public class ConnectionServiceTests
 
         Assert.Equal(existingConnection.Id, result.ConnectionId);
         _connectionRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Connection>(), It.IsAny<CancellationToken>()), Times.Never);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<NotificationType>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

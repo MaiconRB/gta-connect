@@ -39,39 +39,49 @@
       <a
         routerLink="/conexoes"
         routerLinkActive="text-amber-400 bg-neutral-800"
-        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
           <circle cx="8.5" cy="12" r="4.5" />
           <circle cx="15.5" cy="12" r="4.5" />
         </svg>
         {{ 'nav.connections' | translate }}
-        @if (pendingConnectionCount() > 0) {
-          <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
-            {{ pendingConnectionCount() }}
-          </span>
-        }
       </a>
       <a
         routerLink="/mensagens"
         routerLinkActive="text-amber-400 bg-neutral-800"
-        class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
           <path d="M4 5.5h16v10H9l-4 3.5v-3.5H4v-10z" stroke-linejoin="round" />
         </svg>
         {{ 'nav.messages' | translate }}
-        @if (unreadMessageCount() > 0) {
-          <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
-            {{ unreadMessageCount() }}
-          </span>
-        }
       </a>
     </nav>
   } @else {
     <span></span>
   }
-  <app-language-switcher />
+
+  <div class="flex items-center gap-2">
+    @if (authService.isAuthenticated()) {
+      <a
+        routerLink="/notificacoes"
+        routerLinkActive="text-amber-400"
+        class="relative flex items-center justify-center w-8 h-8 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+          <path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M10 18.5a2 2 0 0 0 4 0" stroke-linecap="round" />
+        </svg>
+        @if (unreadNotificationCount() > 0) {
+          <span class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[10px] font-semibold flex items-center justify-center">
+            {{ unreadNotificationCount() }}
+          </span>
+        }
+      </a>
+    }
+    <app-language-switcher />
+  </div>
 </header>
 
 @if (authService.isAuthenticated()) {
@@ -95,8 +105,9 @@
     </div>
     <!-- Banner é fixed, então não empurra o conteúdo da página — este espaçador reserva
          a altura dele no fluxo normal, evitando que o topo dos cards fique escondido atrás.
-         Maior no mobile porque o texto do banner quebra em duas linhas em telas estreitas. -->
-    <div class="h-16 md:h-11"></div>
+         h-16 cobre tanto o banner de 1 linha (desktop) quanto de 2 linhas (mobile, texto
+         quebra em telas estreitas) com folga — medido via bounding box real, não estimado. -->
+    <div class="h-16"></div>
   }
 
   <nav
@@ -141,33 +152,23 @@
     <a
       routerLink="/conexoes"
       routerLinkActive="text-amber-400"
-      class="relative flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+      class="flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
         <circle cx="8.5" cy="12" r="4.5" />
         <circle cx="15.5" cy="12" r="4.5" />
       </svg>
       {{ 'nav.connections' | translate }}
-      @if (pendingConnectionCount() > 0) {
-        <span class="absolute top-0 right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[9px] font-semibold flex items-center justify-center">
-          {{ pendingConnectionCount() }}
-        </span>
-      }
     </a>
     <a
       routerLink="/mensagens"
       routerLinkActive="text-amber-400"
-      class="relative flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
+      class="flex flex-col items-center gap-0.5 px-2 py-1 text-neutral-400 text-[10px] transition-colors"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
         <path d="M4 5.5h16v10H9l-4 3.5v-3.5H4v-10z" stroke-linejoin="round" />
       </svg>
       {{ 'nav.messages' | translate }}
-      @if (unreadMessageCount() > 0) {
-        <span class="absolute top-0 right-1 min-w-4 h-4 px-1 rounded-full bg-amber-500 text-neutral-950 text-[9px] font-semibold flex items-center justify-center">
-          {{ unreadMessageCount() }}
-        </span>
-      }
     </a>
   </nav>
 }

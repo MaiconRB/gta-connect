@@ -1,4 +1,5 @@
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Features.Reputation;
 using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Common.Exceptions;
@@ -14,6 +15,7 @@ public class RatingServiceTests
     private readonly Mock<IConnectionRepository> _connectionRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<INotificationService> _notificationServiceMock = new();
     private readonly RatingService _sut;
 
     public RatingServiceTests()
@@ -27,6 +29,7 @@ public class RatingServiceTests
             _connectionRepositoryMock.Object,
             _playerProfileRepositoryMock.Object,
             _blockRepositoryMock.Object,
+            _notificationServiceMock.Object,
             NoOpStringLocalizer.Create());
     }
 
@@ -105,6 +108,9 @@ public class RatingServiceTests
 
         _ratingRepositoryMock.Verify(
             r => r.AddAsync(It.Is<Rating>(rt => rt.Score == 5 && rt.Comment == "Muito bom!"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _notificationServiceMock.Verify(
+            n => n.NotifyAsync(targetProfile.Id, myProfile.Id, NotificationType.RatingReceived, null, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

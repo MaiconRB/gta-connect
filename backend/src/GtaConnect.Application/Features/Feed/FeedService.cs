@@ -1,8 +1,10 @@
 using GtaConnect.Application.Common;
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Resources;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
+using GtaConnect.Domain.Enums;
 using Microsoft.Extensions.Localization;
 
 namespace GtaConnect.Application.Features.Feed;
@@ -18,6 +20,7 @@ public class FeedService : IFeedService
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IPhotoStorageService _photoStorageService;
     private readonly IBlockRepository _blockRepository;
+    private readonly INotificationService _notificationService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public FeedService(
@@ -25,12 +28,14 @@ public class FeedService : IFeedService
         IPlayerProfileRepository playerProfileRepository,
         IPhotoStorageService photoStorageService,
         IBlockRepository blockRepository,
+        INotificationService notificationService,
         IStringLocalizer<SharedResource> localizer)
     {
         _feedRepository = feedRepository;
         _playerProfileRepository = playerProfileRepository;
         _photoStorageService = photoStorageService;
         _blockRepository = blockRepository;
+        _notificationService = notificationService;
         _localizer = localizer;
     }
 
@@ -119,6 +124,7 @@ public class FeedService : IFeedService
         if (existingLike is null)
         {
             await _feedRepository.AddLikeAsync(PostLike.Create(post.Id, profile.Id), cancellationToken);
+            await _notificationService.NotifyAsync(post.AuthorProfileId, profile.Id, NotificationType.PostLiked, post.Id, cancellationToken);
         }
         else
         {

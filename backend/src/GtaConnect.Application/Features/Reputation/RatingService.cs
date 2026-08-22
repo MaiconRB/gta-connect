@@ -1,4 +1,5 @@
 using GtaConnect.Application.Common.Interfaces;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Resources;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
@@ -13,6 +14,7 @@ public class RatingService : IRatingService
     private readonly IConnectionRepository _connectionRepository;
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
+    private readonly INotificationService _notificationService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public RatingService(
@@ -20,12 +22,14 @@ public class RatingService : IRatingService
         IConnectionRepository connectionRepository,
         IPlayerProfileRepository playerProfileRepository,
         IBlockRepository blockRepository,
+        INotificationService notificationService,
         IStringLocalizer<SharedResource> localizer)
     {
         _ratingRepository = ratingRepository;
         _connectionRepository = connectionRepository;
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
+        _notificationService = notificationService;
         _localizer = localizer;
     }
 
@@ -70,5 +74,7 @@ public class RatingService : IRatingService
             existingRating.Update(score, comment);
             await _ratingRepository.UpdateAsync(existingRating, cancellationToken);
         }
+
+        await _notificationService.NotifyAsync(targetProfile.Id, myProfile.Id, NotificationType.RatingReceived, null, cancellationToken);
     }
 }

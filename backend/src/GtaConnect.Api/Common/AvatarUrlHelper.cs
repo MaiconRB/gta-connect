@@ -1,6 +1,7 @@
 using GtaConnect.Application.Features.Chat;
 using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Moderation;
+using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Application.Features.Profile;
 using GtaConnect.Application.Features.Reputation;
@@ -39,4 +40,7 @@ public static class AvatarUrlHelper
 
     public static ConnectionSummaryDto WithAbsoluteAvatarUrl(this ControllerBase controller, ConnectionSummaryDto connection) =>
         connection.OtherAvatarPath is null ? connection : connection with { OtherAvatarPath = controller.Request.ToAbsoluteUrl(connection.OtherAvatarPath) };
+
+    public static NotificationDto WithAbsoluteAvatarUrl(this ControllerBase controller, NotificationDto notification) =>
+        notification.ActorAvatarPath is null ? notification : notification with { ActorAvatarPath = controller.Request.ToAbsoluteUrl(notification.ActorAvatarPath) };
 }

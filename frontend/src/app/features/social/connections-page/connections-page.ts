@@ -37,7 +37,6 @@ export class ConnectionsPage {
     this.socialService.accept(connectionId).subscribe({
       next: () => {
         this.processingId.set(null);
-        this.socialService.notifyChanged();
         this.loadConnections();
       },
       error: (error: HttpErrorResponse) => {
@@ -52,7 +51,6 @@ export class ConnectionsPage {
     this.socialService.decline(connectionId).subscribe({
       next: () => {
         this.processingId.set(null);
-        this.socialService.notifyChanged();
         this.loadConnections();
       },
       error: (error: HttpErrorResponse) => {

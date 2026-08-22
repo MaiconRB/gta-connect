@@ -143,7 +143,6 @@ export class PlayerDetail {
     this.socialService.sendRequest(this.playerId).subscribe({
       next: () => {
         this.isConnectionActionPending.set(false);
-        this.socialService.notifyChanged();
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
@@ -165,7 +164,6 @@ export class PlayerDetail {
     this.socialService.accept(connectionId).subscribe({
       next: () => {
         this.isConnectionActionPending.set(false);
-        this.socialService.notifyChanged();
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
@@ -187,7 +185,6 @@ export class PlayerDetail {
     this.socialService.decline(connectionId).subscribe({
       next: () => {
         this.isConnectionActionPending.set(false);
-        this.socialService.notifyChanged();
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {

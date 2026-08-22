@@ -174,6 +174,18 @@
     "commentPlaceholder": "Comentário (opcional)",
     "noRatingsYet": "Ainda sem avaliações"
   },
+  "notifications": {
+    "title": "Notificações",
+    "backToProfile": "Voltar para o perfil",
+    "markAllAsRead": "Marcar todas como lidas",
+    "empty": "Nenhuma notificação ainda.",
+    "types": {
+      "connectionRequestReceived": "{{name}} quer se conectar com você",
+      "messageReceived": "{{name}} te mandou uma mensagem",
+      "ratingReceived": "{{name}} avaliou você",
+      "postLiked": "{{name}} curtiu seu post"
+    }
+  },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."
   },

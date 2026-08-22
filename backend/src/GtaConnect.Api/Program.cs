@@ -34,6 +34,10 @@ builder.Services.Configure<GtaConnect.Application.Common.AuthOptions>(options =>
     options.FrontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:4200";
 });
 
+// Registrado aqui (não em AddInfrastructure) porque a implementação depende de
+// IHubContext<ChatHub>, que só existe na Api.
+builder.Services.AddScoped<GtaConnect.Application.Common.Interfaces.INotificationPusher, GtaConnect.Api.Hubs.SignalRNotificationPusher>();
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();

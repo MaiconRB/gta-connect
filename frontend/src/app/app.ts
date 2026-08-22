@@ -4,10 +4,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from './core/auth/auth.service';
 import { ChatHubService } from './core/chat/chat-hub.service';
-import { ChatService } from './core/chat/chat.service';
 import { LanguageService } from './core/i18n/language.service';
-import { ConnectionStatus } from './core/social/social.models';
-import { SocialService } from './core/social/social.service';
+import { NotificationsService } from './core/notifications/notifications.service';
 import { LanguageSwitcher } from './shared/language-switcher/language-switcher';
 
 @Component({
@@ -23,11 +21,12 @@ export class App {
   private readonly document = inject(DOCUMENT);
   protected readonly authService = inject(AuthService);
   private readonly chatHubService = inject(ChatHubService);
-  private readonly chatService = inject(ChatService);
-  private readonly socialService = inject(SocialService);
+  private readonly notificationsService = inject(NotificationsService);
 
-  protected readonly unreadMessageCount = signal(0);
-  protected readonly pendingConnectionCount = signal(0);
+  // Sino único no header substitui os badges avulsos que existiam antes (mensagens não
+  // lidas, pedidos de conexão pendentes) — centro de notificações cobre os dois casos
+  // (e mais avaliação/curtida) numa contagem só.
+  protected readonly unreadNotificationCount = signal(0);
   protected readonly isEmailConfirmed = this.authService.isEmailConfirmed;
   protected readonly resendingConfirmation = signal(false);
   protected readonly resendSuccess = signal(false);
@@ -42,58 +41,38 @@ export class App {
       }
     });
 
-    // Conexão do chat vive aqui (não numa tela específica) pra receber mensagens de
-    // qualquer lugar do app, não só com a conversa aberta — é o que alimenta o badge.
+    // Conexão do chat vive aqui (não numa tela específica) — precisa ficar aberta o tempo
+    // todo tanto pra mensagens em tempo real quanto pras notificações (mesma conexão,
+    // evento SignalR diferente: ReceiveMessage vs ReceiveNotification).
     effect(() => {
       if (this.authService.isAuthenticated()) {
         this.chatHubService.connect();
-        this.refreshUnreadCount();
-        this.refreshPendingConnectionCount();
+        this.refreshUnreadNotificationCount();
       } else {
         this.chatHubService.disconnect();
-        this.unreadMessageCount.set(0);
-        this.pendingConnectionCount.set(0);
-      }
-    });
-
-    // Sem SignalR pra conexões — connections-page/player-detail chamam
-    // socialService.notifyChanged() após aceitar/recusar/pedir, o que aqui dispara
-    // um recálculo da contagem de pedidos recebidos pendentes.
-    effect(() => {
-      if (this.socialService.connectionsChanged() > 0) {
-        this.refreshPendingConnectionCount();
+        this.unreadNotificationCount.set(0);
       }
     });
 
     effect(() => {
-      if (this.chatHubService.receivedMessage()) {
-        this.refreshUnreadCount();
+      if (this.chatHubService.receivedNotification()) {
+        this.refreshUnreadNotificationCount();
       }
     });
 
-    // Segundo gatilho, independente do de cima: receivedMessage e o MarkAsRead da conversa
-    // aberta reagem ao mesmo sinal, sem ordem garantida entre o GET daqui e o invoke de lá —
-    // esse aqui só dispara DEPOIS que o servidor confirma o MarkAsRead, garantindo que o
-    // badge reflita o estado já persistido (não uma leitura que corre na frente da escrita).
+    // A notifications-page chama notificationsService.notifyChanged() depois de marcar
+    // como lida (individual ou em lote) — sem isso o sino ficaria desatualizado até a
+    // próxima notificação chegar em tempo real.
     effect(() => {
-      if (this.chatHubService.conversationMarkedAsRead()) {
-        this.refreshUnreadCount();
+      if (this.notificationsService.notificationsChanged() > 0) {
+        this.refreshUnreadNotificationCount();
       }
     });
   }
 
-  private refreshUnreadCount(): void {
-    this.chatService.getConversations().subscribe({
-      next: (conversations) => this.unreadMessageCount.set(conversations.reduce((sum, c) => sum + c.unreadCount, 0)),
-    });
-  }
-
-  private refreshPendingConnectionCount(): void {
-    this.socialService.getConnections().subscribe({
-      next: (connections) =>
-        this.pendingConnectionCount.set(
-          connections.filter((c) => c.status === ConnectionStatus.Pending && !c.isRequester).length,
-        ),
+  private refreshUnreadNotificationCount(): void {
+    this.notificationsService.getUnreadCount().subscribe({
+      next: (count) => this.unreadNotificationCount.set(count),
     });
   }
 
