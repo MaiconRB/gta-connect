@@ -101,7 +101,8 @@
     "nextPage": "Next",
     "pageIndicator": "Page {{page}}",
     "backToSearch": "Back to search",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "onlineNow": "Online now"
   },
   "chat": {
     "title": "Messages",

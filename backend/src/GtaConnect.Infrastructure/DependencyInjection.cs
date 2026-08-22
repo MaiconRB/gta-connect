@@ -4,6 +4,7 @@ using GtaConnect.Infrastructure.Email;
 using GtaConnect.Infrastructure.Identity;
 using GtaConnect.Infrastructure.Persistence;
 using GtaConnect.Infrastructure.Persistence.Repositories;
+using GtaConnect.Infrastructure.Presence;
 using GtaConnect.Infrastructure.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddSingleton<IPresenceTracker, InMemoryPresenceTracker>();
 
         services.AddOptions<EmailSettings>()
             .Bind(configuration.GetSection(EmailSettings.SectionName))

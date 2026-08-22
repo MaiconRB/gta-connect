@@ -13,12 +13,18 @@ public class PlayerSearchService : IPlayerSearchService
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
     private readonly IRatingRepository _ratingRepository;
+    private readonly IPresenceTracker _presenceTracker;
 
-    public PlayerSearchService(IPlayerProfileRepository playerProfileRepository, IBlockRepository blockRepository, IRatingRepository ratingRepository)
+    public PlayerSearchService(
+        IPlayerProfileRepository playerProfileRepository,
+        IBlockRepository blockRepository,
+        IRatingRepository ratingRepository,
+        IPresenceTracker presenceTracker)
     {
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
         _ratingRepository = ratingRepository;
+        _presenceTracker = presenceTracker;
     }
 
     public async Task<PagedResultDto<PlayerSummaryDto>> SearchAsync(Guid currentUserId, PlayerSearchFilterDto filter, CancellationToken cancellationToken = default)
@@ -60,7 +66,7 @@ public class PlayerSearchService : IPlayerSearchService
         return ToSummaryDto(profile, aggregates);
     }
 
-    private static PlayerSummaryDto ToSummaryDto(PlayerProfile profile, IReadOnlyDictionary<Guid, (double Average, int Count)> aggregates)
+    private PlayerSummaryDto ToSummaryDto(PlayerProfile profile, IReadOnlyDictionary<Guid, (double Average, int Count)> aggregates)
     {
         var hasAggregate = aggregates.TryGetValue(profile.Id, out var aggregate);
 
@@ -78,6 +84,7 @@ public class PlayerSearchService : IPlayerSearchService
             profile.AvatarPath,
             profile.CreatedAtUtc,
             hasAggregate ? aggregate.Average : null,
-            hasAggregate ? aggregate.Count : 0);
+            hasAggregate ? aggregate.Count : 0,
+            _presenceTracker.IsOnline(profile.ApplicationUserId));
     }
 }

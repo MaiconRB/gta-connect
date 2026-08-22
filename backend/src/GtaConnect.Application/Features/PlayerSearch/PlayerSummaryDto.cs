@@ -19,4 +19,5 @@ public record PlayerSummaryDto(
     string? AvatarPath,
     DateTime CreatedAtUtc,
     double? AverageRating,
-    int RatingCount);
+    int RatingCount,
+    bool IsOnline);

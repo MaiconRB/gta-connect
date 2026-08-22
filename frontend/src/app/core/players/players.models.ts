@@ -16,6 +16,7 @@ export interface PlayerSummary {
   createdAtUtc: string;
   averageRating: number | null;
   ratingCount: number;
+  isOnline: boolean;
 }
 
 // undefined em qualquer campo = filtro não aplicado (query param omitido pelo service).

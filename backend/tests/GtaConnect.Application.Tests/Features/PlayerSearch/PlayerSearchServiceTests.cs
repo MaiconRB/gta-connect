@@ -12,6 +12,7 @@ public class PlayerSearchServiceTests
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
     private readonly Mock<IRatingRepository> _ratingRepositoryMock = new();
+    private readonly Mock<IPresenceTracker> _presenceTrackerMock = new();
     private readonly PlayerSearchService _sut;
 
     public PlayerSearchServiceTests()
@@ -23,7 +24,7 @@ public class PlayerSearchServiceTests
             .Setup(r => r.GetAggregatesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<Guid, (double Average, int Count)>());
 
-        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object, _ratingRepositoryMock.Object);
+        _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object, _ratingRepositoryMock.Object, _presenceTrackerMock.Object);
     }
 
     private static PlayerProfile CreateValidProfile(Guid userId) =>
@@ -175,6 +176,23 @@ public class PlayerSearchServiceTests
 
         Assert.Equal(4.5, result.AverageRating);
         Assert.Equal(2, result.RatingCount);
+    }
+
+    [Fact]
+    public async Task GetPlayerProfileAsync_ComPerfilOnline_MarcaIsOnlineComoTrue()
+    {
+        var profile = CreateValidProfile(Guid.NewGuid());
+
+        _playerProfileRepositoryMock
+            .Setup(r => r.GetByIdAsync(profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _presenceTrackerMock
+            .Setup(t => t.IsOnline(profile.ApplicationUserId))
+            .Returns(true);
+
+        var result = await _sut.GetPlayerProfileAsync(profile.Id);
+
+        Assert.True(result.IsOnline);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 using GtaConnect.Api.Common;
+using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Application.Features.Chat;
 using GtaConnect.Domain.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,26 @@ namespace GtaConnect.Api.Hubs;
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
+    private readonly IPresenceTracker _presenceTracker;
 
-    public ChatHub(IChatService chatService)
+    public ChatHub(IChatService chatService, IPresenceTracker presenceTracker)
     {
         _chatService = chatService;
+        _presenceTracker = presenceTracker;
+    }
+
+    // "Online agora" é só reflexo de ter essa conexão SignalR aberta — a mesma que já existe
+    // pro chat/notificações. Sem hub/infra novos.
+    public override Task OnConnectedAsync()
+    {
+        _presenceTracker.MarkOnline(Context.User!.GetUserId());
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        _presenceTracker.MarkOffline(Context.User!.GetUserId());
+        return base.OnDisconnectedAsync(exception);
     }
 
     // Retorna a mensagem persistida pra quem chamou — o cliente usa isso pra descobrir o

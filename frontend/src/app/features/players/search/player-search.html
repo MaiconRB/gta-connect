@@ -91,13 +91,18 @@
               [routerLink]="['/jogadores', player.id]"
               class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-amber-500/50 transition-colors"
             >
-              @if (player.avatarPath) {
-                <img [src]="player.avatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
-              } @else {
-                <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                  {{ player.displayName.charAt(0).toUpperCase() }}
-                </div>
-              }
+              <div class="relative shrink-0">
+                @if (player.avatarPath) {
+                  <img [src]="player.avatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                } @else {
+                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold">
+                    {{ player.displayName.charAt(0).toUpperCase() }}
+                  </div>
+                }
+                @if (player.isOnline) {
+                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400 border-2 border-neutral-900"></span>
+                }
+              </div>
               <div class="min-w-0">
                 <p class="text-white font-medium">{{ player.displayName }}</p>
                 <p class="text-xs text-neutral-500">{{ (regionLabel(player.region) || 'profile.noRegion') | translate }}</p>
