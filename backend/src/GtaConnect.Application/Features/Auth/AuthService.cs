@@ -20,6 +20,7 @@ public class AuthService : IAuthService
     private readonly IValidator<LoginRequestDto> _loginValidator;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly string _frontendUrl;
+    private readonly string[] _moderatorEmails;
 
     public AuthService(
         IIdentityService identityService,
@@ -39,6 +40,7 @@ public class AuthService : IAuthService
         _loginValidator = loginValidator;
         _localizer = localizer;
         _frontendUrl = authOptions.Value.FrontendUrl;
+        _moderatorEmails = authOptions.Value.ModeratorEmails;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
@@ -58,8 +60,10 @@ public class AuthService : IAuthService
         // uma falha no envio nao impede o cadastro — o usuario pode pedir reenvio depois.
         _ = SendConfirmationEmailAsync(createResult.UserId.Value, request.Email, CancellationToken.None);
 
-        var token = _jwtTokenGenerator.GenerateToken(createResult.UserId.Value, request.Email, profile.DisplayName);
-        return new AuthResponseDto(token.Value, token.ExpiresAtUtc, request.Email, profile.DisplayName, EmailConfirmed: false);
+        var isModerator = await _identityService.SyncModeratorRoleAsync(createResult.UserId.Value, IsConfiguredModeratorEmail(request.Email));
+
+        var token = _jwtTokenGenerator.GenerateToken(createResult.UserId.Value, request.Email, profile.DisplayName, RolesFor(isModerator));
+        return new AuthResponseDto(token.Value, token.ExpiresAtUtc, request.Email, profile.DisplayName, EmailConfirmed: false, isModerator);
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
@@ -72,14 +76,26 @@ public class AuthService : IAuthService
             throw new ValidationAppException("credentials", _localizer["InvalidCredentials"]);
         }
 
+        if (await _identityService.IsUserBannedAsync(userId.Value))
+        {
+            throw new ValidationAppException("credentials", _localizer["Account_Banned"]);
+        }
+
         var profile = await _playerProfileRepository.GetByUserIdAsync(userId.Value, cancellationToken)
             ?? throw new NotFoundException(nameof(PlayerProfile), userId.Value);
 
         var emailConfirmed = await _identityService.IsEmailConfirmedAsync(userId.Value);
+        var isModerator = await _identityService.SyncModeratorRoleAsync(userId.Value, IsConfiguredModeratorEmail(request.Email));
 
-        var token = _jwtTokenGenerator.GenerateToken(userId.Value, request.Email, profile.DisplayName);
-        return new AuthResponseDto(token.Value, token.ExpiresAtUtc, request.Email, profile.DisplayName, emailConfirmed);
+        var token = _jwtTokenGenerator.GenerateToken(userId.Value, request.Email, profile.DisplayName, RolesFor(isModerator));
+        return new AuthResponseDto(token.Value, token.ExpiresAtUtc, request.Email, profile.DisplayName, emailConfirmed, isModerator);
     }
+
+    private bool IsConfiguredModeratorEmail(string email) =>
+        _moderatorEmails.Contains(email, StringComparer.OrdinalIgnoreCase);
+
+    private static IReadOnlyList<string> RolesFor(bool isModerator) =>
+        isModerator ? ["Moderator"] : [];
 
     public async Task ConfirmEmailAsync(Guid userId, string token, CancellationToken cancellationToken = default)
     {

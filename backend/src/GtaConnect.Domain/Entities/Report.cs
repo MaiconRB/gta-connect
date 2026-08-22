@@ -18,6 +18,12 @@ public class Report
 
     public DateTime CreatedAtUtc { get; private set; }
 
+    public ReportStatus Status { get; private set; }
+
+    public Guid? ReviewedByProfileId { get; private set; }
+
+    public DateTime? ReviewedAtUtc { get; private set; }
+
     private Report()
     {
     }
@@ -53,6 +59,19 @@ public class Report
             Reason = reason,
             Details = trimmedDetails,
             CreatedAtUtc = DateTime.UtcNow,
+            Status = ReportStatus.Pending,
         };
+    }
+
+    public void MarkReviewed(Guid moderatorProfileId)
+    {
+        if (Status == ReportStatus.Reviewed)
+        {
+            return;
+        }
+
+        Status = ReportStatus.Reviewed;
+        ReviewedByProfileId = moderatorProfileId;
+        ReviewedAtUtc = DateTime.UtcNow;
     }
 }

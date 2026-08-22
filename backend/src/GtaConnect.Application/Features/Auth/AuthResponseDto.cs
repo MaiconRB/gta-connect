@@ -5,4 +5,5 @@ public record AuthResponseDto(
     DateTime ExpiresAtUtc,
     string Email,
     string DisplayName,
-    bool EmailConfirmed);
+    bool EmailConfirmed,
+    bool IsModerator);

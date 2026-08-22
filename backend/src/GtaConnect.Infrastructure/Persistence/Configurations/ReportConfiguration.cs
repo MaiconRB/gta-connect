@@ -18,8 +18,10 @@ public class ReportConfiguration : IEntityTypeConfiguration<Report>
 
         builder.Property(r => r.CreatedAtUtc).IsRequired();
 
-        // Sem tela de revisão ainda, mas o índice já deixa pronta uma futura consulta
-        // "todas as denúncias contra este perfil".
-        builder.HasIndex(r => r.ReportedProfileId);
+        builder.Property(r => r.Status).IsRequired();
+
+        // Sustenta tanto "todas as denúncias contra este perfil" quanto a agregação
+        // por status usada no painel de revisão.
+        builder.HasIndex(r => new { r.ReportedProfileId, r.Status });
     }
 }

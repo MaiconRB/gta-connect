@@ -87,4 +87,7 @@
   <data name="Email_InvalidConfirmationToken" xml:space="preserve">
     <value>Link de confirmação inválido ou expirado. Solicite um novo e-mail de confirmação.</value>
   </data>
+  <data name="Account_Banned" xml:space="preserve">
+    <value>Sua conta foi suspensa.</value>
+  </data>
 </root>

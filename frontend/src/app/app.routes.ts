@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { authGuard, moderatorGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -60,6 +60,20 @@ export const routes: Routes = [
     path: 'notificacoes',
     loadComponent: () => import('./features/notifications/notifications-page/notifications-page').then((m) => m.NotificationsPage),
     canActivate: [authGuard],
+  },
+  {
+    path: 'moderacao',
+    loadComponent: () =>
+      import('./features/moderation-review/reported-profiles-page/reported-profiles-page').then((m) => m.ReportedProfilesPage),
+    canActivate: [authGuard, moderatorGuard],
+  },
+  {
+    path: 'moderacao/:profileId',
+    loadComponent: () =>
+      import('./features/moderation-review/reported-profile-detail-page/reported-profile-detail-page').then(
+        (m) => m.ReportedProfileDetailPage,
+      ),
+    canActivate: [authGuard, moderatorGuard],
   },
   {
     // Rota publica — o usuario pode nao estar logado ao clicar no link de confirmacao.

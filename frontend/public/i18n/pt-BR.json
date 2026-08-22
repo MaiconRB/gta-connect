@@ -141,6 +141,9 @@
     "postButton": "Postar",
     "posting": "Postando...",
     "noPosts": "Nenhum post ainda. Seja o primeiro a compartilhar algo!",
+    "noPostsFromConnections": "Nenhum post das suas conexões ainda.",
+    "filterAll": "Todos",
+    "filterConnections": "Conexões",
     "deleteButton": "Apagar",
     "loadMore": "Carregar mais",
     "loadingMore": "Carregando..."
@@ -185,6 +188,23 @@
       "ratingReceived": "{{name}} avaliou você",
       "postLiked": "{{name}} curtiu seu post"
     }
+  },
+  "moderationReview": {
+    "title": "Painel de moderação",
+    "backToProfile": "Voltar para o perfil",
+    "backToList": "Voltar para a lista",
+    "empty": "Nenhum perfil denunciado.",
+    "reportCount": "{{pending}} pendente(s) de {{total}} denúncia(s)",
+    "bannedBadge": "Banido",
+    "banButton": "Banir",
+    "unbanButton": "Desbanir",
+    "reportsTitle": "Denúncias",
+    "reportedBy": "Denunciado por {{name}}",
+    "reviewedBadge": "Revisada",
+    "markReviewedButton": "Marcar como revisada",
+    "recentPostsTitle": "Posts recentes",
+    "noRecentPosts": "Nenhum post recente.",
+    "deletePostButton": "Apagar post"
   },
   "common": {
     "genericError": "Não foi possível completar a operação. Tente novamente."

@@ -33,6 +33,7 @@ public class FeedRepository : IFeedRepository
 
     public async Task<(IReadOnlyList<PostSummaryDto> Items, int TotalCount)> GetFeedAsync(
         IReadOnlyCollection<Guid> excludedProfileIds,
+        IReadOnlyCollection<Guid>? onlyProfileIds,
         Guid viewerProfileId,
         int page,
         int pageSize,
@@ -41,6 +42,7 @@ public class FeedRepository : IFeedRepository
         var query =
             from p in _dbContext.Posts
             where !excludedProfileIds.Contains(p.AuthorProfileId)
+            where onlyProfileIds == null || onlyProfileIds.Contains(p.AuthorProfileId)
             join author in _dbContext.PlayerProfiles on p.AuthorProfileId equals author.Id
             select new { Post = p, Author = author };
 
@@ -65,6 +67,27 @@ public class FeedRepository : IFeedRepository
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    public async Task<IReadOnlyList<PostSummaryDto>> GetByAuthorAsync(Guid authorProfileId, int limit, CancellationToken cancellationToken = default)
+    {
+        var query =
+            from p in _dbContext.Posts
+            where p.AuthorProfileId == authorProfileId
+            join author in _dbContext.PlayerProfiles on p.AuthorProfileId equals author.Id
+            orderby p.CreatedAtUtc descending
+            select new PostSummaryDto(
+                p.Id,
+                p.AuthorProfileId,
+                author.DisplayName,
+                author.AvatarPath,
+                p.Content,
+                p.PhotoPath,
+                p.CreatedAtUtc,
+                _dbContext.PostLikes.Count(l => l.PostId == p.Id),
+                false);
+
+        return await query.Take(limit).ToListAsync(cancellationToken);
     }
 
     public Task<PostLike?> FindLikeAsync(Guid postId, Guid profileId, CancellationToken cancellationToken = default)

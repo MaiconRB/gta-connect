@@ -1,0 +1,109 @@
+<div class="min-h-screen app-shell-bg px-4 py-12">
+  <div class="w-full max-w-lg mx-auto">
+    <a routerLink="/moderacao" class="inline-block text-sm text-neutral-400 hover:text-neutral-300 mb-4">
+      {{ 'moderationReview.backToList' | translate }}
+    </a>
+
+    @if (isLoading()) {
+      <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+    } @else if (errorMessage() && !detail()) {
+      <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
+        {{ errorMessage() }}
+      </div>
+    } @else if (detail(); as d) {
+      <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl mb-6">
+        <div class="flex items-center gap-4">
+          @if (d.avatarPath) {
+            <img [src]="d.avatarPath" alt="" class="w-16 h-16 rounded-full object-cover border border-neutral-700 shrink-0" />
+          } @else {
+            <div class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 text-xl font-semibold shrink-0">
+              {{ d.displayName.charAt(0).toUpperCase() }}
+            </div>
+          }
+          <div class="flex-1">
+            <h1 class="font-display text-xl font-bold text-white">{{ d.displayName }}</h1>
+            @if (d.isBanned) {
+              <p class="text-sm text-red-400 mt-0.5">{{ 'moderationReview.bannedBadge' | translate }}</p>
+            }
+          </div>
+          <button
+            type="button"
+            (click)="toggleBan()"
+            [disabled]="isActionPending()"
+            [class]="
+              'shrink-0 rounded-lg font-medium text-sm px-4 py-2 transition-colors disabled:opacity-50 ' +
+              (d.isBanned ? 'bg-neutral-800 hover:bg-neutral-700 text-white' : 'bg-red-500 hover:bg-red-400 text-neutral-950')
+            "
+          >
+            {{ (d.isBanned ? 'moderationReview.unbanButton' : 'moderationReview.banButton') | translate }}
+          </button>
+        </div>
+
+        @if (errorMessage()) {
+          <p class="mt-3 text-xs text-red-400">{{ errorMessage() }}</p>
+        }
+      </div>
+
+      <section class="mb-8">
+        <h2 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">{{ 'moderationReview.reportsTitle' | translate }}</h2>
+        <div class="space-y-3">
+          @for (report of d.reports; track report.id) {
+            <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-white font-medium text-sm">{{ reasonLabel(report.reason) | translate }}</span>
+                @if (report.status === ReportStatus.Reviewed) {
+                  <span class="text-xs text-neutral-500">{{ 'moderationReview.reviewedBadge' | translate }}</span>
+                } @else {
+                  <button
+                    type="button"
+                    (click)="markReviewed(report.id)"
+                    class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                  >
+                    {{ 'moderationReview.markReviewedButton' | translate }}
+                  </button>
+                }
+              </div>
+              <p class="text-xs text-neutral-500 mb-1">
+                {{ 'moderationReview.reportedBy' | translate: { name: report.reporterDisplayName } }}
+              </p>
+              @if (report.details) {
+                <p class="text-sm text-neutral-300">{{ report.details }}</p>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">{{ 'moderationReview.recentPostsTitle' | translate }}</h2>
+        @if (d.recentPosts.length === 0) {
+          <p class="text-sm text-neutral-500">{{ 'moderationReview.noRecentPosts' | translate }}</p>
+        } @else {
+          <div class="space-y-3">
+            @for (post of d.recentPosts; track post.id) {
+              <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                @if (post.content) {
+                  <p class="text-sm text-neutral-200 mb-2">{{ post.content }}</p>
+                }
+                @if (post.photoPath) {
+                  <img [src]="post.photoPath" alt="" class="w-full rounded-lg mb-2" />
+                }
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-500">{{ post.createdAtUtc | date: 'short' }}</span>
+                  <button
+                    type="button"
+                    (click)="deletePost(post.id)"
+                    [disabled]="isActionPending()"
+                    class="text-xs text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
+                  >
+                    {{ 'moderationReview.deletePostButton' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  </div>
+</div>

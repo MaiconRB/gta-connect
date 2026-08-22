@@ -20,6 +20,7 @@ public class FeedService : IFeedService
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IPhotoStorageService _photoStorageService;
     private readonly IBlockRepository _blockRepository;
+    private readonly IConnectionRepository _connectionRepository;
     private readonly INotificationService _notificationService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
@@ -28,6 +29,7 @@ public class FeedService : IFeedService
         IPlayerProfileRepository playerProfileRepository,
         IPhotoStorageService photoStorageService,
         IBlockRepository blockRepository,
+        IConnectionRepository connectionRepository,
         INotificationService notificationService,
         IStringLocalizer<SharedResource> localizer)
     {
@@ -35,6 +37,7 @@ public class FeedService : IFeedService
         _playerProfileRepository = playerProfileRepository;
         _photoStorageService = photoStorageService;
         _blockRepository = blockRepository;
+        _connectionRepository = connectionRepository;
         _notificationService = notificationService;
         _localizer = localizer;
     }
@@ -80,7 +83,7 @@ public class FeedService : IFeedService
         return new PostSummaryDto(post.Id, author.Id, author.DisplayName, author.AvatarPath, post.Content, post.PhotoPath, post.CreatedAtUtc, 0, false);
     }
 
-    public async Task<PagedResultDto<PostSummaryDto>> GetFeedAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<PagedResultDto<PostSummaryDto>> GetFeedAsync(Guid userId, int page, int pageSize, bool onlyConnections, CancellationToken cancellationToken = default)
     {
         var profile = await GetProfileOrThrowAsync(userId, cancellationToken);
 
@@ -91,7 +94,16 @@ public class FeedService : IFeedService
         // já aplicada na busca de jogadores e na lista de conversas.
         var blockedOrBlockingIds = await _blockRepository.GetBlockedOrBlockingProfileIdsAsync(profile.Id, cancellationToken);
 
-        var (items, totalCount) = await _feedRepository.GetFeedAsync(blockedOrBlockingIds, profile.Id, clampedPage, clampedPageSize, cancellationToken);
+        // Filtro "só conexões" reaproveita Connection (Reputation) em vez de um sistema de
+        // "seguir" separado — Accepted é o único status que conta como "estou conectado".
+        IReadOnlyCollection<Guid>? onlyProfileIds = null;
+        if (onlyConnections)
+        {
+            var connections = await _connectionRepository.GetConnectionsForProfileAsync(profile.Id, cancellationToken);
+            onlyProfileIds = connections.Where(c => c.Status == ConnectionStatus.Accepted).Select(c => c.OtherProfileId).ToList();
+        }
+
+        var (items, totalCount) = await _feedRepository.GetFeedAsync(blockedOrBlockingIds, onlyProfileIds, profile.Id, clampedPage, clampedPageSize, cancellationToken);
 
         return new PagedResultDto<PostSummaryDto>(items, totalCount, clampedPage, clampedPageSize);
     }
@@ -108,6 +120,14 @@ public class FeedService : IFeedService
         {
             throw new NotFoundException(nameof(Post), postId);
         }
+
+        await _feedRepository.DeletePostAsync(post, cancellationToken);
+    }
+
+    public async Task DeletePostAsModeratorAsync(Guid postId, CancellationToken cancellationToken = default)
+    {
+        var post = await _feedRepository.GetPostByIdAsync(postId, cancellationToken)
+            ?? throw new NotFoundException(nameof(Post), postId);
 
         await _feedRepository.DeletePostAsync(post, cancellationToken);
     }

@@ -29,4 +29,5 @@ export interface AuthResponse {
   email: string;
   displayName: string;
   emailConfirmed: boolean;
+  isModerator: boolean;
 }

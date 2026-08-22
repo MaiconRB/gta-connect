@@ -19,9 +19,13 @@ public class FeedController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResultDto<PostSummaryDto>>> GetFeed([FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<PostSummaryDto>>> GetFeed(
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromQuery] bool onlyConnections,
+        CancellationToken cancellationToken)
     {
-        var result = await _feedService.GetFeedAsync(User.GetUserId(), page, pageSize, cancellationToken);
+        var result = await _feedService.GetFeedAsync(User.GetUserId(), page, pageSize, onlyConnections, cancellationToken);
         return Ok(result with { Items = result.Items.Select(this.WithAbsoluteAvatarUrl).ToList() });
     }
 

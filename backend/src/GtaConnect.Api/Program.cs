@@ -32,6 +32,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<GtaConnect.Application.Common.AuthOptions>(options =>
 {
     options.FrontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:4200";
+    options.ModeratorEmails = builder.Configuration.GetSection("ModeratorEmails").Get<string[]>() ?? [];
 });
 
 // Registrado aqui (não em AddInfrastructure) porque a implementação depende de

@@ -3,6 +3,7 @@ using GtaConnect.Application.Common;
 using GtaConnect.Application.Common.Interfaces;
 using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Notifications;
+using GtaConnect.Application.Features.Reputation;
 using GtaConnect.Application.Tests.Common;
 using GtaConnect.Domain.Common.Exceptions;
 using GtaConnect.Domain.Entities;
@@ -17,6 +18,7 @@ public class FeedServiceTests
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IPhotoStorageService> _photoStorageServiceMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
+    private readonly Mock<IConnectionRepository> _connectionRepositoryMock = new();
     private readonly Mock<INotificationService> _notificationServiceMock = new();
     private readonly FeedService _sut;
 
@@ -31,6 +33,7 @@ public class FeedServiceTests
             _playerProfileRepositoryMock.Object,
             _photoStorageServiceMock.Object,
             _blockRepositoryMock.Object,
+            _connectionRepositoryMock.Object,
             _notificationServiceMock.Object,
             NoOpStringLocalizer.Create());
     }
@@ -113,14 +116,48 @@ public class FeedServiceTests
             .Setup(r => r.GetBlockedOrBlockingProfileIdsAsync(profile.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Guid> { blockedProfileId });
         _feedRepositoryMock
-            .Setup(r => r.GetFeedAsync(It.IsAny<IReadOnlyCollection<Guid>>(), profile.Id, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetFeedAsync(It.IsAny<IReadOnlyCollection<Guid>>(), null, profile.Id, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PostSummaryDto>(), 0));
 
-        await _sut.GetFeedAsync(userId, 1, 20);
+        await _sut.GetFeedAsync(userId, 1, 20, onlyConnections: false);
 
         _feedRepositoryMock.Verify(
             r => r.GetFeedAsync(
                 It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(blockedProfileId)),
+                null,
+                profile.Id,
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _connectionRepositoryMock.Verify(r => r.GetConnectionsForProfileAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetFeedAsync_ComOnlyConnections_RestringeAosPerfisComConexaoAceita()
+    {
+        var userId = Guid.NewGuid();
+        var profile = CreateValidProfile(userId);
+        var acceptedProfileId = Guid.NewGuid();
+        var pendingProfileId = Guid.NewGuid();
+        var connections = new List<ConnectionSummaryDto>
+        {
+            new(Guid.NewGuid(), acceptedProfileId, "Aceito", null, ConnectionStatus.Accepted, true, DateTime.UtcNow),
+            new(Guid.NewGuid(), pendingProfileId, "Pendente", null, ConnectionStatus.Pending, true, DateTime.UtcNow),
+        };
+
+        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(profile);
+        _connectionRepositoryMock.Setup(r => r.GetConnectionsForProfileAsync(profile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(connections);
+        _feedRepositoryMock
+            .Setup(r => r.GetFeedAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<IReadOnlyCollection<Guid>?>(), profile.Id, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<PostSummaryDto>(), 0));
+
+        await _sut.GetFeedAsync(userId, 1, 20, onlyConnections: true);
+
+        _feedRepositoryMock.Verify(
+            r => r.GetFeedAsync(
+                It.IsAny<IReadOnlyCollection<Guid>>(),
+                It.Is<IReadOnlyCollection<Guid>?>(ids => ids != null && ids.Count == 1 && ids.Contains(acceptedProfileId)),
                 profile.Id,
                 It.IsAny<int>(),
                 It.IsAny<int>(),

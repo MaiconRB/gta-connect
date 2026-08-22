@@ -15,13 +15,22 @@ public interface IFeedRepository
 
     Task DeletePostAsync(Post post, CancellationToken cancellationToken = default);
 
-    /// <summary>Feed paginado, mais recente primeiro. Nenhum post de excludedProfileIds aparece. LikedByMe é calculado em relação a viewerProfileId.</summary>
+    /// <summary>
+    /// Feed paginado, mais recente primeiro. Nenhum post de excludedProfileIds aparece.
+    /// Se onlyProfileIds não for null, só posts desses autores aparecem (feed filtrado por
+    /// conexões) — null significa "todos" (feed público global, comportamento padrão).
+    /// LikedByMe é calculado em relação a viewerProfileId.
+    /// </summary>
     Task<(IReadOnlyList<PostSummaryDto> Items, int TotalCount)> GetFeedAsync(
         IReadOnlyCollection<Guid> excludedProfileIds,
+        IReadOnlyCollection<Guid>? onlyProfileIds,
         Guid viewerProfileId,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Posts mais recentes de um autor — usado pelo painel de moderação, sem "curtido por mim" (sempre false, sem viewer real).</summary>
+    Task<IReadOnlyList<PostSummaryDto>> GetByAuthorAsync(Guid authorProfileId, int limit, CancellationToken cancellationToken = default);
 
     Task<PostLike?> FindLikeAsync(Guid postId, Guid profileId, CancellationToken cancellationToken = default);
 

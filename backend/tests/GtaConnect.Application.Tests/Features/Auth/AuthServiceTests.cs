@@ -48,7 +48,7 @@ public class AuthServiceTests
             .ReturnsAsync("fake-encoded-token");
 
         _jwtTokenGeneratorMock
-            .Setup(g => g.GenerateToken(userId, request.Email, request.DisplayName))
+            .Setup(g => g.GenerateToken(userId, request.Email, request.DisplayName, It.IsAny<IReadOnlyList<string>>()))
             .Returns(new JwtToken("fake-token", DateTime.UtcNow.AddHours(1)));
 
         var response = await _sut.RegisterAsync(request);
@@ -87,6 +87,25 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task RegisterAsync_ComEmailNaoModerador_ChamaSyncComFalse()
+    {
+        var userId = Guid.NewGuid();
+        var request = new RegisterRequestDto("jogador@exemplo.com", "Senha123", "JogadorPS5", Platform.Ps5, GameTitle.GtaV);
+
+        _identityServiceMock
+            .Setup(s => s.CreateUserAsync(request.Email, request.Password))
+            .ReturnsAsync(new CreateUserResult(true, userId, []));
+        _jwtTokenGeneratorMock
+            .Setup(g => g.GenerateToken(userId, request.Email, request.DisplayName, It.IsAny<IReadOnlyList<string>>()))
+            .Returns(new JwtToken("fake-token", DateTime.UtcNow.AddHours(1)));
+
+        var response = await _sut.RegisterAsync(request);
+
+        Assert.False(response.IsModerator);
+        _identityServiceMock.Verify(s => s.SyncModeratorRoleAsync(userId, false), Times.Once);
+    }
+
+    [Fact]
     public async Task LoginAsync_ComCredenciaisValidas_RetornaToken()
     {
         var userId = Guid.NewGuid();
@@ -106,7 +125,7 @@ public class AuthServiceTests
             .ReturnsAsync(true);
 
         _jwtTokenGeneratorMock
-            .Setup(g => g.GenerateToken(userId, request.Email, profile.DisplayName))
+            .Setup(g => g.GenerateToken(userId, request.Email, profile.DisplayName, It.IsAny<IReadOnlyList<string>>()))
             .Returns(new JwtToken("fake-token", DateTime.UtcNow.AddHours(1)));
 
         var response = await _sut.LoginAsync(request);
@@ -126,6 +145,54 @@ public class AuthServiceTests
             .ReturnsAsync((Guid?)null);
 
         await Assert.ThrowsAsync<ValidationAppException>(() => _sut.LoginAsync(request));
+    }
+
+    [Fact]
+    public async Task LoginAsync_ComContaBanida_LancaValidationAppExceptionSemEmitirToken()
+    {
+        var userId = Guid.NewGuid();
+        var request = new LoginRequestDto("jogador@exemplo.com", "Senha123");
+
+        _identityServiceMock
+            .Setup(s => s.ValidateCredentialsAsync(request.Email, request.Password))
+            .ReturnsAsync(userId);
+        _identityServiceMock
+            .Setup(s => s.IsUserBannedAsync(userId))
+            .ReturnsAsync(true);
+
+        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.LoginAsync(request));
+
+        _jwtTokenGeneratorMock.Verify(g => g.GenerateToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task LoginAsync_ComEmailModeradorConfigurado_ChamaSyncComTrueERetornaIsModerator()
+    {
+        var userId = Guid.NewGuid();
+        var request = new LoginRequestDto("moderador@exemplo.com", "Senha123");
+        var profile = PlayerProfile.Create(userId, "Moderador", Platform.Ps5, GameTitle.GtaV);
+        var authOptions = Options.Create(new AuthOptions { ModeratorEmails = ["moderador@exemplo.com"] });
+        var sut = new AuthService(
+            _identityServiceMock.Object,
+            _playerProfileRepositoryMock.Object,
+            _jwtTokenGeneratorMock.Object,
+            _emailServiceMock.Object,
+            new RegisterRequestValidator(NoOpStringLocalizer.Create()),
+            new LoginRequestValidator(),
+            NoOpStringLocalizer.Create(),
+            authOptions);
+
+        _identityServiceMock.Setup(s => s.ValidateCredentialsAsync(request.Email, request.Password)).ReturnsAsync(userId);
+        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(profile);
+        _identityServiceMock.Setup(s => s.SyncModeratorRoleAsync(userId, true)).ReturnsAsync(true);
+        _jwtTokenGeneratorMock
+            .Setup(g => g.GenerateToken(userId, request.Email, profile.DisplayName, It.IsAny<IReadOnlyList<string>>()))
+            .Returns(new JwtToken("fake-token", DateTime.UtcNow.AddHours(1)));
+
+        var response = await sut.LoginAsync(request);
+
+        Assert.True(response.IsModerator);
+        _identityServiceMock.Verify(s => s.SyncModeratorRoleAsync(userId, true), Times.Once);
     }
 
     [Fact]

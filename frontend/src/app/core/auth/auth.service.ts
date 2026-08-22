@@ -18,6 +18,7 @@ export class AuthService {
   readonly currentUser = this.authState.asReadonly();
   readonly isAuthenticated = computed(() => this.authState() !== null);
   readonly isEmailConfirmed = computed(() => this.authState()?.emailConfirmed ?? true);
+  readonly isModerator = computed(() => this.authState()?.isModerator ?? false);
 
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http

@@ -80,6 +80,17 @@
         }
       </a>
     }
+    @if (authService.isModerator()) {
+      <a
+        routerLink="/moderacao"
+        routerLinkActive="text-amber-400"
+        class="flex items-center justify-center w-8 h-8 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+          <path d="M12 3.5l6.5 2.5v5c0 4.5-2.8 7.5-6.5 9.5-3.7-2-6.5-5-6.5-9.5v-5L12 3.5Z" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    }
     <app-language-switcher />
   </div>
 </header>

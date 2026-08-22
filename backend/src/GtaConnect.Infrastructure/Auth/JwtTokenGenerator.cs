@@ -16,17 +16,21 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _settings = settings.Value;
     }
 
-    public JwtToken GenerateToken(Guid userId, string email, string displayName)
+    public JwtToken GenerateToken(Guid userId, string email, string displayName, IReadOnlyList<string> roles)
     {
         var expiresAtUtc = DateTime.UtcNow.AddMinutes(_settings.ExpirationMinutes);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("display_name", displayName),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(JwtRegisteredClaimNames.Email, email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("display_name", displayName),
         };
+
+        // ClaimTypes.Role (não só "role") pra bater exatamente com o que [Authorize(Roles=...)]
+        // espera, independente de mapeamento de claim inbound.
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);

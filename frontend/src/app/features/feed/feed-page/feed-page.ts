@@ -22,6 +22,7 @@ export class FeedPage {
 
   private nextPage = 1;
   protected readonly myProfileId = signal<string | null>(null);
+  protected readonly onlyConnections = signal(false);
 
   protected readonly posts = signal<Post[]>([]);
   protected readonly isLoading = signal(true);
@@ -129,7 +130,7 @@ export class FeedPage {
     this.nextPage += 1;
     this.isLoadingMore.set(true);
 
-    this.feedService.getFeed(this.nextPage, PAGE_SIZE).subscribe({
+    this.feedService.getFeed(this.nextPage, PAGE_SIZE, this.onlyConnections()).subscribe({
       next: (result) => {
         this.posts.update((current) => [...current, ...result.items]);
         this.hasMore.set(this.nextPage * PAGE_SIZE < result.totalCount);
@@ -141,9 +142,18 @@ export class FeedPage {
     });
   }
 
+  protected setOnlyConnections(value: boolean): void {
+    if (this.onlyConnections() === value) {
+      return;
+    }
+    this.onlyConnections.set(value);
+    this.loadFeed();
+  }
+
   private loadFeed(): void {
+    this.nextPage = 1;
     this.isLoading.set(true);
-    this.feedService.getFeed(1, PAGE_SIZE).subscribe({
+    this.feedService.getFeed(1, PAGE_SIZE, this.onlyConnections()).subscribe({
       next: (result) => {
         this.posts.set(result.items);
         this.hasMore.set(PAGE_SIZE < result.totalCount);

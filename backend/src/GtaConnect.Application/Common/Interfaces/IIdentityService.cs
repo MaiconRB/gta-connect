@@ -23,6 +23,16 @@ public interface IIdentityService
 
     /// <summary>Confirma o e-mail do usuario com o token Base64Url fornecido. Retorna true em caso de sucesso.</summary>
     Task<bool> ConfirmEmailAsync(Guid userId, string token);
+
+    /// <summary>Concede ou revoga a role "Moderator" pra deixar em sincronia com shouldBeModerator. Retorna o status final.</summary>
+    Task<bool> SyncModeratorRoleAsync(Guid userId, bool shouldBeModerator);
+
+    /// <summary>Bane o usuario permanentemente (lockout nativo do Identity).</summary>
+    Task BanUserAsync(Guid userId);
+
+    Task UnbanUserAsync(Guid userId);
+
+    Task<bool> IsUserBannedAsync(Guid userId);
 }
 
 public record CreateUserResult(bool Succeeded, Guid? UserId, IReadOnlyList<string> Errors);

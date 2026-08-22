@@ -7,11 +7,15 @@ namespace GtaConnect.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
+    private const string ModeratorRoleName = "Moderator";
 
-    public IdentityService(UserManager<ApplicationUser> userManager)
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+
+    public IdentityService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task<CreateUserResult> CreateUserAsync(string email, string password)
@@ -86,5 +90,62 @@ public class IdentityService : IIdentityService
 
         var result = await _userManager.ConfirmEmailAsync(user, rawToken);
         return result.Succeeded;
+    }
+
+    public async Task<bool> SyncModeratorRoleAsync(Guid userId, bool shouldBeModerator)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return false;
+        }
+
+        var isCurrentlyModerator = await _userManager.IsInRoleAsync(user, ModeratorRoleName);
+
+        if (shouldBeModerator && !isCurrentlyModerator)
+        {
+            // Garante que a role existe antes de atribuir — RoleManager não cria sozinho.
+            if (!await _roleManager.RoleExistsAsync(ModeratorRoleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(ModeratorRoleName));
+            }
+
+            await _userManager.AddToRoleAsync(user, ModeratorRoleName);
+        }
+        else if (!shouldBeModerator && isCurrentlyModerator)
+        {
+            await _userManager.RemoveFromRoleAsync(user, ModeratorRoleName);
+        }
+
+        return shouldBeModerator;
+    }
+
+    public async Task BanUserAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return;
+        }
+
+        await _userManager.SetLockoutEnabledAsync(user, true);
+        await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+    }
+
+    public async Task UnbanUserAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return;
+        }
+
+        await _userManager.SetLockoutEndDateAsync(user, null);
+    }
+
+    public async Task<bool> IsUserBannedAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        return user is not null && await _userManager.IsLockedOutAsync(user);
     }
 }

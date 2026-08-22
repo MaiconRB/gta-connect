@@ -1,6 +1,7 @@
 using GtaConnect.Application.Features.Chat;
 using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Moderation;
+using GtaConnect.Application.Features.ModerationReview;
 using GtaConnect.Application.Features.Notifications;
 using GtaConnect.Application.Features.PlayerSearch;
 using GtaConnect.Application.Features.Profile;
@@ -43,4 +44,14 @@ public static class AvatarUrlHelper
 
     public static NotificationDto WithAbsoluteAvatarUrl(this ControllerBase controller, NotificationDto notification) =>
         notification.ActorAvatarPath is null ? notification : notification with { ActorAvatarPath = controller.Request.ToAbsoluteUrl(notification.ActorAvatarPath) };
+
+    public static ReportedProfileSummaryDto WithAbsoluteAvatarUrl(this ControllerBase controller, ReportedProfileSummaryDto summary) =>
+        summary.AvatarPath is null ? summary : summary with { AvatarPath = controller.Request.ToAbsoluteUrl(summary.AvatarPath) };
+
+    // Reaproveita o overload de PostSummaryDto pra cada post da lista embutida.
+    public static ReportedProfileDetailDto WithAbsoluteAvatarUrl(this ControllerBase controller, ReportedProfileDetailDto detail) => detail with
+    {
+        AvatarPath = detail.AvatarPath is null ? null : controller.Request.ToAbsoluteUrl(detail.AvatarPath),
+        RecentPosts = detail.RecentPosts.Select(controller.WithAbsoluteAvatarUrl).ToList(),
+    };
 }

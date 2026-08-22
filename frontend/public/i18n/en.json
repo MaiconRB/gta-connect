@@ -141,6 +141,9 @@
     "postButton": "Post",
     "posting": "Posting...",
     "noPosts": "No posts yet. Be the first to share something!",
+    "noPostsFromConnections": "No posts from your connections yet.",
+    "filterAll": "All",
+    "filterConnections": "Connections",
     "deleteButton": "Delete",
     "loadMore": "Load more",
     "loadingMore": "Loading..."
@@ -185,6 +188,23 @@
       "ratingReceived": "{{name}} rated you",
       "postLiked": "{{name}} liked your post"
     }
+  },
+  "moderationReview": {
+    "title": "Moderation panel",
+    "backToProfile": "Back to profile",
+    "backToList": "Back to list",
+    "empty": "No reported players.",
+    "reportCount": "{{pending}} pending of {{total}} report(s)",
+    "bannedBadge": "Banned",
+    "banButton": "Ban",
+    "unbanButton": "Unban",
+    "reportsTitle": "Reports",
+    "reportedBy": "Reported by {{name}}",
+    "reviewedBadge": "Reviewed",
+    "markReviewedButton": "Mark as reviewed",
+    "recentPostsTitle": "Recent posts",
+    "noRecentPosts": "No recent posts.",
+    "deletePostButton": "Delete post"
   },
   "common": {
     "genericError": "Could not complete the operation. Please try again."

@@ -9,8 +9,8 @@ import { LikeToggleResult, Post } from './feed.models';
 export class FeedService {
   private readonly http = inject(HttpClient);
 
-  getFeed(page: number, pageSize: number): Observable<PagedResult<Post>> {
-    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+  getFeed(page: number, pageSize: number, onlyConnections = false): Observable<PagedResult<Post>> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize).set('onlyConnections', onlyConnections);
     return this.http.get<PagedResult<Post>>(`${environment.apiUrl}/feed`, { params });
   }
 
