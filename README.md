@@ -58,6 +58,16 @@ npx ng serve
 
 App em http://localhost:4200 (chamadas a `/api/*` são redirecionadas para a API via `proxy.conf.json`).
 
+### 4. Dados de teste (dev, opcional)
+
+Com a API rodando em `Development`, popula o banco com ~24 perfis de teste (tags de estilo/disponibilidade, região, bio e horas jogadas sorteadas — dá pra exercitar busca, score de compatibilidade e barra de completude sem criar dado manual):
+
+```bash
+curl -X POST http://localhost:5080/api/dev/seed
+```
+
+Idempotente (rodar de novo só completa o que falta, não duplica). Só funciona em `Development` — fora disso a rota devolve 404. Os e-mails seguem o padrão `seed.*@gtaconnect.local`, senha `Seed123!@#`, fácil de reconhecer/limpar do banco.
+
 ## Testes
 
 ```bash

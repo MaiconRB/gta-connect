@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using GtaConnect.Application.Features.Auth;
 using GtaConnect.Application.Features.Chat;
+using GtaConnect.Application.Features.DevSeed;
 using GtaConnect.Application.Features.Feed;
 using GtaConnect.Application.Features.Moderation;
 using GtaConnect.Application.Features.ModerationReview;
@@ -30,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IGameSessionService, GameSessionService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IModerationReviewService, ModerationReviewService>();
+        services.AddScoped<IDevSeedService, DevSeedService>();
 
         return services;
     }
