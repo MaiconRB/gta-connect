@@ -1,5 +1,11 @@
 namespace GtaConnect.Domain.Entities;
 
+// Rating agora é por SESSÃO (GameSessionId), não mais um upsert único por par —
+// é o que permite responder "terminou 12 de 12 sessões" em vez de só uma impressão
+// geral sobrescrita a cada nova avaliação. As flags de confiabilidade (completou,
+// sabia jogar, foi tóxico) existem ao lado da nota de 1-5, não no lugar dela — a nota
+// captura impressão geral, as flags capturam o sinal estruturado que alimenta o score
+// de compatibilidade e, mais tarde, o modelo de ML.
 public class Rating
 {
     private const int MinScore = 1;
@@ -7,6 +13,8 @@ public class Rating
     private const int MaxCommentLength = 500;
 
     public Guid Id { get; private set; }
+
+    public Guid GameSessionId { get; private set; }
 
     public Guid RaterProfileId { get; private set; }
 
@@ -16,6 +24,12 @@ public class Rating
 
     public string? Comment { get; private set; }
 
+    public bool CompletedSession { get; private set; }
+
+    public bool KnewWhatToDo { get; private set; }
+
+    public bool WasToxic { get; private set; }
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public DateTime? UpdatedAtUtc { get; private set; }
@@ -24,11 +38,19 @@ public class Rating
     {
     }
 
-    public static Rating Create(Guid raterProfileId, Guid ratedProfileId, int score, string? comment)
+    public static Rating Create(
+        Guid gameSessionId,
+        Guid raterProfileId,
+        Guid ratedProfileId,
+        int score,
+        string? comment,
+        bool completedSession,
+        bool knewWhatToDo,
+        bool wasToxic)
     {
-        if (raterProfileId == Guid.Empty || ratedProfileId == Guid.Empty)
+        if (gameSessionId == Guid.Empty || raterProfileId == Guid.Empty || ratedProfileId == Guid.Empty)
         {
-            throw new ArgumentException("Os perfis da avaliação não podem ser vazios.");
+            throw new ArgumentException("Sessão e perfis da avaliação não podem ser vazios.");
         }
 
         if (raterProfileId == ratedProfileId)
@@ -39,22 +61,23 @@ public class Rating
         var rating = new Rating
         {
             Id = Guid.NewGuid(),
+            GameSessionId = gameSessionId,
             RaterProfileId = raterProfileId,
             RatedProfileId = ratedProfileId,
             CreatedAtUtc = DateTime.UtcNow,
         };
 
-        rating.SetScoreAndComment(score, comment);
+        rating.SetFields(score, comment, completedSession, knewWhatToDo, wasToxic);
         return rating;
     }
 
-    public void Update(int score, string? comment)
+    public void Update(int score, string? comment, bool completedSession, bool knewWhatToDo, bool wasToxic)
     {
-        SetScoreAndComment(score, comment);
+        SetFields(score, comment, completedSession, knewWhatToDo, wasToxic);
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
-    private void SetScoreAndComment(int score, string? comment)
+    private void SetFields(int score, string? comment, bool completedSession, bool knewWhatToDo, bool wasToxic)
     {
         if (score is < MinScore or > MaxScore)
         {
@@ -69,5 +92,8 @@ public class Rating
 
         Score = score;
         Comment = trimmedComment;
+        CompletedSession = completedSession;
+        KnewWhatToDo = knewWhatToDo;
+        WasToxic = wasToxic;
     }
 }

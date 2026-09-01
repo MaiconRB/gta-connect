@@ -20,7 +20,15 @@ public class RatingsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Rate(RatingRequestDto request, CancellationToken cancellationToken)
     {
-        await _ratingService.RateAsync(User.GetUserId(), request.ProfileId, request.Score, request.Comment, cancellationToken);
+        await _ratingService.RateAsync(
+            User.GetUserId(),
+            request.GameSessionId,
+            request.Score,
+            request.Comment,
+            request.CompletedSession,
+            request.KnewWhatToDo,
+            request.WasToxic,
+            cancellationToken);
         return NoContent();
     }
 }

@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<IFeedRepository, FeedRepository>();
         services.AddScoped<IConnectionRepository, ConnectionRepository>();
         services.AddScoped<IRatingRepository, RatingRepository>();
+        services.AddScoped<IGameSessionRepository, GameSessionRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPhotoStorageService, LocalDiskPhotoStorageService>();

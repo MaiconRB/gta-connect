@@ -71,6 +71,8 @@ export class NotificationsPage {
         return ['/perfil'];
       case NotificationType.PostLiked:
         return ['/feed'];
+      case NotificationType.SessionLogged:
+        return ['/conexoes'];
     }
   }
 

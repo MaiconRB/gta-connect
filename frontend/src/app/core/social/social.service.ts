@@ -28,7 +28,27 @@ export class SocialService {
     return this.http.get<ConnectionStatusInfo>(`${environment.apiUrl}/connections/with/${profileId}`);
   }
 
-  rate(profileId: string, score: number, comment: string | null): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/ratings`, { profileId, score, comment });
+  /// Registra "jogamos juntos agora" pra uma conexão aceita. Devolve o id da sessão criada —
+  /// é ela que a avaliação (rate) referencia depois.
+  logSession(connectionId: string): Observable<string> {
+    return this.http.post<string>(`${environment.apiUrl}/game-sessions`, { connectionId });
+  }
+
+  rate(
+    gameSessionId: string,
+    score: number,
+    comment: string | null,
+    completedSession: boolean,
+    knewWhatToDo: boolean,
+    wasToxic: boolean,
+  ): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/ratings`, {
+      gameSessionId,
+      score,
+      comment,
+      completedSession,
+      knewWhatToDo,
+      wasToxic,
+    });
   }
 }

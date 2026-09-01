@@ -62,6 +62,9 @@
                   @case (NotificationType.PostLiked) {
                     <p class="text-sm text-neutral-200">{{ 'notifications.types.postLiked' | translate: { name: notification.actorDisplayName } }}</p>
                   }
+                  @case (NotificationType.SessionLogged) {
+                    <p class="text-sm text-neutral-200">{{ 'notifications.types.sessionLogged' | translate: { name: notification.actorDisplayName } }}</p>
+                  }
                 }
               </div>
 

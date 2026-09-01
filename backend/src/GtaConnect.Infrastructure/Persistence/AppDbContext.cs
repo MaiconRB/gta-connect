@@ -30,6 +30,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
     public DbSet<Rating> Ratings => Set<Rating>();
 
+    public DbSet<GameSession> GameSessions => Set<GameSession>();
+
     public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

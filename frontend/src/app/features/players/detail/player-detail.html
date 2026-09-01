@@ -107,41 +107,75 @@
           @switch (connectionStatus()?.status) {
             @case (ConnectionStatus.Accepted) {
               <div class="space-y-3">
-                <p class="text-sm text-neutral-300">{{ 'social.rateTitle' | translate }}</p>
-                <div class="flex gap-1">
-                  @for (star of ratingStars; track star) {
-                    <button
-                      type="button"
-                      (click)="setRatingScore(star)"
-                      class="text-2xl leading-none transition-colors"
-                      [class.text-amber-400]="star <= ratingScore()"
-                      [class.text-neutral-700]="star > ratingScore()"
-                    >
-                      ★
-                    </button>
-                  }
-                </div>
-                <textarea
-                  [ngModel]="ratingComment()"
-                  (ngModelChange)="ratingComment.set($event)"
-                  rows="2"
-                  [placeholder]="'social.commentPlaceholder' | translate"
-                  class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                ></textarea>
-                @if (ratingError()) {
-                  <p class="text-xs text-red-400">{{ ratingError() }}</p>
-                }
-                @if (ratingSent()) {
-                  <p class="text-xs text-neutral-400">{{ 'social.rateSuccess' | translate }}</p>
+                @if (logSessionError()) {
+                  <p class="text-xs text-red-400">{{ logSessionError() }}</p>
                 }
                 <button
                   type="button"
-                  (click)="submitRating()"
-                  [disabled]="isRating() || ratingScore() < 1"
-                  class="rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm px-4 py-2 transition-colors"
+                  (click)="logSession()"
+                  [disabled]="isLoggingSession()"
+                  class="rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-white text-sm px-4 py-2 transition-colors"
                 >
-                  {{ (isRating() ? 'social.rating' : 'social.rateSubmit') | translate }}
+                  {{ (isLoggingSession() ? 'social.loggingSession' : 'social.logSessionButton') | translate }}
                 </button>
+
+                @if (connectionStatus()?.latestSessionId) {
+                  <div class="space-y-3 pt-1">
+                    <p class="text-sm text-neutral-300">{{ 'social.rateTitle' | translate }}</p>
+                    <div class="flex gap-1">
+                      @for (star of ratingStars; track star) {
+                        <button
+                          type="button"
+                          (click)="setRatingScore(star)"
+                          class="text-2xl leading-none transition-colors"
+                          [class.text-amber-400]="star <= ratingScore()"
+                          [class.text-neutral-700]="star > ratingScore()"
+                        >
+                          ★
+                        </button>
+                      }
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 text-xs text-neutral-300">
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" [ngModel]="completedSession()" (ngModelChange)="completedSession.set($event)" />
+                        {{ 'social.completedSessionLabel' | translate }}
+                      </label>
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" [ngModel]="knewWhatToDo()" (ngModelChange)="knewWhatToDo.set($event)" />
+                        {{ 'social.knewWhatToDoLabel' | translate }}
+                      </label>
+                      <label class="flex items-center gap-2">
+                        <input type="checkbox" [ngModel]="wasToxic()" (ngModelChange)="wasToxic.set($event)" />
+                        {{ 'social.wasToxicLabel' | translate }}
+                      </label>
+                    </div>
+
+                    <textarea
+                      [ngModel]="ratingComment()"
+                      (ngModelChange)="ratingComment.set($event)"
+                      rows="2"
+                      [placeholder]="'social.commentPlaceholder' | translate"
+                      class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    ></textarea>
+                    @if (ratingError()) {
+                      <p class="text-xs text-red-400">{{ ratingError() }}</p>
+                    }
+                    @if (ratingSent()) {
+                      <p class="text-xs text-neutral-400">{{ 'social.rateSuccess' | translate }}</p>
+                    }
+                    <button
+                      type="button"
+                      (click)="submitRating()"
+                      [disabled]="isRating() || ratingScore() < 1"
+                      class="rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-medium text-sm px-4 py-2 transition-colors"
+                    >
+                      {{ (isRating() ? 'social.rating' : 'social.rateSubmit') | translate }}
+                    </button>
+                  </div>
+                } @else {
+                  <p class="text-xs text-neutral-500">{{ 'social.sessionRequiredHint' | translate }}</p>
+                }
               </div>
             }
             @case (ConnectionStatus.Pending) {

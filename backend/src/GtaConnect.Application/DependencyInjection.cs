@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IFeedService, FeedService>();
         services.AddScoped<IConnectionService, ConnectionService>();
         services.AddScoped<IRatingService, RatingService>();
+        services.AddScoped<IGameSessionService, GameSessionService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IModerationReviewService, ModerationReviewService>();
 

@@ -44,7 +44,13 @@ public class PlayerSearchService : IPlayerSearchService
         var blockedOrBlockingIds = await _blockRepository.GetBlockedOrBlockingProfileIdsAsync(myProfile.Id, cancellationToken);
         var excludedProfileIds = new HashSet<Guid>(blockedOrBlockingIds) { myProfile.Id };
 
-        var (items, totalCount) = await _playerProfileRepository.SearchAsync(clampedFilter, excludedProfileIds, cancellationToken);
+        var (items, totalCount) = await _playerProfileRepository.SearchAsync(
+            clampedFilter,
+            excludedProfileIds,
+            myProfile.PlaystyleTags,
+            myProfile.AvailabilityTags,
+            myProfile.Region,
+            cancellationToken);
 
         // Uma query só pros agregados de avaliação de todo mundo da página atual — evita N+1.
         var aggregates = await _ratingRepository.GetAggregatesAsync(items.Select(p => p.Id).ToList(), cancellationToken);
@@ -66,7 +72,7 @@ public class PlayerSearchService : IPlayerSearchService
         return ToSummaryDto(profile, aggregates);
     }
 
-    private PlayerSummaryDto ToSummaryDto(PlayerProfile profile, IReadOnlyDictionary<Guid, (double Average, int Count)> aggregates)
+    private PlayerSummaryDto ToSummaryDto(PlayerProfile profile, IReadOnlyDictionary<Guid, RatingAggregate> aggregates)
     {
         var hasAggregate = aggregates.TryGetValue(profile.Id, out var aggregate);
 

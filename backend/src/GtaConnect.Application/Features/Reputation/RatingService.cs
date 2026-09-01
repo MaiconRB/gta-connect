@@ -11,6 +11,7 @@ namespace GtaConnect.Application.Features.Reputation;
 public class RatingService : IRatingService
 {
     private readonly IRatingRepository _ratingRepository;
+    private readonly IGameSessionRepository _gameSessionRepository;
     private readonly IConnectionRepository _connectionRepository;
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
@@ -19,6 +20,7 @@ public class RatingService : IRatingService
 
     public RatingService(
         IRatingRepository ratingRepository,
+        IGameSessionRepository gameSessionRepository,
         IConnectionRepository connectionRepository,
         IPlayerProfileRepository playerProfileRepository,
         IBlockRepository blockRepository,
@@ -26,6 +28,7 @@ public class RatingService : IRatingService
         IStringLocalizer<SharedResource> localizer)
     {
         _ratingRepository = ratingRepository;
+        _gameSessionRepository = gameSessionRepository;
         _connectionRepository = connectionRepository;
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
@@ -33,7 +36,15 @@ public class RatingService : IRatingService
         _localizer = localizer;
     }
 
-    public async Task RateAsync(Guid userId, Guid targetProfileId, int score, string? comment, CancellationToken cancellationToken = default)
+    public async Task RateAsync(
+        Guid userId,
+        Guid gameSessionId,
+        int score,
+        string? comment,
+        bool completedSession,
+        bool knewWhatToDo,
+        bool wasToxic,
+        CancellationToken cancellationToken = default)
     {
         // Checagem AQUI, antes do domínio — ArgumentOutOfRangeException não é mapeada pelo
         // GlobalExceptionHandler (viraria 500), e nota fora do intervalo é um erro de
@@ -46,35 +57,40 @@ public class RatingService : IRatingService
         var myProfile = await _playerProfileRepository.GetByUserIdAsync(userId, cancellationToken)
             ?? throw new NotFoundException(nameof(PlayerProfile), userId);
 
-        var targetProfile = await _playerProfileRepository.GetByIdAsync(targetProfileId, cancellationToken)
-            ?? throw new NotFoundException(nameof(PlayerProfile), targetProfileId);
+        var gameSession = await _gameSessionRepository.GetByIdAsync(gameSessionId, cancellationToken)
+            ?? throw new ValidationAppException("gameSessionId", _localizer["Rating_SessionRequired"]);
 
-        var connection = await _connectionRepository.FindBetweenAsync(myProfile.Id, targetProfile.Id, cancellationToken);
-        if (connection is null || connection.Status != ConnectionStatus.Accepted)
+        var connection = await _connectionRepository.GetByIdAsync(gameSession.ConnectionId, cancellationToken)
+            ?? throw new ValidationAppException("gameSessionId", _localizer["Rating_SessionRequired"]);
+
+        // Só quem participou da sessão (ou seja, é parte da Connection dela) pode avaliar.
+        if (!connection.HasParticipant(myProfile.Id))
         {
-            throw new ValidationAppException("profileId", _localizer["Rating_ConnectionRequired"]);
+            throw new ValidationAppException("gameSessionId", _localizer["Rating_SessionRequired"]);
         }
+
+        var ratedProfileId = connection.GetOtherParticipantId(myProfile.Id);
 
         // Defesa em profundidade — na prática, dificilmente dá pra ficar bloqueado com
         // quem se tem uma conexão aceita, mas a checagem mantém a mesma consistência
         // já aplicada em busca/chat/feed.
-        if (await _blockRepository.ExistsEitherDirectionAsync(myProfile.Id, targetProfile.Id, cancellationToken))
+        if (await _blockRepository.ExistsEitherDirectionAsync(myProfile.Id, ratedProfileId, cancellationToken))
         {
             throw new ValidationAppException("profileId", _localizer["Connection_Blocked"]);
         }
 
-        var existingRating = await _ratingRepository.FindAsync(myProfile.Id, targetProfile.Id, cancellationToken);
+        var existingRating = await _ratingRepository.FindBySessionAsync(gameSessionId, myProfile.Id, ratedProfileId, cancellationToken);
         if (existingRating is null)
         {
-            var rating = Rating.Create(myProfile.Id, targetProfile.Id, score, comment);
+            var rating = Rating.Create(gameSessionId, myProfile.Id, ratedProfileId, score, comment, completedSession, knewWhatToDo, wasToxic);
             await _ratingRepository.AddAsync(rating, cancellationToken);
         }
         else
         {
-            existingRating.Update(score, comment);
+            existingRating.Update(score, comment, completedSession, knewWhatToDo, wasToxic);
             await _ratingRepository.UpdateAsync(existingRating, cancellationToken);
         }
 
-        await _notificationService.NotifyAsync(targetProfile.Id, myProfile.Id, NotificationType.RatingReceived, null, cancellationToken);
+        await _notificationService.NotifyAsync(ratedProfileId, myProfile.Id, NotificationType.RatingReceived, null, cancellationToken);
     }
 }

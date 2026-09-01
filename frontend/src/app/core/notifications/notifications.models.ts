@@ -3,6 +3,7 @@ export enum NotificationType {
   MessageReceived = 2,
   RatingReceived = 3,
   PostLiked = 4,
+  SessionLogged = 5,
 }
 
 export interface AppNotification {

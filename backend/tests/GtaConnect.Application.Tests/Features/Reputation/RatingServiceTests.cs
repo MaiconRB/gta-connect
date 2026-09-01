@@ -12,6 +12,7 @@ namespace GtaConnect.Application.Tests.Features.Reputation;
 public class RatingServiceTests
 {
     private readonly Mock<IRatingRepository> _ratingRepositoryMock = new();
+    private readonly Mock<IGameSessionRepository> _gameSessionRepositoryMock = new();
     private readonly Mock<IConnectionRepository> _connectionRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
@@ -26,6 +27,7 @@ public class RatingServiceTests
 
         _sut = new RatingService(
             _ratingRepositoryMock.Object,
+            _gameSessionRepositoryMock.Object,
             _connectionRepositoryMock.Object,
             _playerProfileRepositoryMock.Object,
             _blockRepositoryMock.Object,
@@ -43,37 +45,37 @@ public class RatingServiceTests
         return connection;
     }
 
-    [Fact]
-    public async Task RateAsync_SemConexaoAceita_LancaValidationAppException()
+    private void SetupSessionAndConnection(Guid gameSessionId, Connection connection)
     {
-        var userId = Guid.NewGuid();
-        var myProfile = CreateValidProfile(userId);
-        var targetProfile = CreateValidProfile(Guid.NewGuid(), "Alvo");
-
-        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(myProfile);
-        _playerProfileRepositoryMock.Setup(r => r.GetByIdAsync(targetProfile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(targetProfile);
-        _connectionRepositoryMock
-            .Setup(r => r.FindBetweenAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Connection?)null);
-
-        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, targetProfile.Id, 5, null));
+        var session = GameSession.Create(connection.Id, connection.RequesterProfileId);
+        _gameSessionRepositoryMock.Setup(r => r.GetByIdAsync(gameSessionId, It.IsAny<CancellationToken>())).ReturnsAsync(session);
+        _connectionRepositoryMock.Setup(r => r.GetByIdAsync(connection.Id, It.IsAny<CancellationToken>())).ReturnsAsync(connection);
     }
 
     [Fact]
-    public async Task RateAsync_ComConexaoPendente_LancaValidationAppException()
+    public async Task RateAsync_ComSessaoInexistente_LancaValidationAppException()
     {
         var userId = Guid.NewGuid();
         var myProfile = CreateValidProfile(userId);
-        var targetProfile = CreateValidProfile(Guid.NewGuid(), "Alvo");
-        var pendingConnection = Connection.Create(myProfile.Id, targetProfile.Id);
 
         _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(myProfile);
-        _playerProfileRepositoryMock.Setup(r => r.GetByIdAsync(targetProfile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(targetProfile);
-        _connectionRepositoryMock
-            .Setup(r => r.FindBetweenAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(pendingConnection);
+        _gameSessionRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((GameSession?)null);
 
-        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, targetProfile.Id, 5, null));
+        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, Guid.NewGuid(), 5, null, true, true, false));
+    }
+
+    [Fact]
+    public async Task RateAsync_ComSessaoDeConexaoQueNaoParticipo_LancaValidationAppException()
+    {
+        var userId = Guid.NewGuid();
+        var myProfile = CreateValidProfile(userId);
+        var connection = CreateAcceptedConnection(Guid.NewGuid(), Guid.NewGuid());
+        var gameSessionId = Guid.NewGuid();
+
+        _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(myProfile);
+        SetupSessionAndConnection(gameSessionId, connection);
+
+        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, gameSessionId, 5, null, true, true, false));
     }
 
     [Theory]
@@ -83,31 +85,29 @@ public class RatingServiceTests
     {
         var userId = Guid.NewGuid();
 
-        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, Guid.NewGuid(), invalidScore, null));
+        await Assert.ThrowsAsync<ValidationAppException>(() => _sut.RateAsync(userId, Guid.NewGuid(), invalidScore, null, true, true, false));
         _playerProfileRepositoryMock.Verify(r => r.GetByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task RateAsync_ComConexaoAceitaESemAvaliacaoExistente_CriaNovaAvaliacao()
+    public async Task RateAsync_ComSessaoValidaESemAvaliacaoExistente_CriaNovaAvaliacao()
     {
         var userId = Guid.NewGuid();
         var myProfile = CreateValidProfile(userId);
         var targetProfile = CreateValidProfile(Guid.NewGuid(), "Alvo");
         var connection = CreateAcceptedConnection(myProfile.Id, targetProfile.Id);
+        var gameSessionId = Guid.NewGuid();
 
         _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(myProfile);
-        _playerProfileRepositoryMock.Setup(r => r.GetByIdAsync(targetProfile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(targetProfile);
-        _connectionRepositoryMock
-            .Setup(r => r.FindBetweenAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(connection);
+        SetupSessionAndConnection(gameSessionId, connection);
         _ratingRepositoryMock
-            .Setup(r => r.FindAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
+            .Setup(r => r.FindBySessionAsync(gameSessionId, myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Rating?)null);
 
-        await _sut.RateAsync(userId, targetProfile.Id, 5, "Muito bom!");
+        await _sut.RateAsync(userId, gameSessionId, 5, "Muito bom!", true, true, false);
 
         _ratingRepositoryMock.Verify(
-            r => r.AddAsync(It.Is<Rating>(rt => rt.Score == 5 && rt.Comment == "Muito bom!"), It.IsAny<CancellationToken>()),
+            r => r.AddAsync(It.Is<Rating>(rt => rt.Score == 5 && rt.Comment == "Muito bom!" && rt.CompletedSession), It.IsAny<CancellationToken>()),
             Times.Once);
         _notificationServiceMock.Verify(
             n => n.NotifyAsync(targetProfile.Id, myProfile.Id, NotificationType.RatingReceived, null, It.IsAny<CancellationToken>()),
@@ -115,24 +115,22 @@ public class RatingServiceTests
     }
 
     [Fact]
-    public async Task RateAsync_ComAvaliacaoJaExistente_AtualizaEmVezDeDuplicar()
+    public async Task RateAsync_ComAvaliacaoJaExistenteParaAMesmaSessao_AtualizaEmVezDeDuplicar()
     {
         var userId = Guid.NewGuid();
         var myProfile = CreateValidProfile(userId);
         var targetProfile = CreateValidProfile(Guid.NewGuid(), "Alvo");
         var connection = CreateAcceptedConnection(myProfile.Id, targetProfile.Id);
-        var existingRating = Rating.Create(myProfile.Id, targetProfile.Id, 3, "ok");
+        var gameSessionId = Guid.NewGuid();
+        var existingRating = Rating.Create(gameSessionId, myProfile.Id, targetProfile.Id, 3, "ok", false, true, false);
 
         _playerProfileRepositoryMock.Setup(r => r.GetByUserIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(myProfile);
-        _playerProfileRepositoryMock.Setup(r => r.GetByIdAsync(targetProfile.Id, It.IsAny<CancellationToken>())).ReturnsAsync(targetProfile);
-        _connectionRepositoryMock
-            .Setup(r => r.FindBetweenAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(connection);
+        SetupSessionAndConnection(gameSessionId, connection);
         _ratingRepositoryMock
-            .Setup(r => r.FindAsync(myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
+            .Setup(r => r.FindBySessionAsync(gameSessionId, myProfile.Id, targetProfile.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingRating);
 
-        await _sut.RateAsync(userId, targetProfile.Id, 5, "Mudei de ideia, foi ótimo!");
+        await _sut.RateAsync(userId, gameSessionId, 5, "Mudei de ideia, foi ótimo!", true, true, false);
 
         Assert.Equal(5, existingRating.Score);
         _ratingRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Rating>(), It.IsAny<CancellationToken>()), Times.Never);

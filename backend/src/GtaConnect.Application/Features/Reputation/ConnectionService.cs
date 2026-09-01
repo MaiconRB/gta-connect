@@ -12,6 +12,7 @@ public class ConnectionService : IConnectionService
 {
     private readonly IConnectionRepository _connectionRepository;
     private readonly IRatingRepository _ratingRepository;
+    private readonly IGameSessionRepository _gameSessionRepository;
     private readonly IPlayerProfileRepository _playerProfileRepository;
     private readonly IBlockRepository _blockRepository;
     private readonly INotificationService _notificationService;
@@ -20,6 +21,7 @@ public class ConnectionService : IConnectionService
     public ConnectionService(
         IConnectionRepository connectionRepository,
         IRatingRepository ratingRepository,
+        IGameSessionRepository gameSessionRepository,
         IPlayerProfileRepository playerProfileRepository,
         IBlockRepository blockRepository,
         INotificationService notificationService,
@@ -27,6 +29,7 @@ public class ConnectionService : IConnectionService
     {
         _connectionRepository = connectionRepository;
         _ratingRepository = ratingRepository;
+        _gameSessionRepository = gameSessionRepository;
         _playerProfileRepository = playerProfileRepository;
         _blockRepository = blockRepository;
         _notificationService = notificationService;
@@ -91,15 +94,22 @@ public class ConnectionService : IConnectionService
         var myProfile = await GetProfileOrThrowAsync(userId, cancellationToken);
         var connection = await _connectionRepository.FindBetweenAsync(myProfile.Id, targetProfileId, cancellationToken);
 
-        var myRating = await _ratingRepository.FindAsync(myProfile.Id, targetProfileId, cancellationToken);
-        var myRatingScore = myRating?.Score;
-
         if (connection is null)
         {
-            return new ConnectionStatusDto(null, null, null, myRatingScore);
+            return new ConnectionStatusDto(null, null, null, null, null);
         }
 
-        return new ConnectionStatusDto(connection.Id, connection.Status, connection.RequesterProfileId == myProfile.Id, myRatingScore);
+        // "Minha nota" agora é sempre relativa à sessão mais recente da conexão — Rating é
+        // por sessão, então não existe mais "uma nota geral" sem uma sessão associada.
+        var latestSession = await _gameSessionRepository.GetLatestForConnectionAsync(connection.Id, cancellationToken);
+        int? myRatingScore = null;
+        if (latestSession is not null)
+        {
+            var myRating = await _ratingRepository.FindBySessionAsync(latestSession.Id, myProfile.Id, targetProfileId, cancellationToken);
+            myRatingScore = myRating?.Score;
+        }
+
+        return new ConnectionStatusDto(connection.Id, connection.Status, connection.RequesterProfileId == myProfile.Id, latestSession?.Id, myRatingScore);
     }
 
     private async Task<PlayerProfile> GetProfileOrThrowAsync(Guid userId, CancellationToken cancellationToken)

@@ -22,7 +22,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(new List<Guid>());
         _ratingRepositoryMock
             .Setup(r => r.GetAggregatesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, (double Average, int Count)>());
+            .ReturnsAsync(new Dictionary<Guid, RatingAggregate>());
 
         _sut = new PlayerSearchService(_playerProfileRepositoryMock.Object, _blockRepositoryMock.Object, _ratingRepositoryMock.Object, _presenceTrackerMock.Object);
     }
@@ -45,7 +45,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<PlaystyleTag>(), It.IsAny<AvailabilityTag>(), It.IsAny<Region?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile> { otherProfile }, 1));
 
         var result = await _sut.SearchAsync(userId, CreateFilter());
@@ -53,7 +53,7 @@ public class PlayerSearchServiceTests
         Assert.Single(result.Items);
         Assert.Equal(otherProfile.Id, result.Items[0].Id);
         _playerProfileRepositoryMock.Verify(
-            r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<CancellationToken>()),
+            r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id)), It.IsAny<PlaystyleTag>(), It.IsAny<AvailabilityTag>(), It.IsAny<Region?>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -73,7 +73,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(new List<Guid> { blockedProfileId });
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<PlaystyleTag>(), It.IsAny<AvailabilityTag>(), It.IsAny<Region?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile>(), 0));
 
         await _sut.SearchAsync(userId, CreateFilter());
@@ -82,6 +82,9 @@ public class PlayerSearchServiceTests
             r => r.SearchAsync(
                 It.IsAny<PlayerSearchFilterDto>(),
                 It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(myProfile.Id) && ids.Contains(blockedProfileId)),
+                It.IsAny<PlaystyleTag>(),
+                It.IsAny<AvailabilityTag>(),
+                It.IsAny<Region?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -112,7 +115,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<PlaystyleTag>(), It.IsAny<AvailabilityTag>(), It.IsAny<Region?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile>(), 0));
 
         var result = await _sut.SearchAsync(userId, CreateFilter(page: inputPage));
@@ -135,7 +138,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(myProfile);
 
         _playerProfileRepositoryMock
-            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.SearchAsync(It.IsAny<PlayerSearchFilterDto>(), It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<PlaystyleTag>(), It.IsAny<AvailabilityTag>(), It.IsAny<Region?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<PlayerProfile>(), 0));
 
         var result = await _sut.SearchAsync(userId, CreateFilter(pageSize: inputPageSize));
@@ -170,7 +173,7 @@ public class PlayerSearchServiceTests
             .ReturnsAsync(profile);
         _ratingRepositoryMock
             .Setup(r => r.GetAggregatesAsync(It.Is<IReadOnlyCollection<Guid>>(ids => ids.Contains(profile.Id)), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, (double Average, int Count)> { [profile.Id] = (4.5, 2) });
+            .ReturnsAsync(new Dictionary<Guid, RatingAggregate> { [profile.Id] = new RatingAggregate(4.5, 2, 1.0) });
 
         var result = await _sut.GetPlayerProfileAsync(profile.Id);
 

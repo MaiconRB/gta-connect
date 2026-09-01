@@ -57,8 +57,14 @@ export class PlayerDetail {
   protected readonly isConnectionActionPending = signal(false);
   protected readonly connectionError = signal<string | null>(null);
 
+  protected readonly isLoggingSession = signal(false);
+  protected readonly logSessionError = signal<string | null>(null);
+
   protected readonly ratingScore = signal(0);
   protected readonly ratingComment = signal('');
+  protected readonly completedSession = signal(true);
+  protected readonly knewWhatToDo = signal(true);
+  protected readonly wasToxic = signal(false);
   protected readonly isRating = signal(false);
   protected readonly ratingError = signal<string | null>(null);
   protected readonly ratingSent = signal(false);
@@ -198,8 +204,30 @@ export class PlayerDetail {
     this.ratingScore.set(score);
   }
 
+  protected logSession(): void {
+    const connectionId = this.connectionStatus()?.connectionId;
+    if (!connectionId) {
+      return;
+    }
+
+    this.isLoggingSession.set(true);
+    this.logSessionError.set(null);
+
+    this.socialService.logSession(connectionId).subscribe({
+      next: () => {
+        this.isLoggingSession.set(false);
+        this.loadConnectionStatus();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.logSessionError.set(extractErrorMessage(error));
+        this.isLoggingSession.set(false);
+      },
+    });
+  }
+
   protected submitRating(): void {
-    if (this.ratingScore() < 1) {
+    const gameSessionId = this.connectionStatus()?.latestSessionId;
+    if (!gameSessionId || this.ratingScore() < 1) {
       return;
     }
 
@@ -209,18 +237,20 @@ export class PlayerDetail {
 
     const comment = this.ratingComment().trim();
 
-    this.socialService.rate(this.playerId, this.ratingScore(), comment === '' ? null : comment).subscribe({
-      next: () => {
-        this.isRating.set(false);
-        this.ratingSent.set(true);
-        this.loadConnectionStatus();
-        this.loadPlayer(this.playerId);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.ratingError.set(extractErrorMessage(error));
-        this.isRating.set(false);
-      },
-    });
+    this.socialService
+      .rate(gameSessionId, this.ratingScore(), comment === '' ? null : comment, this.completedSession(), this.knewWhatToDo(), this.wasToxic())
+      .subscribe({
+        next: () => {
+          this.isRating.set(false);
+          this.ratingSent.set(true);
+          this.loadConnectionStatus();
+          this.loadPlayer(this.playerId);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.ratingError.set(extractErrorMessage(error));
+          this.isRating.set(false);
+        },
+      });
   }
 
   private loadConnectionStatus(): void {

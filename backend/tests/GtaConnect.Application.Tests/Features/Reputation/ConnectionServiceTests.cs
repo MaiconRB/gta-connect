@@ -13,6 +13,7 @@ public class ConnectionServiceTests
 {
     private readonly Mock<IConnectionRepository> _connectionRepositoryMock = new();
     private readonly Mock<IRatingRepository> _ratingRepositoryMock = new();
+    private readonly Mock<IGameSessionRepository> _gameSessionRepositoryMock = new();
     private readonly Mock<IPlayerProfileRepository> _playerProfileRepositoryMock = new();
     private readonly Mock<IBlockRepository> _blockRepositoryMock = new();
     private readonly Mock<INotificationService> _notificationServiceMock = new();
@@ -23,13 +24,14 @@ public class ConnectionServiceTests
         _blockRepositoryMock
             .Setup(r => r.ExistsEitherDirectionAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        _ratingRepositoryMock
-            .Setup(r => r.FindAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Rating?)null);
+        _gameSessionRepositoryMock
+            .Setup(r => r.GetLatestForConnectionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GameSession?)null);
 
         _sut = new ConnectionService(
             _connectionRepositoryMock.Object,
             _ratingRepositoryMock.Object,
+            _gameSessionRepositoryMock.Object,
             _playerProfileRepositoryMock.Object,
             _blockRepositoryMock.Object,
             _notificationServiceMock.Object,

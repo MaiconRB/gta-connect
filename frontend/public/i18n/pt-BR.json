@@ -102,7 +102,10 @@
     "pageIndicator": "Página {{page}}",
     "backToSearch": "Voltar para a busca",
     "sendMessage": "Mandar mensagem",
-    "onlineNow": "Online agora"
+    "onlineNow": "Online agora",
+    "suggestionsTitle": "Sugestões pra você",
+    "resultsTitle": "Resultados da busca",
+    "sharedInterests": "🎯 {{count}} em comum"
   },
   "chat": {
     "title": "Mensagens",
@@ -171,7 +174,13 @@
     "requestSentLabel": "Pedido de conexão enviado",
     "connectButton": "Conectar",
     "connecting": "Conectando...",
-    "rateTitle": "Já jogaram juntos? Avalie este jogador",
+    "logSessionButton": "Registrar sessão jogada",
+    "loggingSession": "Registrando...",
+    "sessionRequiredHint": "Registre uma sessão jogada pra poder avaliar este jogador.",
+    "rateTitle": "Avalie a última sessão jogada",
+    "completedSessionLabel": "Terminamos a sessão",
+    "knewWhatToDoLabel": "Sabia jogar",
+    "wasToxicLabel": "Foi tóxico",
     "rateSubmit": "Enviar avaliação",
     "rating": "Enviando...",
     "rateSuccess": "Avaliação enviada!",
@@ -187,7 +196,8 @@
       "connectionRequestReceived": "{{name}} quer se conectar com você",
       "messageReceived": "{{name}} te mandou uma mensagem",
       "ratingReceived": "{{name}} avaliou você",
-      "postLiked": "{{name}} curtiu seu post"
+      "postLiked": "{{name}} curtiu seu post",
+      "sessionLogged": "{{name}} registrou uma sessão jogada com você"
     }
   },
   "moderationReview": {
