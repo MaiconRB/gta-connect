@@ -6,23 +6,15 @@
 
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl flex flex-col" style="height: 70vh">
       <div class="flex items-center gap-3 p-4 border-b border-neutral-800 shrink-0">
-        @if (otherAvatarPath()) {
-          <img [src]="otherAvatarPath()" alt="" class="w-10 h-10 rounded-full object-cover border border-neutral-700" />
-        } @else {
-          <div class="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold">
-            {{ otherDisplayName().charAt(0).toUpperCase() }}
-          </div>
-        }
+        <app-player-avatar [src]="otherAvatarPath()" [displayName]="otherDisplayName()" size="sm" />
         <p class="font-display font-bold text-white">{{ otherDisplayName() }}</p>
       </div>
 
       <div class="flex-1 overflow-y-auto p-4 space-y-2">
         @if (isLoading()) {
-          <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+          <app-loading-text />
         } @else if (loadError()) {
-          <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
-            {{ loadError()! | translate }}
-          </div>
+          <app-error-message [message]="loadError()! | translate" />
         } @else {
           @if (hasMoreOlder()) {
             <button
@@ -57,9 +49,6 @@
       </div>
 
       <div class="p-4 border-t border-neutral-800 shrink-0">
-        @if (sendErrorMessage()) {
-          <p class="text-xs text-red-400 mb-2">{{ sendErrorMessage() }}</p>
-        }
         <form (ngSubmit)="send()" class="flex gap-2">
           <input
             type="text"

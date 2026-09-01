@@ -5,16 +5,21 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import { AppNotification, NotificationType } from '../../../core/notifications/notifications.models';
 import { NotificationsService } from '../../../core/notifications/notifications.service';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
+import { ToastService } from '../../../core/toast/toast.service';
 
 @Component({
   selector: 'app-notifications-page',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './notifications-page.html',
   styleUrl: './notifications-page.css',
 })
 export class NotificationsPage {
   private readonly notificationsService = inject(NotificationsService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   protected readonly NotificationType = NotificationType;
 
@@ -36,6 +41,7 @@ export class NotificationsPage {
           );
           this.notificationsService.notifyChanged();
         },
+        error: (error: HttpErrorResponse) => this.toast.error(extractErrorMessage(error)),
       });
     }
 
@@ -51,7 +57,7 @@ export class NotificationsPage {
         this.notificationsService.notifyChanged();
       },
       error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isMarkingAll.set(false);
       },
     });

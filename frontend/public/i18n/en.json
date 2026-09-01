@@ -131,6 +131,10 @@
     "blockedListTitle": "Blocked players",
     "noBlockedProfiles": "You haven't blocked any players yet.",
     "unblockButton": "Unblock",
+    "blockConfirmTitle": "Block this player?",
+    "blockConfirmMessage": "You'll both disappear from each other's search and conversations. You can unblock later.",
+    "unblockConfirmTitle": "Unblock this player?",
+    "unblockConfirmMessage": "You'll both show up in search again and can message each other.",
     "reportReasons": {
       "toxicidade": "Toxic behavior",
       "spam": "Spam",
@@ -142,6 +146,7 @@
     "title": "Feed",
     "composerPlaceholder": "Share something with the community...",
     "addPhoto": "Add photo",
+    "removePhoto": "Remove attached photo",
     "postButton": "Post",
     "posting": "Posting...",
     "noPosts": "No posts yet. Be the first to share something!",
@@ -149,6 +154,8 @@
     "filterAll": "All",
     "filterConnections": "Connections",
     "deleteButton": "Delete",
+    "deleteConfirmTitle": "Delete this post?",
+    "deleteConfirmMessage": "This action cannot be undone.",
     "loadMore": "Load more",
     "loadingMore": "Loading..."
   },
@@ -157,7 +164,9 @@
     "search": "Search",
     "feed": "Feed",
     "connections": "Connections",
-    "messages": "Messages"
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "moderation": "Moderation panel"
   },
   "social": {
     "title": "Connections",
@@ -209,6 +218,10 @@
     "bannedBadge": "Banned",
     "banButton": "Ban",
     "unbanButton": "Unban",
+    "banConfirmTitle": "Ban this player?",
+    "banConfirmMessage": "The account is locked out immediately and can no longer log in. You can unban later.",
+    "deletePostConfirmTitle": "Delete this post?",
+    "deletePostConfirmMessage": "This action cannot be undone.",
     "reportsTitle": "Reports",
     "reportedBy": "Reported by {{name}}",
     "reviewedBadge": "Reviewed",
@@ -218,7 +231,10 @@
     "deletePostButton": "Delete post"
   },
   "common": {
-    "genericError": "Could not complete the operation. Please try again."
+    "genericError": "Could not complete the operation. Please try again.",
+    "dismiss": "Dismiss",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   "languageSwitcher": {
     "label": "Language"

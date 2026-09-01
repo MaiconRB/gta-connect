@@ -19,13 +19,9 @@
     </div>
 
     @if (isLoading()) {
-      <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+      <app-loading-text />
     } @else {
-      @if (errorMessage()) {
-        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2 mb-6">
-          {{ errorMessage() }}
-        </div>
-      }
+      <app-error-message [message]="errorMessage()" class="mb-6" />
 
       @if (notifications().length === 0) {
         <p class="text-sm text-neutral-500">{{ 'notifications.empty' | translate }}</p>
@@ -40,13 +36,7 @@
                 (notification.isRead ? 'border-neutral-800' : 'border-amber-500/40')
               "
             >
-              @if (notification.actorAvatarPath) {
-                <img [src]="notification.actorAvatarPath" alt="" class="w-10 h-10 rounded-full object-cover border border-neutral-700 shrink-0" />
-              } @else {
-                <div class="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                  {{ notification.actorDisplayName.charAt(0).toUpperCase() }}
-                </div>
-              }
+              <app-player-avatar [src]="notification.actorAvatarPath" [displayName]="notification.actorDisplayName" size="sm" [lazy]="true" />
 
               <div class="min-w-0 flex-1">
                 @switch (notification.type) {

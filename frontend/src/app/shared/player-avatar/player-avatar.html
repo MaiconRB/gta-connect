@@ -1,0 +1,20 @@
+<div class="relative shrink-0" [class]="sizeClasses().wrapper">
+  @if (src()) {
+    <img
+      [src]="src()"
+      alt=""
+      [attr.loading]="lazy() ? 'lazy' : null"
+      class="w-full h-full rounded-full object-cover border border-neutral-700"
+    />
+  } @else {
+    <div
+      class="w-full h-full rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500"
+      [class]="sizeClasses().fallbackText"
+    >
+      {{ initial() }}
+    </div>
+  }
+  @if (online()) {
+    <span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-neutral-900"></span>
+  }
+</div>

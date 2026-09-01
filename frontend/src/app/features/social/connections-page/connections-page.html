@@ -7,13 +7,9 @@
     <h1 class="font-display text-2xl font-bold text-white mb-6">{{ 'social.title' | translate }}</h1>
 
     @if (isLoading()) {
-      <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+      <app-loading-text />
     } @else {
-      @if (errorMessage()) {
-        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2 mb-6">
-          {{ errorMessage() }}
-        </div>
-      }
+      <app-error-message [message]="errorMessage()" class="mb-6" />
 
       <section class="mb-8">
         <h2 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">{{ 'social.receivedTitle' | translate }}</h2>
@@ -23,13 +19,7 @@
           <div class="space-y-3">
             @for (connection of received(); track connection.connectionId) {
               <div class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-                @if (connection.otherAvatarPath) {
-                  <img [src]="connection.otherAvatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
-                } @else {
-                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                    {{ connection.otherDisplayName.charAt(0).toUpperCase() }}
-                  </div>
-                }
+                <app-player-avatar [src]="connection.otherAvatarPath" [displayName]="connection.otherDisplayName" size="md" [lazy]="true" />
                 <a [routerLink]="['/jogadores', connection.otherProfileId]" class="flex-1 text-white font-medium hover:text-amber-400 transition-colors">
                   {{ connection.otherDisplayName }}
                 </a>
@@ -65,13 +55,7 @@
           <div class="space-y-3">
             @for (connection of sent(); track connection.connectionId) {
               <div class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-                @if (connection.otherAvatarPath) {
-                  <img [src]="connection.otherAvatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
-                } @else {
-                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                    {{ connection.otherDisplayName.charAt(0).toUpperCase() }}
-                  </div>
-                }
+                <app-player-avatar [src]="connection.otherAvatarPath" [displayName]="connection.otherDisplayName" size="md" [lazy]="true" />
                 <a [routerLink]="['/jogadores', connection.otherProfileId]" class="flex-1 text-white font-medium hover:text-amber-400 transition-colors">
                   {{ connection.otherDisplayName }}
                 </a>
@@ -100,13 +84,7 @@
                 [routerLink]="['/jogadores', connection.otherProfileId]"
                 class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-amber-500/50 transition-colors"
               >
-                @if (connection.otherAvatarPath) {
-                  <img [src]="connection.otherAvatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700 shrink-0" />
-                } @else {
-                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                    {{ connection.otherDisplayName.charAt(0).toUpperCase() }}
-                  </div>
-                }
+                <app-player-avatar [src]="connection.otherAvatarPath" [displayName]="connection.otherDisplayName" size="md" [lazy]="true" />
                 <p class="flex-1 text-white font-medium">{{ connection.otherDisplayName }}</p>
               </a>
             }

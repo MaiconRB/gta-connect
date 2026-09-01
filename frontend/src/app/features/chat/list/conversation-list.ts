@@ -6,10 +6,13 @@ import { ChatHubService } from '../../../core/chat/chat-hub.service';
 import { ConversationSummary } from '../../../core/chat/chat.models';
 import { ChatService } from '../../../core/chat/chat.service';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-conversation-list',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './conversation-list.html',
   styleUrl: './conversation-list.css',
 })

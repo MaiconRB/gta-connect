@@ -5,10 +5,11 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, ErrorMessageComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

@@ -6,25 +6,12 @@
 
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
       @if (isLoading()) {
-        <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+        <app-loading-text />
       } @else if (loadError()) {
-        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
-          {{ loadError() }}
-        </div>
+        <app-error-message [message]="loadError()" />
       } @else if (player(); as p) {
         <div class="flex items-center gap-4 mb-6">
-          <div class="relative shrink-0">
-            @if (p.avatarPath) {
-              <img [src]="p.avatarPath" alt="" class="w-16 h-16 rounded-full object-cover border border-neutral-700" />
-            } @else {
-              <div class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 text-xl font-semibold">
-                {{ p.displayName.charAt(0).toUpperCase() }}
-              </div>
-            }
-            @if (p.isOnline) {
-              <span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-neutral-900"></span>
-            }
-          </div>
+          <app-player-avatar [src]="p.avatarPath" [displayName]="p.displayName" size="lg" [online]="p.isOnline" />
           <div class="flex-1">
             <h1 class="font-display text-xl font-bold text-white">{{ p.displayName }}</h1>
             <p class="text-sm text-neutral-400">
@@ -57,9 +44,10 @@
             <p class="text-neutral-500 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
             @if (activeTagLabels(p.playstyleTags).length > 0) {
               <div class="flex flex-wrap gap-1.5">
-                @for (labelKey of activeTagLabels(p.playstyleTags); track labelKey) {
-                  <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
-                    {{ labelKey | translate }}
+                @for (tag of activeTagLabels(p.playstyleTags); track tag.labelKey) {
+                  <span class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
+                    <app-icon [name]="tag.iconName" size="sm" />
+                    {{ tag.labelKey | translate }}
                   </span>
                 }
               </div>
@@ -100,16 +88,9 @@
         </div>
 
         <div class="mt-6 pt-4 border-t border-neutral-800">
-          @if (connectionError()) {
-            <p class="mb-2 text-xs text-red-400">{{ connectionError() }}</p>
-          }
-
           @switch (connectionStatus()?.status) {
             @case (ConnectionStatus.Accepted) {
               <div class="space-y-3">
-                @if (logSessionError()) {
-                  <p class="text-xs text-red-400">{{ logSessionError() }}</p>
-                }
                 <button
                   type="button"
                   (click)="logSession()"
@@ -129,7 +110,7 @@
                           (click)="setRatingScore(star)"
                           class="text-2xl leading-none transition-colors"
                           [class.text-amber-400]="star <= ratingScore()"
-                          [class.text-neutral-700]="star > ratingScore()"
+                          [class.text-neutral-500]="star > ratingScore()"
                         >
                           ★
                         </button>
@@ -158,9 +139,6 @@
                       [placeholder]="'social.commentPlaceholder' | translate"
                       class="w-full rounded-lg bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                     ></textarea>
-                    @if (ratingError()) {
-                      <p class="text-xs text-red-400">{{ ratingError() }}</p>
-                    }
                     @if (ratingSent()) {
                       <p class="text-xs text-neutral-400">{{ 'social.rateSuccess' | translate }}</p>
                     }
@@ -243,20 +221,12 @@
               </button>
             </div>
 
-            @if (blockError()) {
-              <p class="mt-2 text-xs text-red-400">{{ blockError() }}</p>
-            }
-
             @if (reportSent()) {
               <p class="mt-2 text-xs text-neutral-400">{{ 'moderation.reportSent' | translate }}</p>
             }
 
             @if (showReportForm()) {
               <div class="mt-3 space-y-2">
-                @if (reportError()) {
-                  <p class="text-xs text-red-400">{{ reportError() }}</p>
-                }
-
                 <select
                   [ngModel]="reportReason()"
                   (ngModelChange)="reportReason.set($event)"

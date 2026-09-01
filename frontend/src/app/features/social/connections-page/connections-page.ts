@@ -5,10 +5,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import { ConnectionStatus, ConnectionSummary } from '../../../core/social/social.models';
 import { SocialService } from '../../../core/social/social.service';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
 
 @Component({
   selector: 'app-connections-page',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './connections-page.html',
   styleUrl: './connections-page.css',
 })

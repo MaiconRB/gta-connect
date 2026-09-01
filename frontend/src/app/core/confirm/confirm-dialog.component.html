@@ -1,0 +1,23 @@
+<div class="w-full max-w-sm rounded-xl bg-neutral-900 border border-neutral-800 p-5 shadow-2xl" role="alertdialog" aria-modal="true">
+  <h2 class="font-display text-lg font-bold text-white mb-2">{{ data.title }}</h2>
+  <p class="text-sm text-neutral-300 mb-5">{{ data.message }}</p>
+  <div class="flex justify-end gap-2">
+    <button
+      type="button"
+      (click)="cancel()"
+      class="rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white text-sm px-4 py-2 transition-colors"
+    >
+      {{ data.cancelLabel }}
+    </button>
+    <button
+      type="button"
+      (click)="confirm()"
+      [class]="
+        'rounded-lg text-sm font-medium px-4 py-2 transition-colors ' +
+        (data.danger ? 'bg-red-500 hover:bg-red-400 text-neutral-950' : 'bg-amber-500 hover:bg-amber-400 text-neutral-950')
+      "
+    >
+      {{ data.confirmLabel }}
+    </button>
+  </div>
+</div>

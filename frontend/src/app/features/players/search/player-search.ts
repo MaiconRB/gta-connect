@@ -7,6 +7,7 @@ import { Platform } from '../../../core/auth/auth.models';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import {
   activeOptionLabels,
+  activePlaystyleTags,
   AVAILABILITY_TAG_OPTIONS,
   AvailabilityTag,
   PLAYSTYLE_TAG_OPTIONS,
@@ -17,6 +18,9 @@ import {
 import { PlayerSummary } from '../../../core/players/players.models';
 import { PlayersService } from '../../../core/players/players.service';
 import { ProfileService } from '../../../core/profile/profile.service';
+import { IconComponent, IconName } from '../../../shared/icon/icon';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
 
 const PAGE_SIZE = 20;
 const MAX_VISIBLE_BADGES = 3;
@@ -24,11 +28,12 @@ const MAX_VISIBLE_BADGES = 3;
 interface DisplayBadge {
   labelKey: string;
   variant: 'playstyle' | 'availability';
+  iconName?: IconName;
 }
 
 @Component({
   selector: 'app-player-search',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, IconComponent, PlayerAvatarComponent, ErrorMessageComponent],
   templateUrl: './player-search.html',
   styleUrl: './player-search.css',
 })
@@ -99,8 +104,8 @@ export class PlayerSearch {
     return count;
   }
 
-  protected activeTagLabels(playstyleTags: number): string[] {
-    return activeOptionLabels(playstyleTags, this.playstyleTagOptions);
+  protected activeTagLabels(playstyleTags: number) {
+    return activePlaystyleTags(playstyleTags);
   }
 
   protected activeAvailabilityLabels(availabilityTags: number): string[] {
@@ -119,7 +124,7 @@ export class PlayerSearch {
 
   private combinedBadges(player: PlayerSummary): DisplayBadge[] {
     return [
-      ...this.activeTagLabels(player.playstyleTags).map((labelKey) => ({ labelKey, variant: 'playstyle' as const })),
+      ...this.activeTagLabels(player.playstyleTags).map((tag) => ({ labelKey: tag.labelKey, variant: 'playstyle' as const, iconName: tag.iconName })),
       ...this.activeAvailabilityLabels(player.availabilityTags).map((labelKey) => ({ labelKey, variant: 'availability' as const })),
     ];
   }

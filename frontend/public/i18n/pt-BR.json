@@ -131,6 +131,10 @@
     "blockedListTitle": "Jogadores bloqueados",
     "noBlockedProfiles": "Você não bloqueou nenhum jogador ainda.",
     "unblockButton": "Desbloquear",
+    "blockConfirmTitle": "Bloquear jogador?",
+    "blockConfirmMessage": "Vocês deixam de aparecer um pro outro na busca e nas conversas. Dá pra desbloquear depois.",
+    "unblockConfirmTitle": "Desbloquear jogador?",
+    "unblockConfirmMessage": "Vocês voltam a aparecer um pro outro na busca e podem trocar mensagens de novo.",
     "reportReasons": {
       "toxicidade": "Toxicidade",
       "spam": "Spam",
@@ -142,6 +146,7 @@
     "title": "Feed",
     "composerPlaceholder": "Compartilhe algo com a comunidade...",
     "addPhoto": "Adicionar foto",
+    "removePhoto": "Remover foto anexada",
     "postButton": "Postar",
     "posting": "Postando...",
     "noPosts": "Nenhum post ainda. Seja o primeiro a compartilhar algo!",
@@ -149,6 +154,8 @@
     "filterAll": "Todos",
     "filterConnections": "Conexões",
     "deleteButton": "Apagar",
+    "deleteConfirmTitle": "Apagar post?",
+    "deleteConfirmMessage": "Essa ação não pode ser desfeita.",
     "loadMore": "Carregar mais",
     "loadingMore": "Carregando..."
   },
@@ -157,7 +164,9 @@
     "search": "Buscar",
     "feed": "Feed",
     "connections": "Conexões",
-    "messages": "Mensagens"
+    "messages": "Mensagens",
+    "notifications": "Notificações",
+    "moderation": "Painel de moderação"
   },
   "social": {
     "title": "Conexões",
@@ -209,6 +218,10 @@
     "bannedBadge": "Banido",
     "banButton": "Banir",
     "unbanButton": "Desbanir",
+    "banConfirmTitle": "Banir este jogador?",
+    "banConfirmMessage": "A conta fica bloqueada imediatamente e não consegue mais fazer login. Dá pra desbanir depois.",
+    "deletePostConfirmTitle": "Apagar este post?",
+    "deletePostConfirmMessage": "Essa ação não pode ser desfeita.",
     "reportsTitle": "Denúncias",
     "reportedBy": "Denunciado por {{name}}",
     "reviewedBadge": "Revisada",
@@ -218,7 +231,10 @@
     "deletePostButton": "Apagar post"
   },
   "common": {
-    "genericError": "Não foi possível completar a operação. Tente novamente."
+    "genericError": "Não foi possível completar a operação. Tente novamente.",
+    "dismiss": "Dispensar",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
   },
   "languageSwitcher": {
     "label": "Idioma"

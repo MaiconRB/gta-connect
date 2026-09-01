@@ -2,23 +2,31 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import { FeedService } from '../../../core/feed/feed.service';
 import { Post } from '../../../core/feed/feed.models';
 import { ProfileService } from '../../../core/profile/profile.service';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
+import { ToastService } from '../../../core/toast/toast.service';
+import { ConfirmDialogService } from '../../../core/confirm/confirm-dialog.service';
 
 const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-feed-page',
-  imports: [FormsModule, TranslatePipe, DatePipe],
+  imports: [FormsModule, TranslatePipe, DatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })
 export class FeedPage {
   private readonly feedService = inject(FeedService);
   private readonly profileService = inject(ProfileService);
+  private readonly toast = inject(ToastService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly translate = inject(TranslateService);
 
   private nextPage = 1;
   protected readonly myProfileId = signal<string | null>(null);
@@ -34,7 +42,6 @@ export class FeedPage {
   protected readonly selectedPhoto = signal<File | null>(null);
   protected readonly photoPreviewUrl = signal<string | null>(null);
   protected readonly isPosting = signal(false);
-  protected readonly postError = signal<string | null>(null);
 
   protected readonly togglingLikeId = signal<string | null>(null);
   protected readonly deletingId = signal<string | null>(null);
@@ -50,7 +57,6 @@ export class FeedPage {
   protected onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.postError.set(null);
 
     if (this.photoPreviewUrl()) {
       URL.revokeObjectURL(this.photoPreviewUrl()!);
@@ -82,7 +88,6 @@ export class FeedPage {
     }
 
     this.isPosting.set(true);
-    this.postError.set(null);
 
     this.feedService.createPost(content === '' ? null : content, photo).subscribe({
       next: (post) => {
@@ -92,7 +97,7 @@ export class FeedPage {
         this.isPosting.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        this.postError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isPosting.set(false);
       },
     });
@@ -107,20 +112,31 @@ export class FeedPage {
         );
         this.togglingLikeId.set(null);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
+        this.toast.error(extractErrorMessage(error));
         this.togglingLikeId.set(null);
       },
     });
   }
 
-  protected deletePost(post: Post): void {
+  protected async deletePost(post: Post): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.translate.instant('feed.deleteConfirmTitle'),
+      message: this.translate.instant('feed.deleteConfirmMessage'),
+      danger: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+
     this.deletingId.set(post.id);
     this.feedService.deletePost(post.id).subscribe({
       next: () => {
         this.posts.update((current) => current.filter((p) => p.id !== post.id));
         this.deletingId.set(null);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
+        this.toast.error(extractErrorMessage(error));
         this.deletingId.set(null);
       },
     });
@@ -136,7 +152,8 @@ export class FeedPage {
         this.hasMore.set(this.nextPage * PAGE_SIZE < result.totalCount);
         this.isLoadingMore.set(false);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
+        this.toast.error(extractErrorMessage(error));
         this.isLoadingMore.set(false);
       },
     });

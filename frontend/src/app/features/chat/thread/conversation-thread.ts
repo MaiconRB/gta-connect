@@ -6,12 +6,16 @@ import { ChatHubService } from '../../../core/chat/chat-hub.service';
 import { ChatMessage } from '../../../core/chat/chat.models';
 import { ChatService } from '../../../core/chat/chat.service';
 import { PlayersService } from '../../../core/players/players.service';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
+import { ToastService } from '../../../core/toast/toast.service';
 
 const PAGE_SIZE = 30;
 
 @Component({
   selector: 'app-conversation-thread',
-  imports: [FormsModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './conversation-thread.html',
   styleUrl: './conversation-thread.css',
 })
@@ -20,6 +24,7 @@ export class ConversationThread {
   private readonly chatService = inject(ChatService);
   private readonly chatHubService = inject(ChatHubService);
   private readonly playersService = inject(PlayersService);
+  private readonly toast = inject(ToastService);
 
   private nextPage = 1;
 
@@ -35,7 +40,6 @@ export class ConversationThread {
 
   protected readonly draft = signal('');
   protected readonly isSending = signal(false);
-  protected readonly sendErrorMessage = signal<string | null>(null);
 
   constructor() {
     const conversationIdParam = this.route.snapshot.paramMap.get('conversationId');
@@ -139,7 +143,6 @@ export class ConversationThread {
     }
 
     this.isSending.set(true);
-    this.sendErrorMessage.set(null);
 
     try {
       const sentMessage = await this.chatHubService.sendMessage(recipientId, content);
@@ -147,7 +150,7 @@ export class ConversationThread {
       this.appendMessage(sentMessage);
       this.draft.set('');
     } catch (error) {
-      this.sendErrorMessage.set(this.extractHubErrorMessage(error));
+      this.toast.error(this.extractHubErrorMessage(error));
     } finally {
       this.isSending.set(false);
     }

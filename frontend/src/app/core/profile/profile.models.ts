@@ -1,4 +1,5 @@
 import { GameTitle, Platform } from '../auth/auth.models';
+import { IconName } from '../../shared/icon/icon';
 
 // Espelha GtaConnect.Domain.Enums.PlaystyleTag ([Flags], bitmask). Os valores numéricos
 // precisam bater exatamente com o enum em C#.
@@ -13,15 +14,17 @@ export enum PlaystyleTag {
   NegociosEconomia = 1 << 7,
 }
 
-export const PLAYSTYLE_TAG_OPTIONS: { value: PlaystyleTag; labelKey: string }[] = [
-  { value: PlaystyleTag.MundoAbertoCalmo, labelKey: 'profile.playstyleTags.mundoAbertoCalmo' },
-  { value: PlaystyleTag.GrindDeHeist, labelKey: 'profile.playstyleTags.grindDeHeist' },
-  { value: PlaystyleTag.Corrida, labelKey: 'profile.playstyleTags.corrida' },
-  { value: PlaystyleTag.RolePlay, labelKey: 'profile.playstyleTags.rolePlay' },
-  { value: PlaystyleTag.FreemodeSocial, labelKey: 'profile.playstyleTags.freemodeSocial' },
-  { value: PlaystyleTag.CampanhaHistoria, labelKey: 'profile.playstyleTags.campanhaHistoria' },
-  { value: PlaystyleTag.PvpCompetitivo, labelKey: 'profile.playstyleTags.pvpCompetitivo' },
-  { value: PlaystyleTag.NegociosEconomia, labelKey: 'profile.playstyleTags.negociosEconomia' },
+// iconName é só apresentação (badge de estilo de jogo ganha um ícone temático ao lado do
+// texto) — não influencia filtro/busca/score, puramente visual.
+export const PLAYSTYLE_TAG_OPTIONS: { value: PlaystyleTag; labelKey: string; iconName: IconName }[] = [
+  { value: PlaystyleTag.MundoAbertoCalmo, labelKey: 'profile.playstyleTags.mundoAbertoCalmo', iconName: 'map' },
+  { value: PlaystyleTag.GrindDeHeist, labelKey: 'profile.playstyleTags.grindDeHeist', iconName: 'vault' },
+  { value: PlaystyleTag.Corrida, labelKey: 'profile.playstyleTags.corrida', iconName: 'car' },
+  { value: PlaystyleTag.RolePlay, labelKey: 'profile.playstyleTags.rolePlay', iconName: 'mask' },
+  { value: PlaystyleTag.FreemodeSocial, labelKey: 'profile.playstyleTags.freemodeSocial', iconName: 'users' },
+  { value: PlaystyleTag.CampanhaHistoria, labelKey: 'profile.playstyleTags.campanhaHistoria', iconName: 'map' },
+  { value: PlaystyleTag.PvpCompetitivo, labelKey: 'profile.playstyleTags.pvpCompetitivo', iconName: 'crosshair' },
+  { value: PlaystyleTag.NegociosEconomia, labelKey: 'profile.playstyleTags.negociosEconomia', iconName: 'briefcase' },
 ];
 
 // Espelha GtaConnect.Domain.Enums.Region (seleção única, não [Flags]).
@@ -86,5 +89,16 @@ export interface UpdateProfileRequest {
 // na busca de jogadores (mesmos grupos de tags em cards de resultado).
 export function activeOptionLabels<T extends number>(bitmask: number, options: { value: T; labelKey: string }[]): string[] {
   return options.filter((option) => (bitmask & option.value) !== 0).map((option) => option.labelKey);
+}
+
+export interface ActivePlaystyleTag {
+  labelKey: string;
+  iconName: IconName;
+}
+
+// Igual a activeOptionLabels, mas carrega o iconName junto — só PlaystyleTag ganha ícone
+// nos badges (ver plano da Fase 4), AvailabilityTag continua usando activeOptionLabels puro.
+export function activePlaystyleTags(playstyleTags: number): ActivePlaystyleTag[] {
+  return PLAYSTYLE_TAG_OPTIONS.filter((option) => (playstyleTags & option.value) !== 0).map(({ labelKey, iconName }) => ({ labelKey, iconName }));
 }
 

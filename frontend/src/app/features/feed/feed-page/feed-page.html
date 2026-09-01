@@ -27,12 +27,6 @@
     </div>
 
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 shadow-xl mb-6">
-      @if (postError()) {
-        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2 mb-3">
-          {{ postError() }}
-        </div>
-      }
-
       <textarea
         [ngModel]="draft()"
         (ngModelChange)="draft.set($event)"
@@ -47,6 +41,7 @@
           <button
             type="button"
             (click)="clearPhoto()"
+            [attr.aria-label]="'feed.removePhoto' | translate"
             class="absolute top-1 right-1 w-6 h-6 rounded-full bg-neutral-950/80 text-white text-xs flex items-center justify-center hover:bg-neutral-950"
           >
             ×
@@ -72,11 +67,9 @@
     </div>
 
     @if (isLoading()) {
-      <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+      <app-loading-text />
     } @else if (loadError()) {
-      <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
-        {{ loadError() }}
-      </div>
+      <app-error-message [message]="loadError()" />
     } @else if (posts().length === 0) {
       <p class="text-sm text-neutral-400">
         {{ (onlyConnections() ? 'feed.noPostsFromConnections' : 'feed.noPosts') | translate }}
@@ -86,13 +79,7 @@
         @for (post of posts(); track post.id) {
           <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
             <div class="flex items-center gap-3 mb-3">
-              @if (post.authorAvatarPath) {
-                <img [src]="post.authorAvatarPath" alt="" class="w-10 h-10 rounded-full object-cover border border-neutral-700 shrink-0" />
-              } @else {
-                <div class="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold shrink-0">
-                  {{ post.authorDisplayName.charAt(0).toUpperCase() }}
-                </div>
-              }
+              <app-player-avatar [src]="post.authorAvatarPath" [displayName]="post.authorDisplayName" size="sm" [lazy]="true" />
               <div class="flex-1 min-w-0">
                 <p class="text-white font-medium">{{ post.authorDisplayName }}</p>
                 <p class="text-xs text-neutral-500">{{ post.createdAtUtc | date: 'short' }}</p>
@@ -114,7 +101,7 @@
             }
 
             @if (post.photoPath) {
-              <img [src]="post.photoPath" alt="" class="w-full rounded-lg border border-neutral-800 mb-3" />
+              <img [src]="post.photoPath" alt="" loading="lazy" class="w-full rounded-lg border border-neutral-800 mb-3" />
             }
 
             <button

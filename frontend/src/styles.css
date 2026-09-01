@@ -19,6 +19,8 @@
   --color-amber-300: #ff9fe8;
   --color-amber-400: #ff6edb;
   --color-amber-500: #ff3ec9;
+  --color-amber-600: #ff7a33; /* laranja queimado — accent "quente" novo (vibe do gradiente cobalto/magenta/laranja
+                                  do Extended Look de GTA 6), sem copiar logo/fonte oficial (ver PROJETO.md §7) */
 }
 
 body {
@@ -41,5 +43,20 @@ body {
   background-color: var(--color-neutral-950);
   background-image:
     radial-gradient(ellipse 70% 45% at 50% -10%, rgb(255 62 201 / 14%), transparent),
-    radial-gradient(ellipse 55% 40% at 100% 100%, rgb(34 211 238 / 10%), transparent);
+    radial-gradient(ellipse 55% 40% at 100% 100%, rgb(34 211 238 / 10%), transparent),
+    radial-gradient(ellipse 50% 35% at 0% 100%, rgb(255 122 51 / 10%), transparent);
+}
+
+/* Foco visível pra todo link/botão via teclado — antes só inputs/textareas/selects tinham
+   focus:ring (Tailwind, por classe). Regra global em vez de editar classe por classe em
+   16 templates: garante que nenhum botão fica sem indicador de foco, incluindo os que
+   forem adicionados depois. :focus-visible (não :focus) — não aparece em clique de mouse. */
+a,
+button {
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-neutral-950),
+      0 0 0 4px var(--color-amber-500);
+  }
 }

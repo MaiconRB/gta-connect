@@ -2,12 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import { REPORT_REASON_OPTIONS, ReportReason } from '../../../core/moderation/moderation.models';
 import { ModerationService } from '../../../core/moderation/moderation.service';
 import {
   activeOptionLabels,
+  activePlaystyleTags,
   AVAILABILITY_TAG_OPTIONS,
   PLAYSTYLE_TAG_OPTIONS,
   Region,
@@ -17,10 +18,16 @@ import { PlayerSummary } from '../../../core/players/players.models';
 import { PlayersService } from '../../../core/players/players.service';
 import { ConnectionStatus, ConnectionStatusInfo } from '../../../core/social/social.models';
 import { SocialService } from '../../../core/social/social.service';
+import { IconComponent } from '../../../shared/icon/icon';
+import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
+import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
+import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
+import { ToastService } from '../../../core/toast/toast.service';
+import { ConfirmDialogService } from '../../../core/confirm/confirm-dialog.service';
 
 @Component({
   selector: 'app-player-detail',
-  imports: [RouterLink, TranslatePipe, FormsModule],
+  imports: [RouterLink, TranslatePipe, FormsModule, IconComponent, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
   templateUrl: './player-detail.html',
   styleUrl: './player-detail.css',
 })
@@ -29,6 +36,9 @@ export class PlayerDetail {
   private readonly playersService = inject(PlayersService);
   private readonly moderationService = inject(ModerationService);
   private readonly socialService = inject(SocialService);
+  private readonly toast = inject(ToastService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly ConnectionStatus = ConnectionStatus;
   protected readonly ratingStars = [1, 2, 3, 4, 5];
@@ -43,22 +53,18 @@ export class PlayerDetail {
   protected readonly loadError = signal<string | null>(null);
 
   protected readonly isBlocking = signal(false);
-  protected readonly blockError = signal<string | null>(null);
   protected readonly justBlocked = signal(false);
 
   protected readonly showReportForm = signal(false);
   protected readonly reportReason = signal<ReportReason>(ReportReason.Toxicidade);
   protected readonly reportDetails = signal('');
   protected readonly isReporting = signal(false);
-  protected readonly reportError = signal<string | null>(null);
   protected readonly reportSent = signal(false);
 
   protected readonly connectionStatus = signal<ConnectionStatusInfo | null>(null);
   protected readonly isConnectionActionPending = signal(false);
-  protected readonly connectionError = signal<string | null>(null);
 
   protected readonly isLoggingSession = signal(false);
-  protected readonly logSessionError = signal<string | null>(null);
 
   protected readonly ratingScore = signal(0);
   protected readonly ratingComment = signal('');
@@ -66,7 +72,6 @@ export class PlayerDetail {
   protected readonly knewWhatToDo = signal(true);
   protected readonly wasToxic = signal(false);
   protected readonly isRating = signal(false);
-  protected readonly ratingError = signal<string | null>(null);
   protected readonly ratingSent = signal(false);
 
   private playerId = '';
@@ -78,8 +83,8 @@ export class PlayerDetail {
     this.loadConnectionStatus();
   }
 
-  protected activeTagLabels(playstyleTags: number): string[] {
-    return activeOptionLabels(playstyleTags, this.playstyleTagOptions);
+  protected activeTagLabels(playstyleTags: number) {
+    return activePlaystyleTags(playstyleTags);
   }
 
   protected activeAvailabilityLabels(availabilityTags: number): string[] {
@@ -90,14 +95,22 @@ export class PlayerDetail {
     return this.regionOptions.find((option) => option.value === region)?.labelKey ?? null;
   }
 
-  protected block(): void {
+  protected async block(): Promise<void> {
     const playerId = this.player()?.id;
     if (!playerId) {
       return;
     }
 
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.translate.instant('moderation.blockConfirmTitle'),
+      message: this.translate.instant('moderation.blockConfirmMessage'),
+      danger: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+
     this.isBlocking.set(true);
-    this.blockError.set(null);
 
     this.moderationService.block(playerId).subscribe({
       next: () => {
@@ -105,7 +118,7 @@ export class PlayerDetail {
         this.justBlocked.set(true);
       },
       error: (error: HttpErrorResponse) => {
-        this.blockError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isBlocking.set(false);
       },
     });
@@ -114,7 +127,6 @@ export class PlayerDetail {
   protected toggleReportForm(): void {
     this.showReportForm.update((value) => !value);
     this.reportSent.set(false);
-    this.reportError.set(null);
   }
 
   protected submitReport(): void {
@@ -124,7 +136,6 @@ export class PlayerDetail {
     }
 
     this.isReporting.set(true);
-    this.reportError.set(null);
 
     const details = this.reportDetails().trim();
 
@@ -136,7 +147,7 @@ export class PlayerDetail {
         this.reportDetails.set('');
       },
       error: (error: HttpErrorResponse) => {
-        this.reportError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isReporting.set(false);
       },
     });
@@ -144,7 +155,6 @@ export class PlayerDetail {
 
   protected connect(): void {
     this.isConnectionActionPending.set(true);
-    this.connectionError.set(null);
 
     this.socialService.sendRequest(this.playerId).subscribe({
       next: () => {
@@ -152,7 +162,7 @@ export class PlayerDetail {
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
-        this.connectionError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isConnectionActionPending.set(false);
       },
     });
@@ -165,7 +175,6 @@ export class PlayerDetail {
     }
 
     this.isConnectionActionPending.set(true);
-    this.connectionError.set(null);
 
     this.socialService.accept(connectionId).subscribe({
       next: () => {
@@ -173,7 +182,7 @@ export class PlayerDetail {
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
-        this.connectionError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isConnectionActionPending.set(false);
       },
     });
@@ -186,7 +195,6 @@ export class PlayerDetail {
     }
 
     this.isConnectionActionPending.set(true);
-    this.connectionError.set(null);
 
     this.socialService.decline(connectionId).subscribe({
       next: () => {
@@ -194,7 +202,7 @@ export class PlayerDetail {
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
-        this.connectionError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isConnectionActionPending.set(false);
       },
     });
@@ -211,7 +219,6 @@ export class PlayerDetail {
     }
 
     this.isLoggingSession.set(true);
-    this.logSessionError.set(null);
 
     this.socialService.logSession(connectionId).subscribe({
       next: () => {
@@ -219,7 +226,7 @@ export class PlayerDetail {
         this.loadConnectionStatus();
       },
       error: (error: HttpErrorResponse) => {
-        this.logSessionError.set(extractErrorMessage(error));
+        this.toast.error(extractErrorMessage(error));
         this.isLoggingSession.set(false);
       },
     });
@@ -232,7 +239,6 @@ export class PlayerDetail {
     }
 
     this.isRating.set(true);
-    this.ratingError.set(null);
     this.ratingSent.set(false);
 
     const comment = this.ratingComment().trim();
@@ -247,7 +253,7 @@ export class PlayerDetail {
           this.loadPlayer(this.playerId);
         },
         error: (error: HttpErrorResponse) => {
-          this.ratingError.set(extractErrorMessage(error));
+          this.toast.error(extractErrorMessage(error));
           this.isRating.set(false);
         },
       });

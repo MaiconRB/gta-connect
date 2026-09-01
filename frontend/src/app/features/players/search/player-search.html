@@ -43,6 +43,7 @@
                 (change)="toggleTag(option.value)"
                 class="rounded border-neutral-700 bg-neutral-800 text-amber-500 focus:ring-amber-500"
               />
+              <app-icon [name]="option.iconName" size="sm" class="text-neutral-500" />
               {{ option.labelKey | translate }}
             </label>
           }
@@ -75,11 +76,7 @@
       </button>
     </form>
 
-    @if (errorMessage()) {
-      <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2 mb-6">
-        {{ errorMessage() }}
-      </div>
-    }
+    <app-error-message [message]="errorMessage()" class="mb-6" />
 
     @if (hasSearched() && !isLoading()) {
       @if (results().length === 0) {
@@ -94,18 +91,7 @@
               [routerLink]="['/jogadores', player.id]"
               class="flex items-center gap-4 bg-neutral-900 border border-neutral-800 rounded-xl p-4 hover:border-amber-500/50 transition-colors"
             >
-              <div class="relative shrink-0">
-                @if (player.avatarPath) {
-                  <img [src]="player.avatarPath" alt="" class="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                } @else {
-                  <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 font-semibold">
-                    {{ player.displayName.charAt(0).toUpperCase() }}
-                  </div>
-                }
-                @if (player.isOnline) {
-                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400 border-2 border-neutral-900"></span>
-                }
-              </div>
+              <app-player-avatar [src]="player.avatarPath" [displayName]="player.displayName" size="md" [online]="player.isOnline" [lazy]="true" />
               <div class="min-w-0">
                 <p class="text-white font-medium">{{ player.displayName }}</p>
                 <p class="text-xs" [class]="sharesMyRegion(player) ? 'text-emerald-400' : 'text-neutral-500'">
@@ -122,10 +108,13 @@
                     <span
                       [class]="
                         badge.variant === 'playstyle'
-                          ? 'px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs'
-                          : 'px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs'
+                          ? 'flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs'
+                          : 'flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs'
                       "
                     >
+                      @if (badge.iconName) {
+                        <app-icon [name]="badge.iconName" size="sm" />
+                      }
                       {{ badge.labelKey | translate }}
                     </span>
                   }

@@ -7,10 +7,12 @@ import { ChatHubService } from './core/chat/chat-hub.service';
 import { LanguageService } from './core/i18n/language.service';
 import { NotificationsService } from './core/notifications/notifications.service';
 import { LanguageSwitcher } from './shared/language-switcher/language-switcher';
+import { IconComponent } from './shared/icon/icon';
+import { ToastContainerComponent } from './shared/toast-container/toast-container';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LanguageSwitcher, TranslatePipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LanguageSwitcher, TranslatePipe, IconComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

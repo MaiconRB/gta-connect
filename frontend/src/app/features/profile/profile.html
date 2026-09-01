@@ -3,25 +3,13 @@
     <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-xl">
 
       @if (isLoading()) {
-        <p class="text-sm text-neutral-400">{{ 'profile.loading' | translate }}</p>
+        <app-loading-text />
       } @else if (loadError()) {
-        <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
-          {{ loadError() }}
-        </div>
+        <app-error-message [message]="loadError()" />
       } @else if (profile(); as p) {
 
         <div class="flex items-center gap-4 mb-4">
-          @if (avatarPreviewUrl() || p.avatarPath) {
-            <img
-              [src]="avatarPreviewUrl() || p.avatarPath"
-              alt=""
-              class="w-16 h-16 rounded-full object-cover border border-neutral-700 shrink-0"
-            />
-          } @else {
-            <div class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500 text-xl font-semibold shrink-0">
-              {{ p.displayName.charAt(0).toUpperCase() }}
-            </div>
-          }
+          <app-player-avatar [src]="avatarPreviewUrl() || p.avatarPath" [displayName]="p.displayName" size="lg" />
           <div>
             <h1 class="font-display text-xl font-bold text-white">{{ p.displayName }}</h1>
             <p class="text-sm text-neutral-400">
@@ -45,9 +33,7 @@
               {{ (isUploadingAvatar() ? 'profile.avatarUploading' : 'profile.avatarUploadButton') | translate }}
             </button>
           }
-          @if (avatarError()) {
-            <p class="mt-1 text-xs text-red-400">{{ avatarError() }}</p>
-          }
+          <app-inline-error [message]="avatarError()" class="mt-1" />
         </div>
 
         @if (mode() === 'view') {
@@ -61,9 +47,10 @@
               <p class="text-neutral-500 mb-1">{{ 'profile.playstyleLabel' | translate }}</p>
               @if (activeTagLabels(p.playstyleTags).length > 0) {
                 <div class="flex flex-wrap gap-1.5">
-                  @for (labelKey of activeTagLabels(p.playstyleTags); track labelKey) {
-                    <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
-                      {{ labelKey | translate }}
+                  @for (tag of activeTagLabels(p.playstyleTags); track tag.labelKey) {
+                    <span class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs">
+                      <app-icon [name]="tag.iconName" size="sm" />
+                      {{ tag.labelKey | translate }}
                     </span>
                   }
                 </div>
@@ -112,11 +99,7 @@
           </button>
         } @else {
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-            @if (errorMessage()) {
-              <div class="rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm px-3 py-2">
-                {{ errorMessage() }}
-              </div>
-            }
+            <app-error-message [message]="errorMessage()" />
 
             <div>
               <label for="bio" class="block text-sm font-medium text-neutral-300 mb-1">{{ 'profile.bioLabel' | translate }}</label>
@@ -142,6 +125,7 @@
                       (change)="toggleTag(option.value)"
                       class="rounded border-neutral-700 bg-neutral-800 text-amber-500 focus:ring-amber-500"
                     />
+                    <app-icon [name]="option.iconName" size="sm" class="text-neutral-500" />
                     {{ option.labelKey | translate }}
                   </label>
                 }
