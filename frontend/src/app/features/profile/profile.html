@@ -37,6 +37,8 @@
         </div>
 
         @if (mode() === 'view') {
+          <app-profile-completion-bar [profile]="p" (edit)="startEdit()" />
+
           <div class="space-y-4 text-sm">
             <div>
               <p class="text-neutral-500 mb-1">{{ 'profile.bioLabel' | translate }}</p>

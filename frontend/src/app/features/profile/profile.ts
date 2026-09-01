@@ -22,10 +22,21 @@ import { PlayerAvatarComponent } from '../../shared/player-avatar/player-avatar'
 import { ErrorMessageComponent } from '../../shared/error-message/error-message';
 import { InlineErrorComponent } from '../../shared/inline-error/inline-error';
 import { LoadingTextComponent } from '../../shared/loading-text/loading-text';
+import { ProfileCompletionBarComponent } from './completion-bar/profile-completion-bar';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, TranslatePipe, RouterLink, IconComponent, PlayerAvatarComponent, ErrorMessageComponent, InlineErrorComponent, LoadingTextComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslatePipe,
+    RouterLink,
+    IconComponent,
+    PlayerAvatarComponent,
+    ErrorMessageComponent,
+    InlineErrorComponent,
+    LoadingTextComponent,
+    ProfileCompletionBarComponent,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

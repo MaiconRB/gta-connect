@@ -1,0 +1,19 @@
+@if (percentage() < 100) {
+  <div class="bg-neutral-900 border border-neutral-800 rounded-xl p-4 mb-6">
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-sm text-neutral-300">{{ 'profile.completionTitle' | translate: { percentage: percentage() } }}</p>
+      <span class="text-xs text-neutral-500">{{ percentage() }}%</span>
+    </div>
+    <div class="w-full h-2 rounded-full bg-neutral-800 overflow-hidden mb-3">
+      <div class="h-full rounded-full bg-amber-500 transition-all" [style.width.%]="percentage()"></div>
+    </div>
+    <p class="text-xs text-neutral-400 mb-3">{{ 'profile.completionSubtitle' | translate }}</p>
+    <button
+      type="button"
+      (click)="edit.emit()"
+      class="rounded-lg bg-amber-600 hover:bg-amber-500 text-neutral-950 font-medium text-xs px-3 py-1.5 transition-colors"
+    >
+      {{ 'profile.completionCta' | translate }}
+    </button>
+  </div>
+}
