@@ -101,6 +101,12 @@
           </button>
         } @else {
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+            @if (isOnboarding) {
+              <div class="rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm px-3 py-2">
+                {{ 'profile.onboardingIntro' | translate }}
+              </div>
+            }
+
             <app-error-message [message]="errorMessage()" />
 
             <div>

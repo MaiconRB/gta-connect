@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { extractErrorMessage } from '../../core/http/problem-details.util';
@@ -44,6 +44,7 @@ export class Profile {
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
   protected readonly playstyleTagOptions = PLAYSTYLE_TAG_OPTIONS;
@@ -65,6 +66,10 @@ export class Profile {
   protected readonly isUploadingAvatar = signal(false);
   protected readonly avatarError = signal<string | null>(null);
 
+  // Sinal puro de UI (query param), não regra de acesso — sobrevive a refresh, some
+  // sozinho ao trocar de rota, não precisa de guard/resolver.
+  protected readonly isOnboarding = this.route.snapshot.queryParamMap.get('onboarding') === '1';
+
   // region fica como string no form ('' = não informado) — mesmo tratamento de
   // bio/favoriteModes (string vazia vira null no submit), evita lidar com FormControl<Region | null>.
   protected readonly form = this.formBuilder.group({
@@ -84,6 +89,9 @@ export class Profile {
       next: (response) => {
         this.profile.set(response);
         this.isLoading.set(false);
+        if (this.isOnboarding) {
+          this.startEdit();
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.loadError.set(extractErrorMessage(error));

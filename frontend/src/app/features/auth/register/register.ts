@@ -45,7 +45,10 @@ export class Register {
       .register({ displayName, email, password, platform, gameTitle: GameTitle.GtaV })
       .subscribe({
         next: () => {
-          this.router.navigateByUrl('/perfil');
+          // Cadastro novo entra direto no fluxo de completar perfil (Profile abre em modo
+          // edit quando vê esse query param) — perfil nasce zerado, sem isso o usuário só
+          // acha o form de edição se clicar "Editar" por conta própria.
+          this.router.navigate(['/perfil'], { queryParams: { onboarding: '1' } });
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage.set(extractErrorMessage(error));

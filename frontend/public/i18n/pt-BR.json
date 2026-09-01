@@ -60,6 +60,7 @@
     "completionTitle": "Seu perfil está {{percentage}}% completo",
     "completionSubtitle": "Perfis completos aparecem primeiro na busca por compatibilidade.",
     "completionCta": "Completar perfil",
+    "onboardingIntro": "Bem-vindo! Quanto mais completo seu perfil, melhor encontramos jogadores com o seu estilo — preencha o que puder abaixo.",
     "avatarUploadButton": "Enviar foto",
     "avatarUploading": "Enviando...",
     "logout": "Sair",
