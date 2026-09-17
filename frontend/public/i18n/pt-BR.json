@@ -113,7 +113,8 @@
   },
   "chat": {
     "title": "Mensagens",
-    "noConversations": "Nenhuma conversa ainda. Busque jogadores e mande a primeira mensagem.",
+    "noConversationsTitle": "Nenhuma conversa ainda",
+    "noConversations": "Busque jogadores e mande a primeira mensagem pra começar.",
     "backToList": "Voltar para as mensagens",
     "noMessagesYet": "Nenhuma mensagem ainda. Diga oi!",
     "loadOlder": "Carregar mensagens anteriores",
@@ -180,7 +181,8 @@
     "acceptedTitle": "Suas conexões",
     "noReceived": "Nenhum pedido recebido.",
     "noSent": "Nenhum pedido enviado.",
-    "noAccepted": "Você ainda não tem conexões.",
+    "noAcceptedTitle": "Você ainda não tem conexões",
+    "noAccepted": "Conecte-se com outros jogadores pra jogar em grupo com confiança.",
     "acceptButton": "Aceitar",
     "declineButton": "Recusar",
     "cancelRequestButton": "Cancelar pedido",
@@ -238,7 +240,8 @@
     "genericError": "Não foi possível completar a operação. Tente novamente.",
     "dismiss": "Dispensar",
     "confirm": "Confirmar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "findPlayersCta": "Buscar jogadores"
   },
   "languageSwitcher": {
     "label": "Idioma"

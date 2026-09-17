@@ -1,4 +1,4 @@
-<div class="min-h-screen app-shell-bg px-4 py-12">
+<div class="page-shell app-shell-bg">
   <div class="w-full max-w-lg mx-auto">
     <a routerLink="/perfil" class="inline-block text-sm text-neutral-400 hover:text-neutral-300 mb-4">
       {{ 'social.backToProfile' | translate }}
@@ -76,7 +76,12 @@
       <section>
         <h2 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">{{ 'social.acceptedTitle' | translate }}</h2>
         @if (accepted().length === 0) {
-          <p class="text-sm text-neutral-500">{{ 'social.noAccepted' | translate }}</p>
+          <app-empty-state
+            titleKey="social.noAcceptedTitle"
+            messageKey="social.noAccepted"
+            ctaKey="common.findPlayersCta"
+            ctaLink="/jogadores"
+          />
         } @else {
           <div class="space-y-3">
             @for (connection of accepted(); track connection.connectionId) {

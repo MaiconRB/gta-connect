@@ -1,4 +1,4 @@
-<div class="min-h-screen app-shell-bg px-4 py-12">
+<div class="page-shell app-shell-bg">
   <div class="w-full max-w-2xl mx-auto">
     <h1 class="font-display text-2xl font-bold text-white mb-6">{{ 'chat.title' | translate }}</h1>
 
@@ -7,7 +7,12 @@
     } @else if (errorMessage()) {
       <app-error-message [message]="errorMessage()" />
     } @else if (conversations().length === 0) {
-      <p class="text-sm text-neutral-400">{{ 'chat.noConversations' | translate }}</p>
+      <app-empty-state
+        titleKey="chat.noConversationsTitle"
+        messageKey="chat.noConversations"
+        ctaKey="common.findPlayersCta"
+        ctaLink="/jogadores"
+      />
     } @else {
       <div class="space-y-3">
         @for (conversation of conversations(); track conversation.conversationId) {

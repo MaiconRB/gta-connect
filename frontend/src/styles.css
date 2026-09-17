@@ -27,6 +27,13 @@ body {
   background-color: var(--color-neutral-950);
 }
 
+/* Padding-top cobre o header fixo (nav + idioma). py-12 antigo deixava o H1
+   colado/atrás da barra em desktop. Bottom nav mobile continua no padding do body. */
+.page-shell {
+  min-height: 100vh;
+  padding: 5.5rem 1rem 3rem;
+}
+
 /* Reserva espaço pro bottom nav fixo (só existe abaixo de md) não cobrir o fim do
    conteúdo ao rolar até o final da página — aumenta a altura do documento em vez de
    mexer no padding de cada tela individualmente. Aplicado global (inofensivo em

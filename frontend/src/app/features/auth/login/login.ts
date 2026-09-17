@@ -37,7 +37,7 @@ export class Login {
 
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => {
-        this.router.navigateByUrl('/perfil');
+        this.router.navigateByUrl('/jogadores');
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage.set(extractErrorMessage(error));

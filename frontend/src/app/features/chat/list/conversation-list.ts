@@ -9,10 +9,11 @@ import { extractErrorMessage } from '../../../core/http/problem-details.util';
 import { PlayerAvatarComponent } from '../../../shared/player-avatar/player-avatar';
 import { ErrorMessageComponent } from '../../../shared/error-message/error-message';
 import { LoadingTextComponent } from '../../../shared/loading-text/loading-text';
+import { EmptyStateComponent } from '../../../shared/empty-state/empty-state';
 
 @Component({
   selector: 'app-conversation-list',
-  imports: [RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent],
+  imports: [RouterLink, TranslatePipe, PlayerAvatarComponent, ErrorMessageComponent, LoadingTextComponent, EmptyStateComponent],
   templateUrl: './conversation-list.html',
   styleUrl: './conversation-list.css',
 })

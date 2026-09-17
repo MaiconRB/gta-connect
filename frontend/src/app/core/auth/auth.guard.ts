@@ -10,6 +10,15 @@ export const authGuard: CanActivateFn = () => {
   return authService.isAuthenticated() ? true : router.parseUrl('/login');
 };
 
+// Login/registro não fazem sentido com sessão já aberta — manda pra busca,
+// que é a tela principal do produto depois de autenticar.
+export const guestGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.isAuthenticated() ? router.parseUrl('/jogadores') : true;
+};
+
 // A proteção real é no backend ([Authorize(Roles="Moderator")]) — este guard só evita
 // a tela piscar pra quem não tem acesso. Redireciona pro perfil (não pro login — já
 // está autenticado, só não é moderador).

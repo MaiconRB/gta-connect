@@ -1,15 +1,17 @@
 import { Routes } from '@angular/router';
-import { authGuard, moderatorGuard } from './core/auth/auth.guard';
+import { authGuard, guestGuard, moderatorGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  { path: '', pathMatch: 'full', redirectTo: 'jogadores' },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+    canActivate: [guestGuard],
   },
   {
     path: 'registrar',
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+    canActivate: [guestGuard],
   },
   {
     path: 'perfil',

@@ -1,0 +1,14 @@
+<div class="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-10 text-center">
+  <h2 class="font-display text-lg font-semibold text-white">{{ titleKey() | translate }}</h2>
+  <p class="mt-2 text-sm text-neutral-400 max-w-sm mx-auto">{{ messageKey() | translate }}</p>
+  @if (ctaKey(); as key) {
+    @if (ctaLink(); as link) {
+      <a
+        [routerLink]="link"
+        class="inline-flex mt-5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-medium text-sm px-4 py-2.5 transition-colors"
+      >
+        {{ key | translate }}
+      </a>
+    }
+  }
+</div>

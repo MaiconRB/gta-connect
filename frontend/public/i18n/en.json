@@ -113,7 +113,8 @@
   },
   "chat": {
     "title": "Messages",
-    "noConversations": "No conversations yet. Search for players and send the first message.",
+    "noConversationsTitle": "No conversations yet",
+    "noConversations": "Search for players and send the first message to get started.",
     "backToList": "Back to messages",
     "noMessagesYet": "No messages yet. Say hi!",
     "loadOlder": "Load earlier messages",
@@ -180,7 +181,8 @@
     "acceptedTitle": "Your connections",
     "noReceived": "No requests received.",
     "noSent": "No requests sent.",
-    "noAccepted": "You don't have any connections yet.",
+    "noAcceptedTitle": "You don't have any connections yet",
+    "noAccepted": "Connect with other players to team up with confidence.",
     "acceptButton": "Accept",
     "declineButton": "Decline",
     "cancelRequestButton": "Cancel request",
@@ -238,7 +240,8 @@
     "genericError": "Could not complete the operation. Please try again.",
     "dismiss": "Dismiss",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "findPlayersCta": "Search players"
   },
   "languageSwitcher": {
     "label": "Language"
